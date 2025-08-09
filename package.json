@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Never miss earnings again - A modern earnings tracking dashboard for technology stocks",
   "private": true,
-  "homepage": "https://github.com/your-username/tickrtime",
+  "homepage": "https://github.com/simonpeterhans/tickrtime",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/tickrtime.git"
+    "url": "git+https://github.com/simonpeterhans/tickrtime.git"
   },
   "keywords": [
     "earnings",
@@ -17,7 +17,7 @@
     "nextjs",
     "typescript"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "Simon Peterhans <simon@example.com>",
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
