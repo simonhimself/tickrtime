@@ -2,11 +2,12 @@
 const nextConfig = {
   // Enable experimental features for better performance
   experimental: {
-    // Enable Server Components optimization
-    serverComponentsExternalPackages: [],
     // Enable TypeScript plugin for better DX
     typedRoutes: true,
   },
+
+  // Server external packages (moved from experimental)
+  serverExternalPackages: [],
 
   // Enable strict mode for better development experience
   reactStrictMode: true,
@@ -53,14 +54,6 @@ const nextConfig = {
 
   // Cloudflare Pages compatibility
   output: 'standalone',
-  
-  // API route configuration
-  api: {
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
-    responseLimit: '8mb',
-  },
 
   // Environment variable validation
   env: {
