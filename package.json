@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Never miss earnings again - A modern earnings tracking dashboard for technology stocks",
   "private": true,
-  "homepage": "https://github.com/simonpeterhans/tickrtime",
+  "homepage": "https://github.com/simonhimself/tickrtime",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/simonpeterhans/tickrtime.git"
+    "url": "git+https://github.com/simonhimself/tickrtime.git"
   },
   "keywords": [
     "earnings",
