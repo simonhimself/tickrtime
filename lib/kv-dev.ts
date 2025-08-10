@@ -212,8 +212,14 @@ export async function getVerificationToken(kv: DevKV, token: string): Promise<st
     const data = await kv.get(KV_KEYS.VERIFICATION + token);
     if (!data) return null;
     
-    // The token is stored as a plain string (userId)
-    return data;
+    // Try to parse as JSON first (new format)
+    try {
+      const parsed = JSON.parse(data);
+      return parsed.value || parsed.userId || data;
+    } catch {
+      // If not JSON, return as plain string (old format)
+      return data;
+    }
   } catch (error) {
     console.error('Error getting verification token:', error);
     return null;
@@ -223,6 +229,7 @@ export async function getVerificationToken(kv: DevKV, token: string): Promise<st
 // Save verification token
 export async function saveVerificationToken(kv: DevKV, token: string, userId: string, expiresIn: number = 3600): Promise<boolean> {
   try {
+    // Store with expiration, which will wrap in JSON with expiresAt
     await kv.put(KV_KEYS.VERIFICATION + token, userId, { expirationTtl: expiresIn });
     return true;
   } catch (error) {
