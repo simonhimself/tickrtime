@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { WatchlistToggle } from "@/components/watchlist-toggle";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { cn } from "@/lib/utils";
+import { verifyToken } from "@/lib/auth";
 import type { HeaderProps, User as UserType, AuthResponse } from "@/types";
 
 export function Header({
@@ -24,9 +25,25 @@ export function Header({
   useEffect(() => {
     const token = localStorage.getItem("tickrtime-auth-token");
     if (token) {
-      // TODO: Validate token with backend
-      // For now, we'll just assume the user is logged in
-      setUser({ id: "temp", email: "user@example.com", emailVerified: true, createdAt: "", updatedAt: "" });
+      try {
+        // Validate token and extract user info
+        const userData = verifyToken(token);
+        if (userData) {
+          setUser({
+            id: userData.userId,
+            email: userData.email,
+            emailVerified: userData.emailVerified,
+            createdAt: new Date().toISOString(), // We don't store this in JWT
+            updatedAt: new Date().toISOString()
+          });
+        } else {
+          // Invalid token, remove it
+          localStorage.removeItem("tickrtime-auth-token");
+        }
+      } catch (error) {
+        console.error("Error validating token:", error);
+        localStorage.removeItem("tickrtime-auth-token");
+      }
     }
     setIsLoading(false);
   }, []);
