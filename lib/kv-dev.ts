@@ -1,7 +1,37 @@
 import type { KVUser, KVWatchlist } from './auth';
+import { promises as fs } from 'fs';
+import path from 'path';
 
-// In-memory storage for development
-const devStorage = new Map<string, string>();
+// File-based storage for development persistence
+const STORAGE_FILE = path.join(process.cwd(), '.dev-storage.json');
+
+// In-memory cache for performance
+let devStorageCache: Map<string, string> | null = null;
+
+// Load data from file
+async function loadStorage(): Promise<Map<string, string>> {
+  if (devStorageCache) return devStorageCache;
+  
+  try {
+    const data = await fs.readFile(STORAGE_FILE, 'utf-8');
+    const parsed = JSON.parse(data);
+    devStorageCache = new Map(Object.entries(parsed));
+  } catch (error) {
+    // File doesn't exist or is invalid, start with empty storage
+    devStorageCache = new Map();
+  }
+  return devStorageCache;
+}
+
+// Save data to file
+async function saveStorage(storage: Map<string, string>): Promise<void> {
+  try {
+    const data = Object.fromEntries(storage);
+    await fs.writeFile(STORAGE_FILE, JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.error('Error saving dev storage:', error);
+  }
+}
 
 // KV key prefixes for organization
 export const KV_KEYS = {
@@ -16,22 +46,23 @@ interface DevKV {
   get(key: string): Promise<string | null>;
   put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
   putBatch(entries: { key: string; value: string; expirationTtl?: number }[]): Promise<void>;
-  delete(key: string): Promise<void>;
-  delete(keys: string[]): Promise<void>;
+  delete(key: string | string[]): Promise<void>;
 }
 
 // Create development KV instance
 export function createDevKV(): DevKV {
   return {
     async get(key: string): Promise<string | null> {
-      const value = devStorage.get(key);
+      const storage = await loadStorage();
+      const value = storage.get(key);
       if (!value) return null;
       
       // Check if expired (for verification tokens)
       try {
         const parsed = JSON.parse(value);
         if (parsed.expiresAt && new Date(parsed.expiresAt) < new Date()) {
-          devStorage.delete(key);
+          storage.delete(key);
+          await saveStorage(storage);
           return null;
         }
         // Return the actual value, not the JSON string
@@ -42,28 +73,34 @@ export function createDevKV(): DevKV {
     },
 
     async put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void> {
+      const storage = await loadStorage();
       if (options?.expirationTtl) {
         const expiresAt = new Date(Date.now() + options.expirationTtl * 1000);
-        devStorage.set(key, JSON.stringify({ value, expiresAt }));
+        storage.set(key, JSON.stringify({ value, expiresAt }));
       } else {
-        devStorage.set(key, value);
+        storage.set(key, value);
       }
+      await saveStorage(storage);
     },
 
     async putBatch(entries: { key: string; value: string; expirationTtl?: number }[]): Promise<void> {
+      const storage = await loadStorage();
       for (const entry of entries) {
         await this.put(entry.key, entry.value, { expirationTtl: entry.expirationTtl });
       }
+      await saveStorage(storage);
     },
 
-    async delete(key: string): Promise<void> {
-      devStorage.delete(key);
-    },
-
-    async delete(keys: string[]): Promise<void> {
-      for (const key of keys) {
-        devStorage.delete(key);
+    async delete(key: string | string[]): Promise<void> {
+      const storage = await loadStorage();
+      if (Array.isArray(key)) {
+        for (const k of key) {
+          storage.delete(k);
+        }
+      } else {
+        storage.delete(key);
       }
+      await saveStorage(storage);
     }
   };
 }

@@ -115,3 +115,6 @@ temp/
 
 # Cache
 .cache/
+
+# Development storage
+.dev-storage.json
