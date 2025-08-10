@@ -202,17 +202,19 @@ export function EarningsDashboard() {
     }
   }, []);
 
-  const handleWatchlistToggle = useCallback((symbol: string) => {
+  const handleWatchlistToggle = useCallback(async (symbol: string) => {
     const wasInWatchlist = watchlist.isInWatchlist(symbol);
-    watchlist.toggleWatchlist(symbol);
+    const success = await watchlist.toggleWatchlist(symbol);
     
-    if (wasInWatchlist) {
-      toast.info(`${symbol} removed from watchlist`);
-    } else {
-      toast.success(`${symbol} added to watchlist`);
+    if (success) {
+      if (wasInWatchlist) {
+        toast.info(`${symbol} removed from watchlist`);
+      } else {
+        toast.success(`${symbol} added to watchlist`);
+      }
     }
     
-    return !wasInWatchlist;
+    return success;
   }, [watchlist]);
 
   const handleWatchlistClick = useCallback(() => {

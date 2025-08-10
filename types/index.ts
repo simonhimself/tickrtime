@@ -81,7 +81,7 @@ export interface ActionIcon {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   colorClass: string;
-  onClick: (symbol: string) => void;
+  onClick: (symbol: string) => void | Promise<void>;
 }
 
 // Navigation button configuration
@@ -116,7 +116,7 @@ export interface TableProps extends BaseComponentProps {
   error?: string | null;
   onRowAction?: (action: string, symbol: string) => void;
   watchlistedItems?: Set<string>;
-  onToggleWatchlist?: (symbol: string) => boolean;
+  onToggleWatchlist?: (symbol: string) => boolean | Promise<boolean>;
   sortState?: SortState;
   onSort?: (field: SortField) => void;
 }
@@ -140,15 +140,49 @@ export interface NavigationButtonsProps extends BaseComponentProps {
   loading?: boolean;
 }
 
+// Authentication types
+export interface User {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthRequest {
+  email: string;
+  password: string;
+}
+
+export interface SignupRequest extends AuthRequest {
+  confirmPassword: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  user?: User;
+  token?: string;
+}
+
+export interface WatchlistApiResponse {
+  success: boolean;
+  message: string;
+  watchlist?: WatchlistState;
+  tickers?: string[];
+}
+
 // Hook return types
 export interface UseWatchlistReturn {
   watchlist: WatchlistState;
-  addToWatchlist: (symbol: string) => void;
-  removeFromWatchlist: (symbol: string) => void;
+  addToWatchlist: (symbol: string) => Promise<boolean>;
+  removeFromWatchlist: (symbol: string) => Promise<boolean>;
   isInWatchlist: (symbol: string) => boolean;
-  toggleWatchlist: (symbol: string) => void;
+  toggleWatchlist: (symbol: string) => Promise<boolean>;
   getWatchedSymbols: () => string[];
   count: number;
+  loading: boolean;
+  error: string | null;
 }
 
 export interface UseTableSortReturn {

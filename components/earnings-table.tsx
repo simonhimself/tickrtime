@@ -50,9 +50,9 @@ export function EarningsTable({
       colorClass: watchlistedItems.has(symbol)
         ? "text-blue-600 dark:text-blue-400 fill-current"
         : "text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400",
-      onClick: (symbol: string) => {
+      onClick: async (symbol: string) => {
         if (onToggleWatchlist) {
-          onToggleWatchlist(symbol);
+          await onToggleWatchlist(symbol);
         }
       },
     },

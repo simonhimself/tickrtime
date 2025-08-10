@@ -1,0 +1,14 @@
+name = "tickrtime-dev"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# KV Namespace for development
+[[kv_namespaces]]
+binding = "TICKRTIME_KV"
+id = "4b47ed2ef3dc4557a2519d04bb0e3f3c"
+preview_id = "eb83c6584f3549fd96cab293ab30a0be"
+
+# Environment variables for development
+[vars]
+NODE_ENV = "development"
+JWT_SECRET = "dev-jwt-secret-key-change-in-production"
