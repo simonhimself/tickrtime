@@ -5,6 +5,24 @@ All notable changes to TickrTime will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-08-10
+
+### Added
+- 🛠️ **Local Development Configuration** - Added `wrangler.toml` with proper Node.js compatibility flags
+- 🚀 **Local Development Environment** - Enable local testing of Next.js app with Wrangler
+- 🔧 **Development Workflow** - Test changes locally before deployment
+
+### Fixed
+- 🐛 **Node.js Compatibility Error** - Fixed local development server startup issues
+- ⚡ **Local API Testing** - All API endpoints now work in local development environment
+- 🔄 **Environment Variable Loading** - Proper local environment variable configuration
+
+### Technical Improvements
+- **Wrangler Configuration**: Added `nodejs_compat` compatibility flag for Next.js support
+- **Local Development**: Configured local environment variable loading with `.env.local`
+- **Development Experience**: Real-time error tracking and debugging in local environment
+- **Consistent Environment**: Local development now matches production setup
+
 ## [1.2.0] - 2025-08-10
 
 ### Fixed
