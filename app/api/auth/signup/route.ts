@@ -8,6 +8,7 @@ import {
   kvUserToUser
 } from '@/lib/auth';
 import { saveUser, saveVerificationToken, createDevKV } from '@/lib/kv-dev';
+import { sendVerificationEmail } from '@/lib/email';
 import type { SignupRequest, AuthResponse } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -82,9 +83,18 @@ export async function POST(request: NextRequest) {
       await saveVerificationToken(kv, user.verificationToken, user.id, 24 * 3600); // 24 hours
     }
 
-    // TODO: Send verification email
-    // For now, we'll just log the verification token
-    console.log('Verification token:', user.verificationToken);
+    // Send verification email
+    if (user.verificationToken) {
+      const emailSent = await sendVerificationEmail({
+        email: user.email,
+        token: user.verificationToken,
+        userName: user.email.split('@')[0] // Use email prefix as username
+      });
+      
+      if (!emailSent) {
+        console.warn('Failed to send verification email, but user was created');
+      }
+    }
 
     // Generate JWT token
     const token = generateToken(kvUserToUser(user));

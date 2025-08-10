@@ -12,3 +12,5 @@ preview_id = "eb83c6584f3549fd96cab293ab30a0be"
 [vars]
 NODE_ENV = "development"
 JWT_SECRET = "dev-jwt-secret-key-change-in-production"
+RESEND_API_KEY = "your-resend-api-key-here"
+NEXT_PUBLIC_APP_URL = "http://localhost:3003"
