@@ -86,7 +86,12 @@ export function createDevKV(): DevKV {
     async putBatch(entries: { key: string; value: string; expirationTtl?: number }[]): Promise<void> {
       const storage = await loadStorage();
       for (const entry of entries) {
-        await this.put(entry.key, entry.value, { expirationTtl: entry.expirationTtl });
+        if (entry.expirationTtl) {
+          const expiresAt = new Date(Date.now() + entry.expirationTtl * 1000);
+          storage.set(entry.key, JSON.stringify({ value: entry.value, expiresAt }));
+        } else {
+          storage.set(entry.key, entry.value);
+        }
       }
       await saveStorage(storage);
     },
