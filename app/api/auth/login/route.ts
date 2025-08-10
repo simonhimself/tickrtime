@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
 import { 
   verifyPassword, 
   isValidEmail, 
@@ -6,6 +8,7 @@ import {
   kvUserToUser
 } from '@/lib/auth';
 import { getUserByEmail, createDevKV } from '@/lib/kv-dev';
+
 import type { AuthRequest, AuthResponse } from '@/types';
 
 export async function POST(request: NextRequest) {

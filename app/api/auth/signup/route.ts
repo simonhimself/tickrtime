@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
 import { 
   hashPassword, 
   isValidEmail, 
@@ -9,6 +11,7 @@ import {
 } from '@/lib/auth';
 import { saveUser, saveVerificationToken, createDevKV } from '@/lib/kv-dev';
 import { sendVerificationEmail } from '@/lib/email';
+
 import type { SignupRequest, AuthResponse } from '@/types';
 
 export async function POST(request: NextRequest) {

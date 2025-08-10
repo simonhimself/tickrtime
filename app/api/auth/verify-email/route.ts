@@ -1,6 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUserById, updateUser, createDevKV } from '@/lib/kv-dev';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
 import { generateToken, kvUserToUser } from '@/lib/auth';
+import { getUserById, updateUser, createDevKV } from '@/lib/kv-dev';
+
 import type { AuthResponse } from '@/types';
 
 export async function GET(request: NextRequest) {

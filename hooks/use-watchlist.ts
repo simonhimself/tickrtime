@@ -31,7 +31,7 @@ export function useWatchlist(): UseWatchlistReturn {
         lastUpdated: new Date().toISOString(),
       });
     }
-  }, [loadWatchlist]);
+  }, []); // Remove loadWatchlist dependency to avoid circular dependency
 
   // Listen for authentication state changes
   useEffect(() => {
@@ -53,7 +53,7 @@ export function useWatchlist(): UseWatchlistReturn {
     return () => {
       window.removeEventListener('authStateChanged', handleAuthChange as EventListener);
     };
-  }, [loadWatchlist]);
+  }, []); // Remove loadWatchlist dependency to avoid circular dependency
 
   // Load watchlist from API
   const loadWatchlist = useCallback(async () => {
