@@ -20,7 +20,9 @@ export async function GET(request: NextRequest) {
 
     // Get verification token
     const { getVerificationToken, deleteVerificationToken } = await import('@/lib/kv-dev');
+    console.log('Verifying token:', token);
     const userId = await getVerificationToken(kv, token);
+    console.log('Token lookup result:', userId);
     
     if (!userId) {
       return NextResponse.json<AuthResponse>({

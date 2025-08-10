@@ -142,6 +142,13 @@ export async function sendVerificationEmail(data: EmailVerificationData): Promis
     const result = await resend.emails.send(emailData);
     
     console.log('Verification email sent:', result);
+    
+    // Check if email was sent successfully
+    if (result.error) {
+      console.error('Resend error:', result.error);
+      return false;
+    }
+    
     return true;
   } catch (error) {
     console.error('Failed to send verification email:', error);

@@ -212,12 +212,8 @@ export async function getVerificationToken(kv: DevKV, token: string): Promise<st
     const data = await kv.get(KV_KEYS.VERIFICATION + token);
     if (!data) return null;
     
-    try {
-      const parsed = JSON.parse(data);
-      return parsed.value || data;
-    } catch {
-      return data;
-    }
+    // The token is stored as a plain string (userId)
+    return data;
   } catch (error) {
     console.error('Error getting verification token:', error);
     return null;
