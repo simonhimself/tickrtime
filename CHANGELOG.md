@@ -5,6 +5,19 @@ All notable changes to TickrTime will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-08-10
+
+### Fixed
+- 🔧 **Cloudflare Pages Deployment** - Fixed environment variable access in edge functions
+- 🌐 **Production Environment** - Successfully deployed to Cloudflare Pages production
+- ⚡ **API Functionality** - All API endpoints now working with proper environment variables
+- 🚀 **Live Deployment** - App now accessible at https://main.tickrtime.pages.dev
+
+### Technical Improvements
+- **Edge Function Compatibility** - Moved environment variable access inside function scope
+- **Production Environment Variables** - Properly configured for Cloudflare Pages
+- **Build Optimization** - Streamlined deployment process for Cloudflare Pages
+
 ## [1.0.0] - 2025-08-09
 
 ### Added
