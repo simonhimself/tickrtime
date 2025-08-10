@@ -3,13 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import techTickers from "@/data/tech_tickers.json";
 import type { EarningsResponse, EarningsData } from "@/types";
 
-const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 const FINNHUB_BASE_URL = "https://finnhub.io/api/v1";
 
 export const runtime = "edge"; // Cloudflare Pages Edge Runtime compatibility
 
 export async function GET(_req: NextRequest) {
   try {
+    const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
+    
     if (!FINNHUB_API_KEY) {
       console.error("[API] FINNHUB_API_KEY environment variable is not set");
       return NextResponse.json(
