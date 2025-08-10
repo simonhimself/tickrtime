@@ -16,7 +16,7 @@ export interface PasswordResetData {
 
 // Email verification template
 const createVerificationEmail = (data: EmailVerificationData) => ({
-  from: 'TickrTime <noreply@tickrtime.com>',
+  from: 'TickrTime <onboarding@resend.dev>',
   to: data.email,
   subject: 'Verify your TickrTime account',
   html: `
@@ -74,7 +74,7 @@ const createVerificationEmail = (data: EmailVerificationData) => ({
 
 // Password reset template
 const createPasswordResetEmail = (data: PasswordResetData) => ({
-  from: 'TickrTime <noreply@tickrtime.com>',
+  from: 'TickrTime <onboarding@resend.dev>',
   to: data.email,
   subject: 'Reset your TickrTime password',
   html: `
@@ -177,7 +177,7 @@ export async function testEmailService(email: string): Promise<boolean> {
     }
 
     const result = await resend.emails.send({
-      from: 'TickrTime <noreply@tickrtime.com>',
+      from: 'TickrTime <onboarding@resend.dev>',
       to: email,
       subject: 'TickrTime Email Service Test',
       html: `
