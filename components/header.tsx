@@ -51,12 +51,20 @@ export function Header({
   const handleAuthSuccess = (response: AuthResponse) => {
     if (response.user) {
       setUser(response.user);
+      // Dispatch custom event to notify other components about auth change
+      window.dispatchEvent(new CustomEvent('authStateChanged', { 
+        detail: { user: response.user, action: 'login' } 
+      }));
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("tickrtime-auth-token");
     setUser(null);
+    // Dispatch custom event to notify other components about auth change
+    window.dispatchEvent(new CustomEvent('authStateChanged', { 
+      detail: { user: null, action: 'logout' } 
+    }));
     // Reload the page to reset all state
     window.location.reload();
   };

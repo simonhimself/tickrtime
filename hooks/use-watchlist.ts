@@ -19,13 +19,41 @@ export function useWatchlist(): UseWatchlistReturn {
     return localStorage.getItem('tickrtime-auth-token');
   };
 
-  // Load watchlist from API on mount
+  // Load watchlist from API on mount and when auth token changes
   useEffect(() => {
     const token = getAuthToken();
     if (token) {
       loadWatchlist();
+    } else {
+      // Clear watchlist when no token
+      setWatchlist({
+        tickers: [],
+        lastUpdated: new Date().toISOString(),
+      });
     }
-  }, []);
+  }, [loadWatchlist]);
+
+  // Listen for authentication state changes
+  useEffect(() => {
+    const handleAuthChange = (event: CustomEvent) => {
+      if (event.detail.action === 'login') {
+        // User logged in, reload watchlist
+        loadWatchlist();
+      } else if (event.detail.action === 'logout') {
+        // User logged out, clear watchlist
+        setWatchlist({
+          tickers: [],
+          lastUpdated: new Date().toISOString(),
+        });
+      }
+    };
+
+    window.addEventListener('authStateChanged', handleAuthChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthChange as EventListener);
+    };
+  }, [loadWatchlist]);
 
   // Load watchlist from API
   const loadWatchlist = useCallback(async () => {
