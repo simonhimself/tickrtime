@@ -209,7 +209,9 @@ export async function removeTickerFromWatchlist(kv: DevKV, userId: string, symbo
 // Get verification token
 export async function getVerificationToken(kv: DevKV, token: string): Promise<string | null> {
   try {
+    console.log('Looking up verification token:', token);
     const data = await kv.get(KV_KEYS.VERIFICATION + token);
+    console.log('Raw token data from KV:', data);
     if (!data) return null;
     
     // Try to parse as JSON first (new format)
@@ -232,8 +234,10 @@ export async function getVerificationToken(kv: DevKV, token: string): Promise<st
 // Save verification token
 export async function saveVerificationToken(kv: DevKV, token: string, userId: string, expiresIn: number = 3600): Promise<boolean> {
   try {
+    console.log('Saving verification token:', { token, userId, expiresIn });
     // Store with expiration, which will wrap in JSON with expiresAt
     await kv.put(KV_KEYS.VERIFICATION + token, userId, { expirationTtl: expiresIn });
+    console.log('Verification token saved successfully');
     return true;
   } catch (error) {
     console.error('Error saving verification token:', error);
