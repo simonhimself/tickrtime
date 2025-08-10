@@ -215,9 +215,12 @@ export async function getVerificationToken(kv: DevKV, token: string): Promise<st
     // Try to parse as JSON first (new format)
     try {
       const parsed = JSON.parse(data);
-      return parsed.value || parsed.userId || data;
+      const userId = parsed.value || parsed.userId;
+      console.log('Parsed token data:', { parsed, userId });
+      return userId || data;
     } catch {
       // If not JSON, return as plain string (old format)
+      console.log('Token data is plain string:', data);
       return data;
     }
   } catch (error) {

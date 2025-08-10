@@ -32,7 +32,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user
+    console.log('Looking up user with ID:', userId);
     const user = await getUserById(kv, userId);
+    console.log('User lookup result:', user ? 'Found' : 'Not found');
     if (!user) {
       return NextResponse.json<AuthResponse>({
         success: false,
