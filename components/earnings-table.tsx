@@ -187,7 +187,7 @@ export function EarningsTable({
         </header>
 
         {/* Table Body */}
-        <div className="divide-y divide-border" role="table">
+        <div role="table">
           {sortedData.map((earning) => {
             const dateInfo = earning.date ? formatRelativeDate(earning.date) : null;
             
@@ -198,7 +198,7 @@ export function EarningsTable({
                   if (el) rowRefs.current[earning.symbol] = el;
                 }}
                 className={cn(
-                  "grid grid-cols-6 gap-4 px-6 py-4 transition-all duration-200 cursor-pointer relative table-row-hover",
+                  "grid grid-cols-6 gap-4 px-6 py-4 transition-all duration-200 cursor-pointer relative table-row-hover border-b border-border",
                   hoveredRow === earning.symbol
                     ? "bg-blue-50 dark:bg-blue-950/50 shadow-md transform translate-x-1"
                     : "hover:bg-accent/50"
