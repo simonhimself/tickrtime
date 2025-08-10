@@ -34,7 +34,8 @@ export function createDevKV(): DevKV {
           devStorage.delete(key);
           return null;
         }
-        return typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+        // Return the actual value, not the JSON string
+        return parsed.value || value;
       } catch {
         return value;
       }
