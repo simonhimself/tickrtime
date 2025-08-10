@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserById, updateUser } from '@/lib/kv';
+import { getUserById, updateUser, createDevKV } from '@/lib/kv-dev';
 import { generateToken, kvUserToUser } from '@/lib/auth';
 import type { AuthResponse } from '@/types';
 
@@ -15,17 +15,11 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace
-    const kv = (request as any).env?.TICKRTIME_KV;
-    if (!kv) {
-      return NextResponse.json<AuthResponse>({
-        success: false,
-        message: 'Database not available'
-      }, { status: 500 });
-    }
+    // Get KV namespace (use development KV for now)
+    const kv = createDevKV();
 
     // Get verification token
-    const { getVerificationToken, deleteVerificationToken } = await import('@/lib/kv');
+    const { getVerificationToken, deleteVerificationToken } = await import('@/lib/kv-dev');
     const userId = await getVerificationToken(kv, token);
     
     if (!userId) {

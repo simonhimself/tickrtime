@@ -5,7 +5,7 @@ import {
   generateToken,
   kvUserToUser
 } from '@/lib/auth';
-import { getUserByEmail } from '@/lib/kv';
+import { getUserByEmail, createDevKV } from '@/lib/kv-dev';
 import type { AuthRequest, AuthResponse } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -29,14 +29,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace
-    const kv = (request as any).env?.TICKRTIME_KV;
-    if (!kv) {
-      return NextResponse.json<AuthResponse>({
-        success: false,
-        message: 'Database not available'
-      }, { status: 500 });
-    }
+    // Get KV namespace (use development KV for now)
+    const kv = createDevKV();
 
     // Get user by email
     const user = await getUserByEmail(kv, email);

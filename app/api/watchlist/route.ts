@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
-import { getWatchlist, addTickerToWatchlist, removeTickerFromWatchlist } from '@/lib/kv';
+import { getWatchlist, addTickerToWatchlist, removeTickerFromWatchlist, createDevKV } from '@/lib/kv-dev';
 import type { WatchlistApiResponse } from '@/types';
 
 // Helper function to get user from token
@@ -25,14 +25,8 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Get KV namespace
-    const kv = (request as any).env?.TICKRTIME_KV;
-    if (!kv) {
-      return NextResponse.json<WatchlistApiResponse>({
-        success: false,
-        message: 'Database not available'
-      }, { status: 500 });
-    }
+    // Get KV namespace (use development KV for now)
+    const kv = createDevKV();
 
     // Get watchlist
     const watchlist = await getWatchlist(kv, user.userId);
@@ -77,14 +71,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace
-    const kv = (request as any).env?.TICKRTIME_KV;
-    if (!kv) {
-      return NextResponse.json<WatchlistApiResponse>({
-        success: false,
-        message: 'Database not available'
-      }, { status: 500 });
-    }
+    // Get KV namespace (use development KV for now)
+    const kv = createDevKV();
 
     // Add ticker to watchlist
     const success = await addTickerToWatchlist(kv, user.userId, symbol);
@@ -138,14 +126,8 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace
-    const kv = (request as any).env?.TICKRTIME_KV;
-    if (!kv) {
-      return NextResponse.json<WatchlistApiResponse>({
-        success: false,
-        message: 'Database not available'
-      }, { status: 500 });
-    }
+    // Get KV namespace (use development KV for now)
+    const kv = createDevKV();
 
     // Remove ticker from watchlist
     const success = await removeTickerFromWatchlist(kv, user.userId, symbol);

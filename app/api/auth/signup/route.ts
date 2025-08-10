@@ -7,7 +7,7 @@ import {
   generateToken,
   kvUserToUser
 } from '@/lib/auth';
-import { saveUser, saveVerificationToken } from '@/lib/kv';
+import { saveUser, saveVerificationToken, createDevKV } from '@/lib/kv-dev';
 import type { SignupRequest, AuthResponse } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -48,17 +48,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace
-    const kv = (request as any).env?.TICKRTIME_KV;
-    if (!kv) {
-      return NextResponse.json<AuthResponse>({
-        success: false,
-        message: 'Database not available'
-      }, { status: 500 });
-    }
+    // Get KV namespace (use development KV for now)
+    const kv = createDevKV();
 
     // Check if user already exists
-    const existingUser = await import('@/lib/kv').then(m => m.getUserByEmail(kv, email));
+    const existingUser = await import('@/lib/kv-dev').then(m => m.getUserByEmail(kv, email));
     if (existingUser) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -73,7 +67,9 @@ export async function POST(request: NextRequest) {
     const user = createUser(email, passwordHash);
 
     // Save user to KV
+    console.log('Attempting to save user:', user.id, user.email);
     const saved = await saveUser(kv, user);
+    console.log('Save result:', saved);
     if (!saved) {
       return NextResponse.json<AuthResponse>({
         success: false,
