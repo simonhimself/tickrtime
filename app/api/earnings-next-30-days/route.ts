@@ -8,7 +8,7 @@ const FINNHUB_BASE_URL = "https://finnhub.io/api/v1";
 
 export const runtime = "edge"; // Cloudflare Pages Edge Runtime compatibility
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     if (!FINNHUB_API_KEY) {
       console.error("[API] FINNHUB_API_KEY environment variable is not set");
@@ -23,11 +23,11 @@ export async function GET(req: NextRequest) {
     
     // Calculate next 30 days
     const today = new Date();
-    const fromDate = today.toISOString().split("T")[0]; // Today in YYYY-MM-DD format
+    const fromDate = today.toISOString().split("T")[0]!; // Today in YYYY-MM-DD format
     
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(today.getDate() + 30);
-    const toDate = thirtyDaysFromNow.toISOString().split("T")[0]; // 30 days from now
+    const toDate = thirtyDaysFromNow.toISOString().split("T")[0]!; // 30 days from now
     
     console.log("[API] /api/earnings-next-30-days date range:", { fromDate, toDate });
 
@@ -129,8 +129,8 @@ export async function GET(req: NextRequest) {
         hour: e.hour,
         quarter: e.quarter,
         year: e.year,
-        exchange: techTicker?.exchange || null,
-        description: techTicker?.description || null,
+        exchange: techTicker?.exchange || undefined,
+        description: techTicker?.description || undefined,
       };
     });
 

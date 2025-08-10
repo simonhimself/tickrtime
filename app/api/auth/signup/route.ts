@@ -1,18 +1,21 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
+import type { SignupRequest, AuthResponse } from '@/types';
+
 import { 
-  hashPassword, 
+  hashPasswordAsync, 
   isValidEmail, 
   isValidPassword, 
   createUser,
   generateToken,
   kvUserToUser
 } from '@/lib/auth';
-import { saveUser, saveVerificationToken, createDevKV } from '@/lib/kv-dev';
+import { saveUser, saveVerificationToken, getUserByEmail } from '@/lib/kv-dev-edge';
+import { createKV } from '@/lib/kv-factory';
 import { sendVerificationEmail } from '@/lib/email';
 
-import type { SignupRequest, AuthResponse } from '@/types';
+export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,11 +55,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace (use development KV for now)
-    const kv = createDevKV();
+    // Get KV namespace
+    const kv = createKV();
 
     // Check if user already exists
-    const existingUser = await import('@/lib/kv-dev').then(m => m.getUserByEmail(kv, email));
+    const existingUser = await getUserByEmail(kv, email);
     if (existingUser) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -65,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
-    const passwordHash = await hashPassword(password);
+    const passwordHash = await hashPasswordAsync(password);
 
     // Create user
     const user = createUser(email, passwordHash);
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate JWT token
-    const token = generateToken(kvUserToUser(user));
+    const token = await generateToken(kvUserToUser(user));
 
     return NextResponse.json<AuthResponse>({
       success: true,

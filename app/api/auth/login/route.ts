@@ -1,15 +1,18 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
+import type { AuthRequest, AuthResponse } from '@/types';
+
 import { 
-  verifyPassword, 
+  verifyPasswordAsync, 
   isValidEmail, 
   generateToken,
   kvUserToUser
 } from '@/lib/auth';
-import { getUserByEmail, createDevKV } from '@/lib/kv-dev';
+import { getUserByEmail } from '@/lib/kv-dev-edge';
+import { createKV } from '@/lib/kv-factory';
 
-import type { AuthRequest, AuthResponse } from '@/types';
+export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,8 +35,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace (use development KV for now)
-    const kv = createDevKV();
+    // Get KV namespace
+    const kv = createKV();
 
     // Get user by email
     console.log('Login attempt for email:', email);
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Verify password
     console.log('Verifying password for user:', user.email);
-    const isValid = await verifyPassword(password, user.passwordHash);
+    const isValid = await verifyPasswordAsync(password, user.passwordHash);
     console.log('Password verification result:', isValid);
     if (!isValid) {
       return NextResponse.json<AuthResponse>({
@@ -67,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate JWT token
-    const token = generateToken(kvUserToUser(user));
+    const token = await generateToken(kvUserToUser(user));
 
     return NextResponse.json<AuthResponse>({
       success: true,

@@ -23,29 +23,33 @@ export function Header({
 
   // Check for existing auth token on mount
   useEffect(() => {
-    const token = localStorage.getItem("tickrtime-auth-token");
-    if (token) {
-      try {
-        // Validate token and extract user info
-        const userData = verifyToken(token);
-        if (userData) {
-          setUser({
-            id: userData.userId,
-            email: userData.email,
-            emailVerified: userData.emailVerified,
-            createdAt: new Date().toISOString(), // We don't store this in JWT
-            updatedAt: new Date().toISOString()
-          });
-        } else {
-          // Invalid token, remove it
+    const validateToken = async () => {
+      const token = localStorage.getItem("tickrtime-auth-token");
+      if (token) {
+        try {
+          // Validate token and extract user info
+          const userData = await verifyToken(token);
+          if (userData) {
+            setUser({
+              id: userData.userId,
+              email: userData.email,
+              emailVerified: userData.emailVerified,
+              createdAt: new Date().toISOString(), // We don't store this in JWT
+              updatedAt: new Date().toISOString()
+            });
+          } else {
+            // Invalid token, remove it
+            localStorage.removeItem("tickrtime-auth-token");
+          }
+        } catch (error) {
+          console.error("Error validating token:", error);
           localStorage.removeItem("tickrtime-auth-token");
         }
-      } catch (error) {
-        console.error("Error validating token:", error);
-        localStorage.removeItem("tickrtime-auth-token");
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+
+    validateToken();
   }, []);
 
   const handleAuthSuccess = (response: AuthResponse) => {

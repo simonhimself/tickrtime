@@ -66,7 +66,7 @@ export interface SearchFilters {
 
 // UI state types
 export type ViewState = "loading" | "data" | "error" | "empty";
-export type SortField = "symbol" | "exchange" | "date" | "estimate" | "actual" | "surprisePercent";
+export type SortField = "symbol" | "exchange" | "date" | "estimate" | "actual" | "surprise" | "surprisePercent" | "year" | "quarter" | "hour" | "description";
 export type SortDirection = "asc" | "desc" | null;
 export type TimePeriod = "next30" | "previous30" | "today" | "tomorrow" | "search" | "watchlist";
 
@@ -197,7 +197,7 @@ export interface UseTableHoverReturn {
   hoveredRow: string | null;
   iconPosition: number;
   rowRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
-  tableHeaderRef: React.RefObject<HTMLDivElement>;
+  tableHeaderRef: React.RefObject<HTMLDivElement | null>;
   handleRowHover: (symbol: string) => void;
   handleHoverEnd: () => void;
   handleIconAreaHover: () => void;

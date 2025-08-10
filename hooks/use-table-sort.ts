@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 
-import type { EarningsData, SortField, SortDirection, SortState, UseTableSortReturn } from "@/types";
+import type { EarningsData, SortField, SortState, UseTableSortReturn } from "@/types";
 
 export function useTableSort(data: EarningsData[]): UseTableSortReturn {
   const [sortState, setSortState] = useState<SortState>({
@@ -82,7 +82,7 @@ export function useTableSort(data: EarningsData[]): UseTableSortReturn {
   };
 
   // Check if a field is sortable
-  const isSortable = (field: SortField): boolean => {
+  const isSortable = (_field: SortField): boolean => {
     // All fields are sortable in our implementation
     return true;
   };

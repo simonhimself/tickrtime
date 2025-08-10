@@ -1,37 +1,7 @@
 import type { KVUser, KVWatchlist } from './auth';
-import { promises as fs } from 'fs';
-import path from 'path';
 
-// File-based storage for development persistence
-const STORAGE_FILE = path.join(process.cwd(), '.dev-storage.json');
-
-// In-memory cache for performance
-let devStorageCache: Map<string, string> | null = null;
-
-// Load data from file
-async function loadStorage(): Promise<Map<string, string>> {
-  if (devStorageCache) return devStorageCache;
-  
-  try {
-    const data = await fs.readFile(STORAGE_FILE, 'utf-8');
-    const parsed = JSON.parse(data);
-    devStorageCache = new Map(Object.entries(parsed));
-  } catch {
-    // File doesn't exist or is invalid, start with empty storage
-    devStorageCache = new Map();
-  }
-  return devStorageCache;
-}
-
-// Save data to file
-async function saveStorage(storage: Map<string, string>): Promise<void> {
-  try {
-    const data = Object.fromEntries(storage);
-    await fs.writeFile(STORAGE_FILE, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error('Error saving dev storage:', error);
-  }
-}
+// In-memory storage for development (Edge-compatible)
+const devStorageCache: Map<string, string> = new Map();
 
 // KV key prefixes for organization
 export const KV_KEYS = {
@@ -53,16 +23,14 @@ interface DevKV {
 export function createDevKV(): DevKV {
   return {
     async get(key: string): Promise<string | null> {
-      const storage = await loadStorage();
-      const value = storage.get(key);
+      const value = devStorageCache.get(key);
       if (!value) return null;
       
       // Check if expired (for verification tokens)
       try {
         const parsed = JSON.parse(value);
         if (parsed.expiresAt && new Date(parsed.expiresAt) < new Date()) {
-          storage.delete(key);
-          await saveStorage(storage);
+          devStorageCache.delete(key);
           return null;
         }
         // Return the actual value, not the JSON string
@@ -73,39 +41,33 @@ export function createDevKV(): DevKV {
     },
 
     async put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void> {
-      const storage = await loadStorage();
       if (options?.expirationTtl) {
         const expiresAt = new Date(Date.now() + options.expirationTtl * 1000);
-        storage.set(key, JSON.stringify({ value, expiresAt }));
+        devStorageCache.set(key, JSON.stringify({ value, expiresAt }));
       } else {
-        storage.set(key, value);
+        devStorageCache.set(key, value);
       }
-      await saveStorage(storage);
     },
 
     async putBatch(entries: { key: string; value: string; expirationTtl?: number }[]): Promise<void> {
-      const storage = await loadStorage();
       for (const entry of entries) {
         if (entry.expirationTtl) {
           const expiresAt = new Date(Date.now() + entry.expirationTtl * 1000);
-          storage.set(entry.key, JSON.stringify({ value: entry.value, expiresAt }));
+          devStorageCache.set(entry.key, JSON.stringify({ value: entry.value, expiresAt }));
         } else {
-          storage.set(entry.key, entry.value);
+          devStorageCache.set(entry.key, entry.value);
         }
       }
-      await saveStorage(storage);
     },
 
     async delete(key: string | string[]): Promise<void> {
-      const storage = await loadStorage();
       if (Array.isArray(key)) {
         for (const k of key) {
-          storage.delete(k);
+          devStorageCache.delete(k);
         }
       } else {
-        storage.delete(key);
+        devStorageCache.delete(key);
       }
-      await saveStorage(storage);
     }
   };
 }

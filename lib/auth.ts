@@ -1,10 +1,7 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { randomUUID } from 'crypto';
+import { generateUUID, hashPassword, verifyPassword, signJWT, verifyJWT } from './crypto-edge';
 import type { User } from '@/types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const SALT_ROUNDS = 12;
 
 export interface KVUser {
   id: string;
@@ -23,42 +20,43 @@ export interface KVWatchlist {
 
 // Generate a secure random token for email verification
 export function generateVerificationToken(): string {
-  return randomUUID();
+  return generateUUID();
 }
 
-// Hash password
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, SALT_ROUNDS);
+// Hash password (now async)
+export async function hashPasswordAsync(password: string): Promise<string> {
+  return hashPassword(password);
 }
 
-// Verify password
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash);
+// Verify password (now async)
+export async function verifyPasswordAsync(password: string, hash: string): Promise<boolean> {
+  return verifyPassword(password, hash);
 }
 
-// Generate JWT token
-export function generateToken(user: User): string {
-  return jwt.sign(
+// Generate JWT token (now async)
+export async function generateToken(user: User): Promise<string> {
+  return signJWT(
     { 
       userId: user.id, 
       email: user.email,
       emailVerified: user.emailVerified 
     },
-    JWT_SECRET,
-    { expiresIn: '7d' }
+    JWT_SECRET
   );
 }
 
-// Verify JWT token
-export function verifyToken(token: string): { userId: string; email: string; emailVerified: boolean } | null {
+// Verify JWT token (now async)
+export async function verifyToken(token: string): Promise<{ userId: string; email: string; emailVerified: boolean } | null> {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = await verifyJWT(token, JWT_SECRET);
+    if (!decoded) return null;
+    
     return {
-      userId: decoded.userId,
-      email: decoded.email,
-      emailVerified: decoded.emailVerified
+      userId: decoded.userId as string,
+      email: decoded.email as string,
+      emailVerified: decoded.emailVerified as boolean
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -105,7 +103,7 @@ export function kvUserToUser(kvUser: KVUser): User {
 export function createUser(email: string, passwordHash: string): KVUser {
   const now = new Date().toISOString();
   return {
-    id: randomUUID(),
+    id: generateUUID(),
     email: email.toLowerCase(),
     passwordHash,
     emailVerified: false,

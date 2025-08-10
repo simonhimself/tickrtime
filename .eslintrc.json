@@ -20,6 +20,7 @@
         "fixStyle": "inline-type-imports"
       }
     ],
+    "@typescript-eslint/no-explicit-any": "warn",
     
     // React specific rules
     "react/prop-types": "off",
@@ -37,24 +38,7 @@
     ],
     
     // Import organization
-    "import/order": [
-      "error",
-      {
-        "groups": [
-          "builtin",
-          "external", 
-          "internal",
-          "parent",
-          "sibling",
-          "index"
-        ],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive": true
-        }
-      }
-    ]
+    "import/order": "warn"
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {

@@ -1,7 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
-import { getWatchlist, addTickerToWatchlist, removeTickerFromWatchlist, createDevKV } from '@/lib/kv-dev';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
 import type { WatchlistApiResponse } from '@/types';
+
+import { verifyToken } from '@/lib/auth';
+import { getWatchlist, addTickerToWatchlist, removeTickerFromWatchlist } from '@/lib/kv-dev-edge';
+import { createKV } from '@/lib/kv-factory';
+
+export const runtime = 'edge';
 
 // Helper function to get user from token
 async function getUserFromToken(request: NextRequest) {
@@ -11,7 +17,7 @@ async function getUserFromToken(request: NextRequest) {
   }
 
   const token = authHeader.substring(7);
-  return verifyToken(token);
+  return await verifyToken(token);
 }
 
 // GET - Get user's watchlist
@@ -25,8 +31,8 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Get KV namespace (use development KV for now)
-    const kv = createDevKV();
+    // Get KV namespace
+    const kv = createKV();
 
     // Get watchlist
     const watchlist = await getWatchlist(kv, user.userId);
@@ -71,8 +77,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace (use development KV for now)
-    const kv = createDevKV();
+    // Get KV namespace
+    const kv = createKV();
 
     // Add ticker to watchlist
     const success = await addTickerToWatchlist(kv, user.userId, symbol);
@@ -126,8 +132,8 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace (use development KV for now)
-    const kv = createDevKV();
+    // Get KV namespace
+    const kv = createKV();
 
     // Remove ticker from watchlist
     const success = await removeTickerFromWatchlist(kv, user.userId, symbol);

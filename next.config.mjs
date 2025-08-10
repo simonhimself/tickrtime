@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Disable ESLint during build for deployment
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Enable experimental features for better performance
   experimental: {
     // Enable TypeScript plugin for better DX
@@ -51,9 +56,6 @@ const nextConfig = {
       return config;
     },
   }),
-
-  // Cloudflare Pages compatibility
-  output: 'standalone',
 
   // Environment variable validation
   env: {

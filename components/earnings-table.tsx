@@ -36,7 +36,7 @@ export function EarningsTable({
 
   const {
     sortedData,
-    sortState,
+    sortState: _sortState,
     handleSort,
     getSortIcon,
     isSortable,

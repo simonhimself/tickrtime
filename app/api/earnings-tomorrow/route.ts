@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import techTickers from "@/data/tech_tickers.json";
-import type { EarningsResponse } from "@/types";
+import type { EarningsResponse, EarningsData } from "@/types";
 
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 const FINNHUB_BASE_URL = "https://finnhub.io/api/v1";
 
 export const runtime = "edge"; // Cloudflare Pages Edge Runtime compatibility
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     if (!FINNHUB_API_KEY) {
       console.error("[API] FINNHUB_API_KEY environment variable is not set");
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     // Get tomorrow's date
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split("T")[0]; // Tomorrow in YYYY-MM-DD format
+    const tomorrowStr = tomorrow.toISOString().split("T")[0]!; // Tomorrow in YYYY-MM-DD format
     
     console.log("[API] /api/earnings-tomorrow date:", tomorrowStr);
 
@@ -79,13 +79,13 @@ export async function GET(req: NextRequest) {
         hour: e.hour,
         quarter: e.quarter,
         year: e.year,
-        exchange: techTicker?.exchange || null,
-        description: techTicker?.description || null,
+        exchange: techTicker?.exchange || undefined,
+        description: techTicker?.description || undefined,
       };
     });
 
     // Sort by symbol for consistent ordering
-    const sortedResult = result.sort((a, b) => a.symbol.localeCompare(b.symbol));
+    const sortedResult = result.sort((a: EarningsData, b: EarningsData) => a.symbol.localeCompare(b.symbol));
 
     console.log(`[API] Found ${sortedResult.length} earnings records for tomorrow`);
     

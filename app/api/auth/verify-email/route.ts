@@ -1,10 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { generateToken, kvUserToUser } from '@/lib/auth';
-import { getUserById, updateUser, createDevKV } from '@/lib/kv-dev';
-
 import type { AuthResponse } from '@/types';
+
+import { generateToken, kvUserToUser } from '@/lib/auth';
+import { getUserById, updateUser, getVerificationToken, deleteVerificationToken } from '@/lib/kv-dev-edge';
+import { createKV } from '@/lib/kv-factory';
+
+export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,11 +21,10 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get KV namespace (use development KV for now)
-    const kv = createDevKV();
+    // Get KV namespace
+    const kv = createKV();
 
     // Get verification token
-    const { getVerificationToken, deleteVerificationToken } = await import('@/lib/kv-dev');
     console.log('Verifying token:', token);
     const userId = await getVerificationToken(kv, token);
     console.log('Token lookup result:', userId);
@@ -70,7 +72,7 @@ export async function GET(request: NextRequest) {
     await deleteVerificationToken(kv, token);
 
     // Generate JWT token
-    const jwtToken = generateToken(kvUserToUser(user));
+    const jwtToken = await generateToken(kvUserToUser(user));
 
     return NextResponse.json<AuthResponse>({
       success: true,
