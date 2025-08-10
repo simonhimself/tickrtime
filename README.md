@@ -49,9 +49,10 @@ A modern, responsive earnings tracking dashboard for technology stocks built wit
    cp .env.example .env.local
    ```
    
-   Add your Finnhub API key to `.env.local`:
+   Add your API keys to `.env.local`:
    ```env
-   FINNHUB_API_KEY=your_api_key_here
+   FINNHUB_API_KEY=your_finnhub_api_key_here
+   RESEND_API_KEY=your_resend_api_key_here
    ```
 
 4. Run the development server:
@@ -128,6 +129,7 @@ The app is optimized for Cloudflare Pages with Edge Runtime:
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `FINNHUB_API_KEY` | Finnhub API key for earnings data | Yes |
+| `RESEND_API_KEY` | Resend API key for email verification | Yes |
 | `NODE_ENV` | Environment (development/production) | Auto-set |
 
 ## Contributing
