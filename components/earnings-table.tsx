@@ -278,7 +278,7 @@ export function EarningsTable({
       {/* Hover Bridge Area */}
       {shouldShowIcons && (
         <div 
-          className="absolute pointer-events-auto"
+          className="absolute pointer-events-auto border-0 bg-transparent"
           style={{ 
             left: "100%",
             top: `${iconPosition - ICON_VERTICAL_OFFSET}px`,
@@ -295,7 +295,7 @@ export function EarningsTable({
       {/* Action Icons Panel */}
       <div 
         className={cn(
-          "absolute flex items-center transition-all duration-300 ease-out z-10 action-panel",
+          "absolute flex items-center transition-all duration-300 ease-out z-10",
           shouldShowIcons 
             ? "opacity-100 translate-x-0 pointer-events-auto action-panel-enter-active" 
             : "opacity-0 translate-x-4 pointer-events-none action-panel-enter"
