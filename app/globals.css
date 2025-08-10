@@ -27,25 +27,40 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Brighter blue-toned background */
+    --background: 220 25% 12%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    
+    /* Card backgrounds with subtle blue tint */
+    --card: 220 25% 14%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 220 25% 14%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
+    
+    /* Blue primary colors */
+    --primary: 217 91% 60%;
+    --primary-foreground: 220 25% 12%;
+    
+    /* Brighter secondary with blue tones */
+    --secondary: 220 25% 18%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
+    
+    /* Muted colors with blue undertones */
+    --muted: 220 25% 16%;
+    --muted-foreground: 215 20% 70%;
+    
+    /* Accent with blue tones */
+    --accent: 220 25% 20%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    
+    /* Destructive colors */
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    
+    /* Borders with blue tint */
+    --border: 220 25% 22%;
+    --input: 220 25% 22%;
+    --ring: 217 91% 60%;
   }
 }
 
