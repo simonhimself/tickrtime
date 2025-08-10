@@ -100,8 +100,8 @@ export async function saveUser(kv: DevKV, user: KVUser): Promise<boolean> {
     await kv.put(KV_KEYS.USER + user.id, JSON.stringify(user));
     console.log('User data saved');
     
-    // Save email mapping
-    await kv.put(KV_KEYS.EMAIL_TO_USER + user.email, user.id);
+    // Save email mapping (normalize to lowercase for consistent lookup)
+    await kv.put(KV_KEYS.EMAIL_TO_USER + user.email.toLowerCase(), user.id);
     console.log('Email mapping saved');
     
     return true;

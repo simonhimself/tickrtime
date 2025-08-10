@@ -33,7 +33,9 @@ export async function POST(request: NextRequest) {
     const kv = createDevKV();
 
     // Get user by email
+    console.log('Login attempt for email:', email);
     const user = await getUserByEmail(kv, email);
+    console.log('User lookup result:', user ? 'Found' : 'Not found');
     if (!user) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -42,7 +44,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password
+    console.log('Verifying password for user:', user.email);
     const isValid = await verifyPassword(password, user.passwordHash);
+    console.log('Password verification result:', isValid);
     if (!isValid) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -51,6 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email is verified
+    console.log('Email verification status:', user.emailVerified);
     if (!user.emailVerified) {
       return NextResponse.json<AuthResponse>({
         success: false,
