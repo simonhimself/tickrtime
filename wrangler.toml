@@ -1,23 +1,8 @@
-name = "tickrtime"
-main = "src/index.ts"
-compatibility_date = "2024-01-01"
-
-# KV Namespace for user data and watchlists
-[[kv_namespaces]]
-binding = "TICKRTIME_KV"
-id = "4b47ed2ef3dc4557a2519d04bb0e3f3c"
-preview_id = "eb83c6584f3549fd96cab293ab30a0be"
-
-# Environment variables
-[vars]
-NODE_ENV = "development"
-
-# For production deployment
-[env.production]
-name = "tickrtime-prod"
-vars = { NODE_ENV = "production" }
-
-# For development
-[env.development]
 name = "tickrtime-dev"
-vars = { NODE_ENV = "development" }
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "tickrtime"
+
+[env.preview]
+name = "tickrtime-preview"
