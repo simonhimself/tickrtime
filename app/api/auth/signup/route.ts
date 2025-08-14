@@ -73,6 +73,17 @@ export async function POST(request: NextRequest) {
     // Create user
     const user = createUser(email, passwordHash);
 
+    // Email verification control
+    const shouldSendEmails = process.env.SEND_VERIFICATION_EMAILS === 'true';
+    const isProduction = (globalThis as Record<string, unknown>).TICKRTIME_KV !== undefined;
+    
+    if (!isProduction && !shouldSendEmails) {
+      // Development mode with emails disabled - auto-verify
+      user.emailVerified = true;
+      user.verificationToken = undefined;
+    }
+    // Otherwise, keep verification token and send email
+
     // Save user to KV
     console.log('Attempting to save user:', user.id, user.email);
     const saved = await saveUser(kv, user);
@@ -84,12 +95,12 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Save verification token
+    // Save verification token (only in production)
     if (user.verificationToken) {
       await saveVerificationToken(kv, user.verificationToken, user.id, 24 * 3600); // 24 hours
     }
 
-    // Send verification email
+    // Send verification email (only in production)
     if (user.verificationToken) {
       const emailSent = await sendVerificationEmail({
         email: user.email,

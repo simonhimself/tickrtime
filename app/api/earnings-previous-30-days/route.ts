@@ -21,12 +21,14 @@ export async function GET(_req: NextRequest) {
     // Use imported tech tickers for filtering
     const techSymbols = new Set(techTickers.map((t) => t.symbol));
     
-    // Calculate previous 30 days
+    // Calculate previous 30 days (excluding today)
     const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(today.getDate() - 30);
     const fromDate = thirtyDaysAgo.toISOString().split("T")[0]!; // 30 days ago in YYYY-MM-DD format
-    const toDate = today.toISOString().split("T")[0]!; // Today in YYYY-MM-DD format
+    const toDate = yesterday.toISOString().split("T")[0]!; // Yesterday in YYYY-MM-DD format
     
     console.log("[API] /api/earnings-previous-30-days date range:", { fromDate, toDate });
 
