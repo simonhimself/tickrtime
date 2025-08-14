@@ -74,10 +74,10 @@ export async function POST(request: NextRequest) {
     const user = createUser(email, passwordHash);
 
     // Email verification control
+    // Check environment variable to determine if verification is required
     const shouldSendEmails = process.env.SEND_VERIFICATION_EMAILS === 'true';
-    const isProduction = (globalThis as Record<string, unknown>).TICKRTIME_KV !== undefined;
     
-    if (!isProduction && !shouldSendEmails) {
+    if (!shouldSendEmails) {
       // Development mode with emails disabled - auto-verify
       user.emailVerified = true;
       user.verificationToken = undefined;
@@ -100,8 +100,9 @@ export async function POST(request: NextRequest) {
       await saveVerificationToken(kv, user.verificationToken, user.id, 24 * 3600); // 24 hours
     }
 
-    // Send verification email (only in production)
-    if (user.verificationToken) {
+    // Send verification email (only if verification is required)
+    if (user.verificationToken && shouldSendEmails) {
+      console.log('Attempting to send verification email to:', user.email);
       const emailSent = await sendVerificationEmail({
         email: user.email,
         token: user.verificationToken,
@@ -110,7 +111,11 @@ export async function POST(request: NextRequest) {
       
       if (!emailSent) {
         console.warn('Failed to send verification email, but user was created');
+      } else {
+        console.log('Verification email sent successfully to:', user.email);
       }
+    } else {
+      console.log('Email verification skipped. Token exists:', !!user.verificationToken, 'Should send:', shouldSendEmails);
     }
 
     // Generate JWT token
