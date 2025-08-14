@@ -10,19 +10,15 @@ export interface KVInterface {
 
 // Create KV instance based on environment
 export function createKV(): KVInterface {
-  if (process.env.NODE_ENV === 'production') {
-    // In production, use Cloudflare KV
-    // The KV namespace will be bound to the environment
-    const kvNamespace = (globalThis as Record<string, unknown>).TICKRTIME_KV as {
-      get: (key: string) => Promise<string | null>;
-      put: (key: string, value: string, options?: { expirationTtl?: number }) => Promise<void>;
-      delete: (key: string | string[]) => Promise<void>;
-    };
-    if (!kvNamespace) {
-      throw new Error('TICKRTIME_KV namespace not found in production environment');
-    }
-    
-    // Wrap Cloudflare KV to match our interface
+  // Check if we have the actual KV namespace available
+  const kvNamespace = (globalThis as Record<string, unknown>).TICKRTIME_KV as {
+    get: (key: string) => Promise<string | null>;
+    put: (key: string, value: string, options?: { expirationTtl?: number }) => Promise<void>;
+    delete: (key: string | string[]) => Promise<void>;
+  } | undefined;
+
+  if (kvNamespace) {
+    // We have the KV namespace, use Cloudflare KV
     return {
       get: kvNamespace.get.bind(kvNamespace),
       put: kvNamespace.put.bind(kvNamespace),
@@ -30,12 +26,14 @@ export function createKV(): KVInterface {
       delete: kvNamespace.delete.bind(kvNamespace)
     };
   } else {
-    // In development, use file-based KV
+    // No KV namespace available, use development KV
     return createDevKV();
   }
 }
 
 // Helper function to check if we're in production
 export function isProduction(): boolean {
-  return process.env.NODE_ENV === 'production';
+  // Check if we have the actual KV namespace available
+  const kvNamespace = (globalThis as Record<string, unknown>).TICKRTIME_KV;
+  return !!kvNamespace;
 }
