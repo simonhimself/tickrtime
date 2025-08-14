@@ -10,7 +10,6 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AuthResponse } from "@/types";
 
 const signupSchema = z.object({
@@ -83,15 +82,14 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
-        <CardDescription className="text-center">
+    <div className="space-y-6">
+      <div className="space-y-2 text-center">
+        <p className="text-muted-foreground">
           Sign up to save your watchlist and track earnings
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        </p>
+      </div>
+      
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -180,7 +178,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
           </Button>
         </form>
 
-        <div className="mt-4 text-center text-sm">
+        <div className="mt-6 text-center text-sm">
           <span className="text-muted-foreground">Already have an account? </span>
           <Button
             variant="link"
@@ -190,7 +188,6 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
             Sign in
           </Button>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }
