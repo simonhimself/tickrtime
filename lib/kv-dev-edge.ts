@@ -1,7 +1,18 @@
 import type { KVUser, KVWatchlist } from './auth';
+import type { KVInterface } from './kv-factory';
 
 // In-memory storage for development (Edge-compatible)
-const devStorageCache: Map<string, string> = new Map();
+// Use globalThis to persist cache across different API calls
+const getDevStorageCache = () => {
+  if (!globalThis.__devStorageCache) {
+    globalThis.__devStorageCache = new Map<string, string>();
+  }
+  return globalThis.__devStorageCache;
+};
+
+declare global {
+  var __devStorageCache: Map<string, string> | undefined;
+}
 
 // KV key prefixes for organization
 export const KV_KEYS = {
@@ -11,26 +22,24 @@ export const KV_KEYS = {
   EMAIL_TO_USER: 'email:',
 } as const;
 
-// Development KV interface
-interface DevKV {
-  get(key: string): Promise<string | null>;
-  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
-  putBatch(entries: { key: string; value: string; expirationTtl?: number }[]): Promise<void>;
-  delete(key: string | string[]): Promise<void>;
-}
+// Using unified KV interface directly, no need for DevKV type alias
 
 // Create development KV instance
-export function createDevKV(): DevKV {
+export function createDevKV(): KVInterface {
   return {
     async get(key: string): Promise<string | null> {
-      const value = devStorageCache.get(key);
+      const cache = getDevStorageCache();
+      console.log('KV GET:', key, 'Cache size:', cache.size);
+      console.log('Cache keys:', Array.from(cache.keys()));
+      const value = cache.get(key);
+      console.log('KV GET result:', value ? value.substring(0, 50) + '...' : 'null');
       if (!value) return null;
       
       // Check if expired (for verification tokens)
       try {
         const parsed = JSON.parse(value);
         if (parsed.expiresAt && new Date(parsed.expiresAt) < new Date()) {
-          devStorageCache.delete(key);
+          getDevStorageCache().delete(key);
           return null;
         }
         // Return the actual value, not the JSON string
@@ -41,21 +50,23 @@ export function createDevKV(): DevKV {
     },
 
     async put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void> {
+      console.log('KV PUT:', key, '=', value.substring(0, 50) + '...');
       if (options?.expirationTtl) {
         const expiresAt = new Date(Date.now() + options.expirationTtl * 1000);
-        devStorageCache.set(key, JSON.stringify({ value, expiresAt }));
+        getDevStorageCache().set(key, JSON.stringify({ value, expiresAt }));
       } else {
-        devStorageCache.set(key, value);
+        getDevStorageCache().set(key, value);
       }
+      console.log('KV PUT complete. Cache size:', getDevStorageCache().size);
     },
 
     async putBatch(entries: { key: string; value: string; expirationTtl?: number }[]): Promise<void> {
       for (const entry of entries) {
         if (entry.expirationTtl) {
           const expiresAt = new Date(Date.now() + entry.expirationTtl * 1000);
-          devStorageCache.set(entry.key, JSON.stringify({ value: entry.value, expiresAt }));
+          getDevStorageCache().set(entry.key, JSON.stringify({ value: entry.value, expiresAt }));
         } else {
-          devStorageCache.set(entry.key, entry.value);
+          getDevStorageCache().set(entry.key, entry.value);
         }
       }
     },
@@ -63,17 +74,17 @@ export function createDevKV(): DevKV {
     async delete(key: string | string[]): Promise<void> {
       if (Array.isArray(key)) {
         for (const k of key) {
-          devStorageCache.delete(k);
+          getDevStorageCache().delete(k);
         }
       } else {
-        devStorageCache.delete(key);
+        getDevStorageCache().delete(key);
       }
     }
   };
 }
 
 // Get user by ID
-export async function getUserById(kv: DevKV, userId: string): Promise<KVUser | null> {
+export async function getUserById(kv: KVInterface, userId: string): Promise<KVUser | null> {
   try {
     const userData = await kv.get(KV_KEYS.USER + userId);
     return userData ? JSON.parse(userData) : null;
@@ -84,9 +95,12 @@ export async function getUserById(kv: DevKV, userId: string): Promise<KVUser | n
 }
 
 // Get user by email
-export async function getUserByEmail(kv: DevKV, email: string): Promise<KVUser | null> {
+export async function getUserByEmail(kv: KVInterface, email: string): Promise<KVUser | null> {
   try {
+    console.log('Getting user by email:', email);
+    console.log('Looking for key:', KV_KEYS.EMAIL_TO_USER + email.toLowerCase());
     const userId = await kv.get(KV_KEYS.EMAIL_TO_USER + email.toLowerCase());
+    console.log('Found userId:', userId);
     if (!userId) return null;
     
     return await getUserById(kv, userId);
@@ -97,7 +111,7 @@ export async function getUserByEmail(kv: DevKV, email: string): Promise<KVUser |
 }
 
 // Save user
-export async function saveUser(kv: DevKV, user: KVUser): Promise<boolean> {
+export async function saveUser(kv: KVInterface, user: KVUser): Promise<boolean> {
   try {
     console.log('saveUser called with:', user.id, user.email);
     
@@ -106,7 +120,9 @@ export async function saveUser(kv: DevKV, user: KVUser): Promise<boolean> {
     console.log('User data saved');
     
     // Save email mapping (normalize to lowercase for consistent lookup)
-    await kv.put(KV_KEYS.EMAIL_TO_USER + user.email.toLowerCase(), user.id);
+    const emailKey = KV_KEYS.EMAIL_TO_USER + user.email.toLowerCase();
+    console.log('Saving email mapping:', emailKey, '->', user.id);
+    await kv.put(emailKey, user.id);
     console.log('Email mapping saved');
     
     return true;
@@ -117,7 +133,7 @@ export async function saveUser(kv: DevKV, user: KVUser): Promise<boolean> {
 }
 
 // Update user
-export async function updateUser(kv: DevKV, user: KVUser): Promise<boolean> {
+export async function updateUser(kv: KVInterface, user: KVUser): Promise<boolean> {
   try {
     user.updatedAt = new Date().toISOString();
     await kv.put(KV_KEYS.USER + user.id, JSON.stringify(user));
@@ -129,7 +145,7 @@ export async function updateUser(kv: DevKV, user: KVUser): Promise<boolean> {
 }
 
 // Delete user
-export async function deleteUser(kv: DevKV, user: KVUser): Promise<boolean> {
+export async function deleteUser(kv: KVInterface, user: KVUser): Promise<boolean> {
   try {
     const batch = [
       { key: KV_KEYS.USER + user.id, value: '' },
@@ -146,7 +162,7 @@ export async function deleteUser(kv: DevKV, user: KVUser): Promise<boolean> {
 }
 
 // Get user's watchlist
-export async function getWatchlist(kv: DevKV, userId: string): Promise<KVWatchlist> {
+export async function getWatchlist(kv: KVInterface, userId: string): Promise<KVWatchlist> {
   try {
     const watchlistData = await kv.get(KV_KEYS.WATCHLIST + userId);
     if (watchlistData) {
@@ -168,7 +184,7 @@ export async function getWatchlist(kv: DevKV, userId: string): Promise<KVWatchli
 }
 
 // Save watchlist
-export async function saveWatchlist(kv: DevKV, userId: string, watchlist: KVWatchlist): Promise<boolean> {
+export async function saveWatchlist(kv: KVInterface, userId: string, watchlist: KVWatchlist): Promise<boolean> {
   try {
     watchlist.lastUpdated = new Date().toISOString();
     await kv.put(KV_KEYS.WATCHLIST + userId, JSON.stringify(watchlist));
@@ -180,7 +196,7 @@ export async function saveWatchlist(kv: DevKV, userId: string, watchlist: KVWatc
 }
 
 // Add ticker to watchlist
-export async function addTickerToWatchlist(kv: DevKV, userId: string, symbol: string): Promise<boolean> {
+export async function addTickerToWatchlist(kv: KVInterface, userId: string, symbol: string): Promise<boolean> {
   try {
     const watchlist = await getWatchlist(kv, userId);
     const normalizedSymbol = symbol.toUpperCase();
@@ -198,7 +214,7 @@ export async function addTickerToWatchlist(kv: DevKV, userId: string, symbol: st
 }
 
 // Remove ticker from watchlist
-export async function removeTickerFromWatchlist(kv: DevKV, userId: string, symbol: string): Promise<boolean> {
+export async function removeTickerFromWatchlist(kv: KVInterface, userId: string, symbol: string): Promise<boolean> {
   try {
     const watchlist = await getWatchlist(kv, userId);
     const normalizedSymbol = symbol.toUpperCase();
@@ -212,7 +228,7 @@ export async function removeTickerFromWatchlist(kv: DevKV, userId: string, symbo
 }
 
 // Get verification token
-export async function getVerificationToken(kv: DevKV, token: string): Promise<string | null> {
+export async function getVerificationToken(kv: KVInterface, token: string): Promise<string | null> {
   try {
     console.log('Looking up verification token:', token);
     const data = await kv.get(KV_KEYS.VERIFICATION + token);
@@ -237,7 +253,7 @@ export async function getVerificationToken(kv: DevKV, token: string): Promise<st
 }
 
 // Save verification token
-export async function saveVerificationToken(kv: DevKV, token: string, userId: string, expiresIn: number = 3600): Promise<boolean> {
+export async function saveVerificationToken(kv: KVInterface, token: string, userId: string, expiresIn: number = 3600): Promise<boolean> {
   try {
     console.log('Saving verification token:', { token, userId, expiresIn });
     // Store with expiration, which will wrap in JSON with expiresAt
@@ -251,7 +267,7 @@ export async function saveVerificationToken(kv: DevKV, token: string, userId: st
 }
 
 // Delete verification token
-export async function deleteVerificationToken(kv: DevKV, token: string): Promise<boolean> {
+export async function deleteVerificationToken(kv: KVInterface, token: string): Promise<boolean> {
   try {
     await kv.delete(KV_KEYS.VERIFICATION + token);
     return true;

@@ -48,14 +48,14 @@ const createVerificationEmail = (data: EmailVerificationData) => ({
           <p>Thanks for signing up for TickrTime! To complete your registration and start tracking earnings, please verify your email address.</p>
           
           <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/verify-email?token=${data.token}" class="button">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://tickrtime-3vf.pages.dev'}/verify-email?token=${data.token}" class="button">
               Verify Email Address
             </a>
           </div>
           
           <p>Or copy and paste this link into your browser:</p>
           <div class="code">
-            ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/verify-email?token=${data.token}
+            ${process.env.NEXT_PUBLIC_APP_URL || 'https://tickrtime-3vf.pages.dev'}/verify-email?token=${data.token}
           </div>
           
           <p><strong>This link will expire in 24 hours.</strong></p>
@@ -106,14 +106,14 @@ const createPasswordResetEmail = (data: PasswordResetData) => ({
           <p>We received a request to reset your TickrTime password. Click the button below to create a new password:</p>
           
           <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/reset-password?token=${data.token}" class="button">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://tickrtime-3vf.pages.dev'}/reset-password?token=${data.token}" class="button">
               Reset Password
             </a>
           </div>
           
           <p>Or copy and paste this link into your browser:</p>
           <div class="code">
-            ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/reset-password?token=${data.token}
+            ${process.env.NEXT_PUBLIC_APP_URL || 'https://tickrtime-3vf.pages.dev'}/reset-password?token=${data.token}
           </div>
           
           <p><strong>This link will expire in 1 hour.</strong></p>
