@@ -90,7 +90,8 @@ The application is optimized for Cloudflare Pages:
 - **Atomic commits**: Each commit should represent a single logical change
 - **Commit messages**: Use clear, descriptive messages in present tense ("Add dark mode toggle", "Fix auth redirect issue")
 - **Before any development work**: Create a new branch with `git checkout -b feature/descriptive-name`
-- **Pull requests**: Always use PRs to merge back to main, never push directly
+- **Testing**: Always test changes locally (both `npm run dev` and Wrangler) before merging
+- **Merging**: After testing, merge directly to main and push (no PRs needed for solo development)
 
 ## Development Patterns
 
