@@ -82,6 +82,16 @@ The application is optimized for Cloudflare Pages:
 - Wrangler configuration for different environments (dev, preview, production)
 - Node.js compatibility enabled for server-side functionality
 
+## Git Workflow
+
+**MANDATORY**: Always follow these git best practices:
+- **Never work directly on `main`** - Always create feature branches
+- **Branch naming**: Use descriptive names like `feature/add-dark-mode`, `fix/auth-redirect`, `refactor/kv-storage`
+- **Atomic commits**: Each commit should represent a single logical change
+- **Commit messages**: Use clear, descriptive messages in present tense ("Add dark mode toggle", "Fix auth redirect issue")
+- **Before any development work**: Create a new branch with `git checkout -b feature/descriptive-name`
+- **Pull requests**: Always use PRs to merge back to main, never push directly
+
 ## Development Patterns
 
 - **Type Safety**: Strict TypeScript with comprehensive type definitions in `types/index.ts`
@@ -89,3 +99,4 @@ The application is optimized for Cloudflare Pages:
 - **State Management**: React hooks and context for theme and auth state
 - **Data Fetching**: Server-side rendering with Edge Runtime API routes
 - **Authentication**: JWT-based auth with email verification
+- **Logging**: Use `logger` from `lib/logger.ts` (never console.log directly)

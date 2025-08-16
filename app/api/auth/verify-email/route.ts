@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 import type { AuthResponse } from '@/types';
 
@@ -25,9 +26,9 @@ export async function GET(request: NextRequest) {
     const kv = createKV();
 
     // Get verification token
-    console.log('Verifying token:', token);
+    logger.debug('Verifying token:', token);
     const userId = await getVerificationToken(kv, token);
-    console.log('Token lookup result:', userId);
+    logger.debug('Token lookup result:', userId);
     
     if (!userId) {
       return NextResponse.json<AuthResponse>({
@@ -37,9 +38,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user
-    console.log('Looking up user with ID:', userId);
+    logger.debug('Looking up user with ID:', userId);
     const user = await getUserById(kv, userId);
-    console.log('User lookup result:', user ? 'Found' : 'Not found');
+    logger.debug('User lookup result:', user ? 'Found' : 'Not found');
     if (!user) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Email verification error:', error);
+    logger.error('Email verification error:', error);
     return NextResponse.json<AuthResponse>({
       success: false,
       message: 'Internal server error'

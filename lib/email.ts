@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { logger } from '@/lib/logger';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -134,24 +135,24 @@ const createPasswordResetEmail = (data: PasswordResetData) => ({
 export async function sendVerificationEmail(data: EmailVerificationData): Promise<boolean> {
   try {
     if (!resend) {
-      console.warn('RESEND_API_KEY not set, skipping email send');
+      logger.warn('RESEND_API_KEY not set, skipping email send');
       return false;
     }
 
     const emailData = createVerificationEmail(data);
     const result = await resend.emails.send(emailData);
     
-    console.log('Verification email sent:', result);
+    logger.debug('Verification email sent:', result);
     
     // Check if email was sent successfully
     if (result.error) {
-      console.error('Resend error:', result.error);
+      logger.error('Resend error:', result.error);
       return false;
     }
     
     return true;
   } catch (error) {
-    console.error('Failed to send verification email:', error);
+    logger.error('Failed to send verification email:', error);
     return false;
   }
 }
@@ -160,17 +161,17 @@ export async function sendVerificationEmail(data: EmailVerificationData): Promis
 export async function sendPasswordResetEmail(data: PasswordResetData): Promise<boolean> {
   try {
     if (!resend) {
-      console.warn('RESEND_API_KEY not set, skipping email send');
+      logger.warn('RESEND_API_KEY not set, skipping email send');
       return false;
     }
 
     const emailData = createPasswordResetEmail(data);
     const result = await resend.emails.send(emailData);
     
-    console.log('Password reset email sent:', result);
+    logger.debug('Password reset email sent:', result);
     return true;
   } catch (error) {
-    console.error('Failed to send password reset email:', error);
+    logger.error('Failed to send password reset email:', error);
     return false;
   }
 }
@@ -179,7 +180,7 @@ export async function sendPasswordResetEmail(data: PasswordResetData): Promise<b
 export async function testEmailService(email: string): Promise<boolean> {
   try {
     if (!resend) {
-      console.warn('RESEND_API_KEY not set, cannot test email service');
+      logger.warn('RESEND_API_KEY not set, cannot test email service');
       return false;
     }
 
@@ -194,10 +195,10 @@ export async function testEmailService(email: string): Promise<boolean> {
       `
     });
     
-    console.log('Test email sent:', result);
+    logger.debug('Test email sent:', result);
     return true;
   } catch (error) {
-    console.error('Failed to send test email:', error);
+    logger.error('Failed to send test email:', error);
     return false;
   }
 }

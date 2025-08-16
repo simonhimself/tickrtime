@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 import type { SignupRequest, AuthResponse } from '@/types';
 
@@ -85,9 +86,9 @@ export async function POST(request: NextRequest) {
     // Otherwise, keep verification token and send email
 
     // Save user to KV
-    console.log('Attempting to save user:', user.id, user.email);
+    logger.debug('Attempting to save user:', user.id, user.email);
     const saved = await saveUser(kv, user);
-    console.log('Save result:', saved);
+    logger.debug('Save result:', saved);
     if (!saved) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     // Send verification email (only if verification is required)
     if (user.verificationToken && shouldSendEmails) {
-      console.log('Attempting to send verification email to:', user.email);
+      logger.debug('Attempting to send verification email to:', user.email);
       const emailSent = await sendVerificationEmail({
         email: user.email,
         token: user.verificationToken,
@@ -110,12 +111,12 @@ export async function POST(request: NextRequest) {
       });
       
       if (!emailSent) {
-        console.warn('Failed to send verification email, but user was created');
+        logger.warn('Failed to send verification email, but user was created');
       } else {
-        console.log('Verification email sent successfully to:', user.email);
+        logger.debug('Verification email sent successfully to:', user.email);
       }
     } else {
-      console.log('Email verification skipped. Token exists:', !!user.verificationToken, 'Should send:', shouldSendEmails);
+      logger.debug('Email verification skipped. Token exists:', !!user.verificationToken, 'Should send:', shouldSendEmails);
     }
 
     // Generate JWT token
@@ -129,7 +130,7 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Signup error:', error);
+    logger.error('Signup error:', error);
     return NextResponse.json<AuthResponse>({
       success: false,
       message: 'Internal server error'

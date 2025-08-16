@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
+import { logger } from "@/lib/logger";
 import { Header } from "@/components/header";
 import { NavigationButtons } from "@/components/navigation-buttons";
 import { SearchFilters } from "@/components/search-filters";
@@ -198,7 +199,7 @@ export function EarningsDashboard() {
         toast.info(`More actions for ${symbol}`);
         break;
       default:
-        console.log("Unknown action:", action);
+        logger.debug("Unknown action:", action);
     }
   }, []);
 

@@ -1,6 +1,7 @@
-import type { KVUser, KVWatchlist } from './auth';
 import { promises as fs } from 'fs';
 import path from 'path';
+import type { KVUser, KVWatchlist } from './auth';
+import { logger } from '@/lib/logger';
 
 // File-based storage for development persistence
 const STORAGE_FILE = path.join(process.cwd(), '.dev-storage.json');
@@ -29,7 +30,7 @@ async function saveStorage(storage: Map<string, string>): Promise<void> {
     const data = Object.fromEntries(storage);
     await fs.writeFile(STORAGE_FILE, JSON.stringify(data, null, 2));
   } catch (error) {
-    console.error('Error saving dev storage:', error);
+    logger.error('Error saving dev storage:', error);
   }
 }
 
@@ -116,7 +117,7 @@ export async function getUserById(kv: DevKV, userId: string): Promise<KVUser | n
     const userData = await kv.get(KV_KEYS.USER + userId);
     return userData ? JSON.parse(userData) : null;
   } catch (error) {
-    console.error('Error getting user by ID:', error);
+    logger.error('Error getting user by ID:', error);
     return null;
   }
 }
@@ -129,7 +130,7 @@ export async function getUserByEmail(kv: DevKV, email: string): Promise<KVUser |
     
     return await getUserById(kv, userId);
   } catch (error) {
-    console.error('Error getting user by email:', error);
+    logger.error('Error getting user by email:', error);
     return null;
   }
 }
@@ -137,19 +138,19 @@ export async function getUserByEmail(kv: DevKV, email: string): Promise<KVUser |
 // Save user
 export async function saveUser(kv: DevKV, user: KVUser): Promise<boolean> {
   try {
-    console.log('saveUser called with:', user.id, user.email);
+    logger.debug('saveUser called with:', user.id, user.email);
     
     // Save user data
     await kv.put(KV_KEYS.USER + user.id, JSON.stringify(user));
-    console.log('User data saved');
+    logger.debug('User data saved');
     
     // Save email mapping (normalize to lowercase for consistent lookup)
     await kv.put(KV_KEYS.EMAIL_TO_USER + user.email.toLowerCase(), user.id);
-    console.log('Email mapping saved');
+    logger.debug('Email mapping saved');
     
     return true;
   } catch (error) {
-    console.error('Error saving user:', error);
+    logger.error('Error saving user:', error);
     return false;
   }
 }
@@ -161,7 +162,7 @@ export async function updateUser(kv: DevKV, user: KVUser): Promise<boolean> {
     await kv.put(KV_KEYS.USER + user.id, JSON.stringify(user));
     return true;
   } catch (error) {
-    console.error('Error updating user:', error);
+    logger.error('Error updating user:', error);
     return false;
   }
 }
@@ -178,7 +179,7 @@ export async function deleteUser(kv: DevKV, user: KVUser): Promise<boolean> {
     await kv.delete(batch.map(item => item.key));
     return true;
   } catch (error) {
-    console.error('Error deleting user:', error);
+    logger.error('Error deleting user:', error);
     return false;
   }
 }
@@ -197,7 +198,7 @@ export async function getWatchlist(kv: DevKV, userId: string): Promise<KVWatchli
       lastUpdated: new Date().toISOString(),
     };
   } catch (error) {
-    console.error('Error getting watchlist:', error);
+    logger.error('Error getting watchlist:', error);
     return {
       tickers: [],
       lastUpdated: new Date().toISOString(),
@@ -212,7 +213,7 @@ export async function saveWatchlist(kv: DevKV, userId: string, watchlist: KVWatc
     await kv.put(KV_KEYS.WATCHLIST + userId, JSON.stringify(watchlist));
     return true;
   } catch (error) {
-    console.error('Error saving watchlist:', error);
+    logger.error('Error saving watchlist:', error);
     return false;
   }
 }
@@ -230,7 +231,7 @@ export async function addTickerToWatchlist(kv: DevKV, userId: string, symbol: st
     
     return true; // Already exists
   } catch (error) {
-    console.error('Error adding ticker to watchlist:', error);
+    logger.error('Error adding ticker to watchlist:', error);
     return false;
   }
 }
@@ -244,7 +245,7 @@ export async function removeTickerFromWatchlist(kv: DevKV, userId: string, symbo
     watchlist.tickers = watchlist.tickers.filter(ticker => ticker !== normalizedSymbol);
     return await saveWatchlist(kv, userId, watchlist);
   } catch (error) {
-    console.error('Error removing ticker from watchlist:', error);
+    logger.error('Error removing ticker from watchlist:', error);
     return false;
   }
 }
@@ -252,24 +253,24 @@ export async function removeTickerFromWatchlist(kv: DevKV, userId: string, symbo
 // Get verification token
 export async function getVerificationToken(kv: DevKV, token: string): Promise<string | null> {
   try {
-    console.log('Looking up verification token:', token);
+    logger.debug('Looking up verification token:', token);
     const data = await kv.get(KV_KEYS.VERIFICATION + token);
-    console.log('Raw token data from KV:', data);
+    logger.debug('Raw token data from KV:', data);
     if (!data) return null;
     
     // Try to parse as JSON first (new format)
     try {
       const parsed = JSON.parse(data);
       const userId = parsed.value || parsed.userId;
-      console.log('Parsed token data:', { parsed, userId });
+      logger.debug('Parsed token data:', { parsed, userId });
       return userId || data;
     } catch {
       // If not JSON, return as plain string (old format)
-      console.log('Token data is plain string:', data);
+      logger.debug('Token data is plain string:', data);
       return data;
     }
   } catch (error) {
-    console.error('Error getting verification token:', error);
+    logger.error('Error getting verification token:', error);
     return null;
   }
 }
@@ -277,13 +278,13 @@ export async function getVerificationToken(kv: DevKV, token: string): Promise<st
 // Save verification token
 export async function saveVerificationToken(kv: DevKV, token: string, userId: string, expiresIn: number = 3600): Promise<boolean> {
   try {
-    console.log('Saving verification token:', { token, userId, expiresIn });
+    logger.debug('Saving verification token:', { token, userId, expiresIn });
     // Store with expiration, which will wrap in JSON with expiresAt
     await kv.put(KV_KEYS.VERIFICATION + token, userId, { expirationTtl: expiresIn });
-    console.log('Verification token saved successfully');
+    logger.debug('Verification token saved successfully');
     return true;
   } catch (error) {
-    console.error('Error saving verification token:', error);
+    logger.error('Error saving verification token:', error);
     return false;
   }
 }
@@ -294,7 +295,7 @@ export async function deleteVerificationToken(kv: DevKV, token: string): Promise
     await kv.delete(KV_KEYS.VERIFICATION + token);
     return true;
   } catch (error) {
-    console.error('Error deleting verification token:', error);
+    logger.error('Error deleting verification token:', error);
     return false;
   }
 }

@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { logger } from '@/lib/logger';
 
 import techTickers from "@/data/tech_tickers.json";
 import type { EarningsResponse, EarningsData } from "@/types";
@@ -12,7 +14,7 @@ export async function GET(_req: NextRequest) {
   try {
     
     if (!FINNHUB_API_KEY) {
-      console.error("[API] FINNHUB_API_KEY environment variable is not set");
+      logger.error("[API] FINNHUB_API_KEY environment variable is not set");
       return NextResponse.json(
         { error: "API configuration error" },
         { status: 500 }
@@ -26,13 +28,13 @@ export async function GET(_req: NextRequest) {
     const today = new Date();
     const todayStr = today.toISOString().split("T")[0]!; // Today in YYYY-MM-DD format
     
-    console.log("[API] /api/earnings-today date:", todayStr);
+    logger.debug("[API] /api/earnings-today date:", todayStr);
 
     const url = `${FINNHUB_BASE_URL}/calendar/earnings?from=${todayStr}&to=${todayStr}&token=${FINNHUB_API_KEY}`;
 
     const res = await fetch(url);
     if (!res.ok) {
-      console.error("[API] Finnhub fetch failed:", res.status, res.statusText);
+      logger.error("[API] Finnhub fetch failed:", res.status, res.statusText);
       return NextResponse.json(
         { error: "Failed to fetch from Finnhub" },
         { status: 500 }
@@ -40,13 +42,13 @@ export async function GET(_req: NextRequest) {
     }
     
     const data = await res.json();
-    console.log("[API] Finnhub response received, processing...");
+    logger.debug("[API] Finnhub response received, processing...");
 
     const earnings = Array.isArray(data.earningsCalendar) ? data.earningsCalendar : [];
     
     // Filter for tech stocks and process
     const techEarnings = earnings.filter((e: any) => techSymbols.has(e.symbol));
-    console.log(
+    logger.debug(
       `[API] Filtered ${techEarnings.length} tech earnings from ${earnings.length} total earnings`
     );
     
@@ -87,7 +89,7 @@ export async function GET(_req: NextRequest) {
     // Sort by symbol for consistent ordering
     const sortedResult = result.sort((a: EarningsData, b: EarningsData) => a.symbol.localeCompare(b.symbol));
 
-    console.log(`[API] Found ${sortedResult.length} earnings records for today`);
+    logger.debug(`[API] Found ${sortedResult.length} earnings records for today`);
     
     const response: EarningsResponse = {
       earnings: sortedResult,
@@ -97,7 +99,7 @@ export async function GET(_req: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("[API] Error fetching today's earnings:", error);
+    logger.error("[API] Error fetching today's earnings:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

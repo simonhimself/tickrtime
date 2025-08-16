@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 import type { EarningsResponse } from "@/types";
+import { logger } from "@/lib/logger";
 
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 const FINNHUB_BASE_URL = "https://finnhub.io/api/v1";
@@ -14,10 +16,10 @@ export async function GET(req: NextRequest) {
   const quarter = searchParams.get("quarter");
 
   // Log incoming query parameters
-  console.log("[API] /api/earnings query params:", { symbol, year, quarter });
+  logger.debug("[API] /api/earnings query params:", { symbol, year, quarter });
 
   if (!FINNHUB_API_KEY) {
-    console.error("[API] FINNHUB_API_KEY environment variable is not set");
+    logger.error("[API] FINNHUB_API_KEY environment variable is not set");
     return NextResponse.json(
       { error: "API configuration error" },
       { status: 500 }
@@ -79,7 +81,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(url);
     if (!res.ok) {
-      console.error("[API] Finnhub fetch failed:", res.status, res.statusText);
+      logger.error("[API] Finnhub fetch failed:", res.status, res.statusText);
       return NextResponse.json(
         { error: "Failed to fetch from Finnhub" },
         { status: 500 }
@@ -87,7 +89,7 @@ export async function GET(req: NextRequest) {
     }
     
     const data = await res.json();
-    console.log("[API] Finnhub response received for symbol:", symbol);
+    logger.debug("[API] Finnhub response received for symbol:", symbol);
     
     const earnings = Array.isArray(data.earningsCalendar) ? data.earningsCalendar : [];
     
@@ -128,7 +130,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("[API] Error fetching earnings for symbol:", symbol, error);
+    logger.error("[API] Error fetching earnings for symbol:", symbol, error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

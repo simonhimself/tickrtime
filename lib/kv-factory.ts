@@ -1,5 +1,6 @@
-import { createDevKV } from './kv-dev-edge';
 import { getRequestContext } from '@cloudflare/next-on-pages';
+import { createDevKV } from './kv-dev-edge';
+import { logger } from '@/lib/logger';
 
 // Declare Cloudflare KV namespace type
 declare global {
@@ -30,7 +31,7 @@ export function createKV(): KVInterface {
     const kvNamespace = env.TICKRTIME_KV;
 
     if (kvNamespace) {
-      console.log('Using Cloudflare KV namespace from request context');
+      logger.debug('Using Cloudflare KV namespace from request context');
       return {
         get: kvNamespace.get.bind(kvNamespace),
         put: kvNamespace.put.bind(kvNamespace),
@@ -38,9 +39,9 @@ export function createKV(): KVInterface {
         delete: kvNamespace.delete.bind(kvNamespace)
       };
     }
-  } catch (e) {
+  } catch {
     // getRequestContext() throws if not in Cloudflare context
-    console.log('Not in Cloudflare context, checking globalThis');
+    logger.debug('Not in Cloudflare context, checking globalThis');
   }
 
   // Fallback: Check globalThis (for production deployment)
@@ -51,7 +52,7 @@ export function createKV(): KVInterface {
   } | undefined;
 
   if (kvNamespace) {
-    console.log('Using Cloudflare KV namespace from globalThis');
+    logger.debug('Using Cloudflare KV namespace from globalThis');
     return {
       get: kvNamespace.get.bind(kvNamespace),
       put: kvNamespace.put.bind(kvNamespace),
@@ -60,7 +61,7 @@ export function createKV(): KVInterface {
     };
   }
 
-  console.log('Using in-memory development KV');
+  logger.debug('Using in-memory development KV');
   // No KV namespace available, use development KV
   return createDevKV();
 }

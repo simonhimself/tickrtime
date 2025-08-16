@@ -118,3 +118,8 @@ temp/
 
 # Development storage
 .dev-storage.json
+
+# Wrangler/Cloudflare
+.wrangler/
+wrangler.toml.tmp
+.cloudflare/

@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { logger } from '@/lib/logger';
 
 import techTickers from "@/data/tech_tickers.json";
 import type { EarningsResponse } from "@/types";
@@ -11,7 +13,7 @@ export const runtime = "edge"; // Cloudflare Pages Edge Runtime compatibility
 export async function GET(_req: NextRequest) {
   try {
     if (!FINNHUB_API_KEY) {
-      console.error("[API] FINNHUB_API_KEY environment variable is not set");
+      logger.error("[API] FINNHUB_API_KEY environment variable is not set");
       return NextResponse.json(
         { error: "API configuration error" },
         { status: 500 }
@@ -29,11 +31,11 @@ export async function GET(_req: NextRequest) {
     thirtyDaysFromNow.setDate(today.getDate() + 30);
     const toDate = thirtyDaysFromNow.toISOString().split("T")[0]!; // 30 days from now
     
-    console.log("[API] /api/earnings-next-30-days date range:", { fromDate, toDate });
+    logger.debug("[API] /api/earnings-next-30-days date range:", { fromDate, toDate });
 
     // WORKAROUND: Finnhub has issues with cross-month date ranges
     // Split the query by month to avoid missing data
-    let allEarnings: any[] = [];
+    const allEarnings: any[] = [];
     
     // Generate strictly month-by-month ranges to avoid cross-month queries
     // Parse dates as YYYY-MM-DD strings to avoid timezone issues
@@ -63,13 +65,13 @@ export async function GET(_req: NextRequest) {
         // Skip if this month doesn't overlap with our range
         if (queryStart > queryEnd) continue;
         
-        console.log(`[API] Querying month ${year}-${month}: ${queryStart} to ${queryEnd}`);
+        logger.debug(`[API] Querying month ${year}-${month}: ${queryStart} to ${queryEnd}`);
         
         const url = `${FINNHUB_BASE_URL}/calendar/earnings?from=${queryStart}&to=${queryEnd}&token=${FINNHUB_API_KEY}`;
         
         const res = await fetch(url);
         if (!res.ok) {
-          console.error("[API] Finnhub fetch failed for month:", year, month, res.status, res.statusText);
+          logger.error("[API] Finnhub fetch failed for month:", year, month, res.status, res.statusText);
           continue;
         }
         
@@ -77,11 +79,11 @@ export async function GET(_req: NextRequest) {
         const monthEarnings = Array.isArray(data.earningsCalendar) ? data.earningsCalendar : [];
         allEarnings.push(...monthEarnings);
         
-        console.log(`[API] Found ${monthEarnings.length} earnings for month ${year}-${month}`);
+        logger.debug(`[API] Found ${monthEarnings.length} earnings for month ${year}-${month}`);
       }
     }
     
-    console.log(`[API] Total earnings from all months: ${allEarnings.length}`);
+    logger.debug(`[API] Total earnings from all months: ${allEarnings.length}`);
     
     // Filter to exact date range and remove duplicates
     const earnings = allEarnings
@@ -96,7 +98,7 @@ export async function GET(_req: NextRequest) {
     
     // Filter for tech stocks and process
     const techEarnings = earnings.filter((e: any) => techSymbols.has(e.symbol));
-    console.log(
+    logger.debug(
       `[API] Filtered ${techEarnings.length} tech earnings from ${earnings.length} total earnings`
     );
     
@@ -141,7 +143,7 @@ export async function GET(_req: NextRequest) {
       return dateA - dateB;
     });
 
-    console.log(`[API] Found ${sortedResult.length} earnings records for next 30 days`);
+    logger.debug(`[API] Found ${sortedResult.length} earnings records for next 30 days`);
     
     const response: EarningsResponse = {
       earnings: sortedResult,
@@ -150,7 +152,7 @@ export async function GET(_req: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("[API] Error fetching next 30 days earnings:", error);
+    logger.error("[API] Error fetching next 30 days earnings:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

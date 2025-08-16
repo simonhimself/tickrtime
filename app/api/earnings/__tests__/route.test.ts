@@ -18,8 +18,8 @@ jest.mock('process', () => ({
   }
 }))
 
-import { GET } from '../route'
 import { NextRequest } from 'next/server'
+import { GET } from '../route'
 
 describe('/api/earnings', () => {
   beforeEach(() => {

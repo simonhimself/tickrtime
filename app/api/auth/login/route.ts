@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 import type { AuthRequest, AuthResponse } from '@/types';
 
@@ -39,9 +40,9 @@ export async function POST(request: NextRequest) {
     const kv = createKV();
 
     // Get user by email
-    console.log('Login attempt for email:', email);
+    logger.debug('Login attempt for email:', email);
     const user = await getUserByEmail(kv, email);
-    console.log('User lookup result:', user ? 'Found' : 'Not found');
+    logger.debug('User lookup result:', user ? 'Found' : 'Not found');
     if (!user) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -50,9 +51,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password
-    console.log('Verifying password for user:', user.email);
+    logger.debug('Verifying password for user:', user.email);
     const isValid = await verifyPasswordAsync(password, user.passwordHash);
-    console.log('Password verification result:', isValid);
+    logger.debug('Password verification result:', isValid);
     if (!isValid) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email is verified
-    console.log('Email verification status:', user.emailVerified);
+    logger.debug('Email verification status:', user.emailVerified);
     if (!user.emailVerified) {
       return NextResponse.json<AuthResponse>({
         success: false,
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error:', error);
     return NextResponse.json<AuthResponse>({
       success: false,
       message: 'Internal server error'
