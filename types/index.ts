@@ -195,13 +195,17 @@ export interface UseTableSortReturn {
 
 export interface UseTableHoverReturn {
   hoveredRow: string | null;
+  expandedRow: string | null;
+  activeRow: string | null;
   iconPosition: number;
   rowRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
   tableHeaderRef: React.RefObject<HTMLDivElement | null>;
   handleRowHover: (symbol: string) => void;
+  handleRowTap: (symbol: string) => void;
   handleHoverEnd: () => void;
   handleIconAreaHover: () => void;
   handleIconAreaLeave: () => void;
   shouldShowIcons: boolean;
+  isMobile: boolean;
   ICON_VERTICAL_OFFSET: number;
 }

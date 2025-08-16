@@ -1,12 +1,14 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-media-query";
 import type { SearchFiltersProps } from "@/types";
 
 export function SearchFilters({
@@ -16,6 +18,15 @@ export function SearchFilters({
   loading = false,
   className,
 }: SearchFiltersProps) {
+  const isMobile = useIsMobile();
+
+  // Quick filter presets for mobile
+  const quickFilters = [
+    { label: "Big Tech", ticker: "AAPL,GOOGL,MSFT,AMZN,META" },
+    { label: "AI Chips", ticker: "NVDA,AMD,INTC" },
+    { label: "Cloud", ticker: "CRM,SNOW,DDOG" },
+    { label: "Streaming", ticker: "NFLX,DIS,ROKU" },
+  ];
   const handleTickerChange = (value: string) => {
     onFiltersChange({
       ...filters,
@@ -37,21 +48,82 @@ export function SearchFilters({
     });
   };
 
+  const handleQuickFilter = (quickFilter: typeof quickFilters[0]) => {
+    handleTickerChange(quickFilter.ticker);
+  };
+
+  const clearFilters = () => {
+    onFiltersChange({
+      ticker: "",
+      year: "2024",
+      quarter: "all",
+    });
+  };
+
+  const hasActiveFilters = filters.ticker.trim() || filters.quarter !== "all";
+
   return (
     <div className={cn("space-y-4 md:space-y-0 md:grid md:grid-cols-4 md:gap-4 mb-4 sm:mb-8 px-2 sm:px-0", className)}>
+      {/* Mobile Quick Filters */}
+      {isMobile && (
+        <div className="md:hidden mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <Label className="text-xs text-muted-foreground">QUICK FILTERS</Label>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="h-6 px-2 text-xs text-muted-foreground"
+                disabled={loading}
+              >
+                <X className="w-3 h-3 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {quickFilters.map((quickFilter) => (
+              <Badge
+                key={quickFilter.label}
+                variant="outline"
+                className="cursor-pointer hover:bg-accent transition-colors"
+                onClick={() => handleQuickFilter(quickFilter)}
+              >
+                {quickFilter.label}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Ticker Input */}
       <div>
         <Label htmlFor="ticker-input" className="block text-xs sm:text-sm mb-1 sm:mb-2 text-foreground">
           TICKER
         </Label>
-        <Input 
-          id="ticker-input"
-          placeholder="e.g. AAPL"
-          value={filters.ticker}
-          onChange={(e) => handleTickerChange(e.target.value)}
-          className="h-9 sm:h-10 text-sm transition-all duration-200 hover:border-ring/50 focus-visible:border-ring"
-          disabled={loading}
-        />
+        <div className="relative">
+          <Input 
+            id="ticker-input"
+            placeholder={isMobile ? "AAPL, GOOGL, MSFT..." : "e.g. AAPL"}
+            value={filters.ticker}
+            onChange={(e) => handleTickerChange(e.target.value)}
+            className="h-9 sm:h-10 text-sm transition-all duration-200 hover:border-ring/50 focus-visible:border-ring pr-8"
+            disabled={loading}
+          />
+          {filters.ticker && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleTickerChange("")}
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 hover:bg-accent"
+              disabled={loading}
+              aria-label="Clear ticker"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Mobile: Year and Quarter in a row */}

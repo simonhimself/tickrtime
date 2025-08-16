@@ -23,14 +23,18 @@ export function EarningsTable({
 }: TableProps) {
   const {
     hoveredRow,
+    expandedRow,
+    activeRow,
     iconPosition,
     rowRefs,
     tableHeaderRef,
     handleRowHover,
+    handleRowTap,
     handleHoverEnd,
     handleIconAreaHover,
     handleIconAreaLeave,
     shouldShowIcons,
+    isMobile,
     ICON_VERTICAL_OFFSET,
   } = useTableHover();
 
@@ -41,6 +45,95 @@ export function EarningsTable({
     getSortIcon,
     isSortable,
   } = useTableSort(data);
+
+  // Mobile card component for earnings data
+  const MobileEarningsCard = ({ earning }: { earning: EarningsData }) => {
+    const dateInfo = earning.date ? formatRelativeDate(earning.date) : null;
+    const isExpanded = expandedRow === earning.symbol;
+    
+    return (
+      <div 
+        ref={(el) => {
+          if (el) rowRefs.current[earning.symbol] = el;
+        }}
+        className={cn(
+          "border border-border rounded-lg p-4 mb-3 bg-card transition-all duration-200",
+          isExpanded ? "shadow-lg border-blue-200 dark:border-blue-800" : "shadow-sm"
+        )}
+        onClick={() => handleRowTap(earning.symbol)}
+        role="button"
+        tabIndex={0}
+        aria-label={`${earning.symbol} earnings data - tap to expand actions`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleRowTap(earning.symbol);
+          }
+        }}
+      >
+        {/* Primary Info Row */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-foreground text-base">{earning.symbol}</span>
+            {watchlistedItems.has(earning.symbol) && (
+              <Bookmark className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current" />
+            )}
+            {earning.exchange && (
+              <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs px-2 h-5">
+                {earning.exchange}
+              </Badge>
+            )}
+          </div>
+          <div className="text-right">
+            {dateInfo ? (
+              <>
+                <div className="text-sm font-medium text-foreground">{dateInfo.formattedDate}</div>
+                <div className="text-xs text-muted-foreground">{dateInfo.relativeText}</div>
+              </>
+            ) : (
+              <div className="text-sm text-muted-foreground">-</div>
+            )}
+          </div>
+        </div>
+
+        {/* Financial Data Row */}
+        <div className="grid grid-cols-3 gap-4 text-sm">
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">ESTIMATE</div>
+            <div className="font-medium">
+              {earning.estimate !== null && earning.estimate !== undefined
+                ? formatCurrency(earning.estimate)
+                : "-"}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">ACTUAL EPS</div>
+            <div className="font-medium">
+              {earning.actual !== null && earning.actual !== undefined
+                ? formatCurrency(earning.actual)
+                : "-"}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">SURPRISE</div>
+            <div className={cn("font-medium", getSurpriseColorClass(earning.surprisePercent))}>
+              {earning.surprisePercent !== null && earning.surprisePercent !== undefined
+                ? formatPercentage(earning.surprisePercent, { showSign: true })
+                : "-"}
+            </div>
+          </div>
+        </div>
+
+        {/* Expand Indicator */}
+        <div className="flex justify-center mt-3">
+          <div className={cn(
+            "w-6 h-1 rounded-full transition-colors duration-200",
+            isExpanded ? "bg-blue-500" : "bg-muted-foreground/30"
+          )} />
+        </div>
+      </div>
+    );
+  };
 
   // Action icons configuration
   const getActionIcons = (symbol: string): ActionIcon[] => [
@@ -171,9 +264,17 @@ export function EarningsTable({
 
   return (
     <div className={cn("relative", className)}>
-      {/* Mobile-friendly table wrapper with horizontal scroll */}
-      <div className="bg-card rounded-lg shadow-sm border border-border overflow-x-auto">
-        <div className="min-w-[640px]">
+      {isMobile ? (
+        // Mobile Card Layout
+        <div className="space-y-0">
+          {sortedData.map((earning) => (
+            <MobileEarningsCard key={`${earning.symbol}-${earning.date}`} earning={earning} />
+          ))}
+        </div>
+      ) : (
+        // Desktop Table Layout
+        <div className="bg-card rounded-lg shadow-sm border border-border overflow-x-auto">
+          <div className="min-w-[640px]">
           {/* Table Header */}
           <header 
             ref={tableHeaderRef}
@@ -276,10 +377,11 @@ export function EarningsTable({
             })}
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
-      {/* Hover Bridge Area */}
-      {shouldShowIcons && (
+      {/* Desktop Hover Bridge Area */}
+      {!isMobile && shouldShowIcons && (
         <div 
           className="absolute pointer-events-auto border-0 bg-transparent"
           style={{ 
@@ -295,44 +397,83 @@ export function EarningsTable({
         />
       )}
 
-      {/* Action Icons Panel */}
-      <div 
-        className={cn(
-          "absolute flex items-center transition-all duration-300 ease-out z-10",
-          shouldShowIcons 
-            ? "opacity-100 translate-x-0 pointer-events-auto action-panel-enter-active" 
-            : "opacity-0 translate-x-4 pointer-events-none action-panel-enter"
-        )}
-        style={{ 
-          left: "100%",
-          marginLeft: "1rem",
-          top: `${iconPosition}px`,
-          transform: "translateY(-50%)",
-        }}
-        onMouseEnter={handleIconAreaHover}
-        onMouseLeave={handleIconAreaLeave}
-        role="toolbar"
-        aria-label="Stock actions"
-      >
-        <div className="bg-card rounded-lg shadow-lg border border-border p-2 flex flex-col gap-2">
-          {hoveredRow && getActionIcons(hoveredRow).map((action, index) => {
-            const Icon = action.icon;
-            return (
-              <Button
-                key={index}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-accent transition-colors"
-                title={action.label}
-                onClick={() => action.onClick(hoveredRow)}
-                aria-label={action.label}
-              >
-                <Icon className={cn("w-4 h-4 transition-colors", action.colorClass)} />
-              </Button>
-            );
-          })}
+      {/* Desktop Action Icons Panel */}
+      {!isMobile && (
+        <div 
+          className={cn(
+            "absolute flex items-center transition-all duration-300 ease-out z-10",
+            shouldShowIcons 
+              ? "opacity-100 translate-x-0 pointer-events-auto action-panel-enter-active" 
+              : "opacity-0 translate-x-4 pointer-events-none action-panel-enter"
+          )}
+          style={{ 
+            left: "100%",
+            marginLeft: "1rem",
+            top: `${iconPosition}px`,
+            transform: "translateY(-50%)",
+          }}
+          onMouseEnter={handleIconAreaHover}
+          onMouseLeave={handleIconAreaLeave}
+          role="toolbar"
+          aria-label="Stock actions"
+        >
+          <div className="bg-card rounded-lg shadow-lg border border-border p-2 flex flex-col gap-2">
+            {activeRow && getActionIcons(activeRow).map((action, index) => {
+              const Icon = action.icon;
+              return (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-accent transition-colors"
+                  title={action.label}
+                  onClick={() => action.onClick(activeRow)}
+                  aria-label={action.label}
+                >
+                  <Icon className={cn("w-4 h-4 transition-colors", action.colorClass)} />
+                </Button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Mobile Action Panel */}
+      {isMobile && shouldShowIcons && activeRow && (
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 shadow-lg z-50">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-medium text-foreground">{activeRow} Actions</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleRowTap(activeRow)}
+              aria-label="Close actions"
+            >
+              ✕
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {getActionIcons(activeRow).slice(0, 4).map((action, index) => {
+              const Icon = action.icon;
+              return (
+                <Button
+                  key={index}
+                  variant="outline"
+                  className="h-12 flex flex-col gap-1 text-xs"
+                  onClick={() => {
+                    action.onClick(activeRow);
+                    handleRowTap(activeRow); // Close after action
+                  }}
+                  aria-label={action.label}
+                >
+                  <Icon className={cn("w-4 h-4", action.colorClass)} />
+                  <span>{action.label}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
