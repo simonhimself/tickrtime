@@ -269,7 +269,7 @@ export function EarningsDashboard() {
   const watchlistedItems = new Set(watchlist.getWatchedSymbols());
 
   return (
-    <div className="min-h-screen bg-background p-6 transition-colors">
+    <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 transition-colors">
       <div className="max-w-7xl mx-auto">
         <Header 
           watchlistCount={watchlist.count}
@@ -279,11 +279,11 @@ export function EarningsDashboard() {
         
         <main>
           {/* Title and Description */}
-          <section className="mb-8">
-            <h1 className="mb-4 text-foreground font-bold text-4xl">
+          <section className="mb-4 sm:mb-8 px-2 sm:px-0">
+            <h1 className="mb-2 sm:mb-4 text-foreground font-bold text-2xl sm:text-3xl md:text-4xl">
               TickrTime, never miss earnings again
             </h1>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 sm:mb-6">
               {getDescriptionText()}
             </p>
             

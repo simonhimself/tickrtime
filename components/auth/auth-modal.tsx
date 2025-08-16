@@ -31,14 +31,14 @@ export function AuthModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md mx-auto sm:w-full">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">
             {mode === "login" ? "Sign In" : "Create Account"}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="py-4">
+        <div className="py-2 sm:py-4">
           {mode === "login" ? (
             <LoginForm
               onSuccess={handleSuccess}

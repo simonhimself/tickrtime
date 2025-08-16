@@ -19,14 +19,14 @@ export function WatchlistToggle({ count, isActive, onClick, className }: Watchli
       variant={isActive ? "default" : "ghost"}
       size="sm"
       onClick={onClick}
-      className={cn("h-8 gap-2", className)}
+      className={cn("h-7 sm:h-8 px-2 sm:px-3 gap-1 sm:gap-2", className)}
       title={`${isActive ? "Hide" : "Show"} watchlist (${count} items)`}
     >
-      <Bookmark className={cn("h-4 w-4", isActive && "fill-current")} />
+      <Bookmark className={cn("h-3 w-3 sm:h-4 sm:w-4", isActive && "fill-current")} />
       {count > 0 && (
         <Badge
           variant={isActive ? "secondary" : "default"}
-          className="h-5 min-w-5 px-1.5 text-xs"
+          className="h-4 sm:h-5 min-w-4 sm:min-w-5 px-1 sm:px-1.5 text-[10px] sm:text-xs"
         >
           {count}
         </Badge>

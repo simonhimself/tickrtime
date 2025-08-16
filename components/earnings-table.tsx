@@ -171,13 +171,15 @@ export function EarningsTable({
 
   return (
     <div className={cn("relative", className)}>
-      <div className="bg-card rounded-lg shadow-sm border border-border overflow-visible">
-        {/* Table Header */}
-        <header 
-          ref={tableHeaderRef}
-          className="grid grid-cols-6 gap-4 px-6 py-3 bg-muted/50 border-b border-border text-sm"
-          role="row"
-        >
+      {/* Mobile-friendly table wrapper with horizontal scroll */}
+      <div className="bg-card rounded-lg shadow-sm border border-border overflow-x-auto">
+        <div className="min-w-[640px]">
+          {/* Table Header */}
+          <header 
+            ref={tableHeaderRef}
+            className="grid grid-cols-6 gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-muted/50 border-b border-border text-xs sm:text-sm sticky top-0 z-20"
+            role="row"
+          >
           {renderHeaderCell("symbol", "TICKER")}
           {renderHeaderCell("exchange", "EXCHANGE")}
           {renderHeaderCell("date", "EARNINGS DATE")}
@@ -186,19 +188,19 @@ export function EarningsTable({
           {renderHeaderCell("surprisePercent", "SURPRISE")}
         </header>
 
-        {/* Table Body */}
-        <div role="table">
-          {sortedData.map((earning) => {
-            const dateInfo = earning.date ? formatRelativeDate(earning.date) : null;
-            
-            return (
-              <div
-                key={`${earning.symbol}-${earning.date}`}
-                ref={(el) => {
-                  if (el) rowRefs.current[earning.symbol] = el;
-                }}
-                className={cn(
-                  "grid grid-cols-6 gap-4 px-6 py-4 transition-all duration-200 cursor-pointer relative table-row-hover border-b border-border",
+          {/* Table Body */}
+          <div role="table">
+            {sortedData.map((earning) => {
+              const dateInfo = earning.date ? formatRelativeDate(earning.date) : null;
+              
+              return (
+                <div
+                  key={`${earning.symbol}-${earning.date}`}
+                  ref={(el) => {
+                    if (el) rowRefs.current[earning.symbol] = el;
+                  }}
+                  className={cn(
+                    "grid grid-cols-6 gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 transition-all duration-200 cursor-pointer relative table-row-hover border-b border-border",
                   hoveredRow === earning.symbol
                     ? "bg-blue-50 dark:bg-blue-950/50 shadow-md transform translate-x-1"
                     : "hover:bg-accent/50"
@@ -209,69 +211,70 @@ export function EarningsTable({
                 tabIndex={0}
                 aria-label={`${earning.symbol} earnings data`}
               >
-                {/* Ticker */}
-                <div className="flex items-center gap-2" role="cell">
-                  <span className="font-medium text-foreground">{earning.symbol}</span>
-                  {watchlistedItems.has(earning.symbol) && (
-                    <Bookmark 
-                      className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60" 
-                      aria-label="In watchlist"
-                    />
-                  )}
-                </div>
+                  {/* Ticker */}
+                  <div className="flex items-center gap-1 sm:gap-2" role="cell">
+                    <span className="font-medium text-xs sm:text-sm text-foreground">{earning.symbol}</span>
+                    {watchlistedItems.has(earning.symbol) && (
+                      <Bookmark 
+                        className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60" 
+                        aria-label="In watchlist"
+                      />
+                    )}
+                  </div>
 
-                {/* Exchange */}
-                <div className="flex items-center" role="cell">
-                  {earning.exchange ? (
-                    <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs">
-                      {earning.exchange}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </div>
+                  {/* Exchange */}
+                  <div className="flex items-center" role="cell">
+                    {earning.exchange ? (
+                      <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-[10px] sm:text-xs px-1 sm:px-2 h-5 sm:h-6">
+                        {earning.exchange}
+                      </Badge>
+                    ) : (
+                      <span className="text-xs sm:text-sm text-muted-foreground">-</span>
+                    )}
+                  </div>
 
-                {/* Earnings Date */}
-                <div className="flex flex-col" role="cell">
-                  {dateInfo ? (
-                    <>
-                      <span className="text-sm text-foreground">{dateInfo.formattedDate}</span>
-                      <span className="text-xs text-muted-foreground">{dateInfo.relativeText}</span>
-                    </>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </div>
+                  {/* Earnings Date */}
+                  <div className="flex flex-col" role="cell">
+                    {dateInfo ? (
+                      <>
+                        <span className="text-xs sm:text-sm text-foreground">{dateInfo.formattedDate}</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground">{dateInfo.relativeText}</span>
+                      </>
+                    ) : (
+                      <span className="text-xs sm:text-sm text-muted-foreground">-</span>
+                    )}
+                  </div>
 
-                {/* Estimate */}
-                <div className="flex items-center text-sm text-foreground" role="cell">
-                  {earning.estimate !== null && earning.estimate !== undefined
-                    ? formatCurrency(earning.estimate)
-                    : "-"}
-                </div>
+                  {/* Estimate */}
+                  <div className="flex items-center text-xs sm:text-sm text-foreground" role="cell">
+                    {earning.estimate !== null && earning.estimate !== undefined
+                      ? formatCurrency(earning.estimate)
+                      : "-"}
+                  </div>
 
-                {/* Actual EPS */}
-                <div className="flex items-center text-sm text-foreground" role="cell">
-                  {earning.actual !== null && earning.actual !== undefined
-                    ? formatCurrency(earning.actual)
-                    : "-"}
-                </div>
+                  {/* Actual EPS */}
+                  <div className="flex items-center text-xs sm:text-sm text-foreground" role="cell">
+                    {earning.actual !== null && earning.actual !== undefined
+                      ? formatCurrency(earning.actual)
+                      : "-"}
+                  </div>
 
-                {/* Surprise */}
-                <div 
-                  className={cn(
-                    "flex items-center text-sm",
-                    getSurpriseColorClass(earning.surprisePercent)
-                  )} 
-                  role="cell"
-                >
-                  {earning.surprisePercent !== null && earning.surprisePercent !== undefined
-                    ? formatPercentage(earning.surprisePercent, { showSign: true })
-                    : "-"}
+                  {/* Surprise */}
+                  <div 
+                    className={cn(
+                      "flex items-center text-xs sm:text-sm",
+                      getSurpriseColorClass(earning.surprisePercent)
+                    )} 
+                    role="cell"
+                  >
+                    {earning.surprisePercent !== null && earning.surprisePercent !== undefined
+                      ? formatPercentage(earning.surprisePercent, { showSign: true })
+                      : "-"}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 

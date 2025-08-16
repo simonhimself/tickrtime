@@ -75,17 +75,17 @@ export function Header({
 
   return (
     <>
-      <header className={cn("flex items-center justify-between mb-8", className)}>
+      <header className={cn("flex items-center justify-between mb-4 sm:mb-8 px-2 sm:px-0", className)}>
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-muted-foreground" />
-          <Badge variant="outline" className="px-3 py-1 font-semibold">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+          <Badge variant="outline" className="px-2 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm font-semibold">
             TickrTime
           </Badge>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <WatchlistToggle 
             count={watchlistCount}
             isActive={false} // Will be managed by parent component
@@ -96,17 +96,18 @@ export function Header({
           {/* Auth Button */}
           {!isLoading && (
             user ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground hidden sm:inline">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <span className="text-xs sm:text-sm text-muted-foreground hidden md:inline max-w-[150px] truncate">
                   {user.email}
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
-                  className="h-8 gap-2"
+                  className="h-7 sm:h-8 px-2 sm:px-3 gap-1 sm:gap-2"
+                  title="Logout"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">Logout</span>
                 </Button>
               </div>
@@ -115,9 +116,10 @@ export function Header({
                 variant="outline"
                 size="sm"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="h-8 gap-2"
+                className="h-7 sm:h-8 px-2 sm:px-3 gap-1 sm:gap-2"
+                title="Sign In"
               >
-                <User className="h-4 w-4" />
+                <User className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Sign In</span>
               </Button>
             )
