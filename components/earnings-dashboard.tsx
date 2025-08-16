@@ -44,11 +44,21 @@ export function EarningsDashboard() {
     
     try {
       const response = await fetch(endpoint);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch earnings data: ${response.status}`);
+      
+      let data: EarningsResponse;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        // If JSON parsing fails, create an error response
+        data = { 
+          earnings: [], 
+          error: `Server error: ${response.status} ${response.statusText}` 
+        };
       }
       
-      const data: EarningsResponse = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to fetch earnings data: ${response.status}`);
+      }
       
       if (data.error) {
         throw new Error(data.error);
@@ -107,11 +117,21 @@ export function EarningsDashboard() {
       }
       
       const response = await fetch(`/api/earnings?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error(`Failed to search earnings: ${response.status}`);
+      
+      let data: EarningsResponse;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        // If JSON parsing fails, create an error response
+        data = { 
+          earnings: [], 
+          error: `Server error: ${response.status} ${response.statusText}` 
+        };
       }
       
-      const data: EarningsResponse = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to search earnings: ${response.status}`);
+      }
       
       if (data.error) {
         throw new Error(data.error);
