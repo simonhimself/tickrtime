@@ -1,12 +1,15 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { useState } from "react";
+import { Search, ChevronDown, ChevronUp, Filter, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-media-query";
 import type { SearchFiltersProps } from "@/types";
 
 export function SearchFilters({
@@ -16,6 +19,10 @@ export function SearchFilters({
   loading = false,
   className,
 }: SearchFiltersProps) {
+  const isMobile = useIsMobile();
+  const [isExpanded, setIsExpanded] = useState(!isMobile); // Expanded by default on desktop
+  
+  
   const handleTickerChange = (value: string) => {
     onFiltersChange({
       ...filters,
@@ -37,9 +44,68 @@ export function SearchFilters({
     });
   };
 
+  // Helper to check if filters are active
+  const hasActiveFilters = filters.ticker.trim() || filters.quarter !== "all";
+  const activeFilterCount = [
+    filters.ticker.trim(),
+    filters.quarter !== "all" ? filters.quarter : null,
+  ].filter(Boolean).length;
+
+  // Clear all filters
+  const clearFilters = () => {
+    onFiltersChange({
+      ticker: "",
+      year: "2024", 
+      quarter: "all",
+    });
+  };
+
   return (
-    <div className={cn("space-y-4 md:space-y-0 md:grid md:grid-cols-4 md:gap-4 mb-4 sm:mb-8 px-2 sm:px-0", className)}>
-      {/* Ticker Input */}
+    <div className={cn("mb-4 sm:mb-8 px-2 sm:px-0", className)}>
+      {/* Mobile Filter Toggle */}
+      {isMobile && (
+        <div className="flex items-center justify-between mb-3">
+          <Button
+            variant="outline"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-2 h-9"
+            disabled={loading}
+          >
+            <Filter className="w-4 h-4" />
+            <span>Filters</span>
+            {activeFilterCount > 0 && (
+              <Badge variant="secondary" className="ml-1 h-5 min-w-[20px] px-1 text-xs">
+                {activeFilterCount}
+              </Badge>
+            )}
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+          
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="text-muted-foreground hover:text-foreground"
+              disabled={loading}
+            >
+              <X className="w-4 h-4 mr-1" />
+              Clear
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Filter Content */}
+      <div 
+        className={cn(
+          "transition-all duration-200 overflow-hidden",
+          isMobile && !isExpanded ? "max-h-0 opacity-0" : "max-h-none opacity-100",
+          !isMobile && "space-y-4 md:space-y-0 md:grid md:grid-cols-4 md:gap-4",
+          isMobile && "space-y-3"
+        )}
+      >
+        {/* Ticker Input */}
       <div>
         <Label htmlFor="ticker-input" className="block text-xs sm:text-sm mb-1 sm:mb-2 text-foreground">
           TICKER
@@ -114,6 +180,7 @@ export function SearchFilters({
           <Search className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
           {loading ? "Searching..." : "Search"}
         </Button>
+        </div>
       </div>
     </div>
   );
