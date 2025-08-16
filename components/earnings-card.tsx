@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Bookmark, Eye, Bell, TrendingUp } from "lucide-react";
+import React, { useState } from "react";
+import { Bookmark, Eye, Bell, TrendingUp, ChevronDown, ChevronUp, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ export function EarningsCard({
   onAction,
   onToggleWatchlist,
 }: EarningsCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const dateInfo = earning.date ? formatRelativeDate(earning.date) : null;
 
   // Action icons configuration
@@ -56,7 +57,14 @@ export function EarningsCard({
   ];
 
   return (
-    <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden transition-all duration-200 hover:shadow-md active:scale-[0.98]">
+    <div 
+      className={cn(
+        "bg-card rounded-lg border border-border overflow-hidden transition-all duration-200 cursor-pointer",
+        "shadow-sm active:scale-[0.98] active:shadow-lg",
+        isExpanded && "shadow-md ring-2 ring-blue-500/20"
+      )}
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
       {/* Header Row - Ticker, Exchange, Date */}
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -77,15 +85,26 @@ export function EarningsCard({
           )}
         </div>
         
-        <div className="text-right">
-          {dateInfo ? (
-            <>
-              <div className="text-sm font-medium text-foreground">{dateInfo.formattedDate}</div>
-              <div className="text-xs text-muted-foreground">{dateInfo.relativeText}</div>
-            </>
-          ) : (
-            <div className="text-sm text-muted-foreground">-</div>
-          )}
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            {dateInfo ? (
+              <>
+                <div className="text-sm font-medium text-foreground">{dateInfo.formattedDate}</div>
+                <div className="text-xs text-muted-foreground">{dateInfo.relativeText}</div>
+              </>
+            ) : (
+              <div className="text-sm text-muted-foreground">-</div>
+            )}
+          </div>
+          
+          {/* Expand/Collapse Indicator */}
+          <div className="flex items-center justify-center w-6 h-6 text-muted-foreground">
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </div>
         </div>
       </div>
 
@@ -133,29 +152,51 @@ export function EarningsCard({
         </div>
       </div>
 
-      {/* Action Bar */}
-      <div className="px-4 py-3 bg-muted/10 border-t border-border">
-        <div className="flex items-center justify-center gap-3">
-          {getActionIcons().map((action, index) => {
-            const Icon = action.icon;
-            return (
+      {/* Expandable Actions Section */}
+      <div className={cn(
+        "border-t border-border bg-muted/5 transition-all duration-300 ease-out overflow-hidden",
+        isExpanded ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+      )}>
+        <div className="px-4 py-3">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-muted-foreground">Actions</span>
               <Button
-                key={index}
                 variant="ghost"
                 size="sm"
-                className="h-9 px-3 flex items-center gap-2 text-xs hover:bg-accent transition-colors min-w-[44px]"
+                className="h-6 w-6 p-0 text-muted-foreground active:text-foreground active:bg-accent"
                 onClick={(e) => {
                   e.stopPropagation();
-                  action.onClick(earning.symbol);
+                  setIsExpanded(false);
                 }}
-                title={action.label}
+                title="Close actions"
               >
-                <Icon className={cn("w-4 h-4", action.colorClass)} />
-                <span className="hidden sm:inline">{action.label}</span>
+                <X className="w-4 h-4" />
               </Button>
-            );
-          })}
-        </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              {getActionIcons().map((action, index) => {
+                const Icon = action.icon;
+                return (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    className="h-10 flex items-center justify-start gap-2 text-xs active:bg-accent active:scale-[0.98] transition-transform min-h-[44px]"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      action.onClick(earning.symbol);
+                      setIsExpanded(false); // Close after action
+                    }}
+                    title={action.label}
+                  >
+                    <Icon className={cn("w-4 h-4", action.colorClass)} />
+                    <span>{action.label}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
       </div>
     </div>
   );

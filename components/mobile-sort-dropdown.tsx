@@ -56,12 +56,12 @@ export function MobileSortDropdown({
   };
 
   return (
-    <div className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border", className)}>
-      <div className="px-4 py-3 flex items-center justify-between">
+    <div className={cn("sticky top-0 z-20 bg-gray-50/90 dark:bg-gray-900/90 backdrop-blur-sm supports-[backdrop-filter]:bg-gray-50/80 dark:supports-[backdrop-filter]:bg-gray-900/80 border-b border-border shadow-sm", className)}>
+      <div className="px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-muted-foreground">Sort by:</span>
           <Select value={sortField || "date"} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-auto h-8 gap-2 border-0 bg-transparent hover:bg-accent transition-colors">
+            <SelectTrigger className="w-auto h-8 gap-2 border-0 bg-transparent active:bg-accent transition-colors">
               <div className="flex items-center gap-1">
                 <SelectValue />
                 <span className="text-blue-600 dark:text-blue-400 font-medium">

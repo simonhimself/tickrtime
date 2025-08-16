@@ -207,11 +207,10 @@ export function EarningsTable({
           sortField={sortState.field}
           sortDirection={sortState.direction}
           onSort={handleSort}
-          className="mb-4"
         />
         
         {/* Mobile Cards */}
-        <div className="space-y-4">
+        <div className="pt-6 px-4 space-y-4">
           {sortedData.map((earning) => (
             <EarningsCard
               key={`${earning.symbol}-${earning.date}`}
