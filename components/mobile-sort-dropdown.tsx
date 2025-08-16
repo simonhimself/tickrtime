@@ -35,8 +35,8 @@ export function MobileSortDropdown({
   onSort,
   className,
 }: MobileSortDropdownProps) {
-  const currentOption = SORT_OPTIONS.find(option => option.field === sortField);
-  const _currentLabel = currentOption ? currentOption.label : "Date";
+  // const currentOption = SORT_OPTIONS.find(option => option.field === sortField);
+  // const currentLabel = currentOption ? currentOption.label : "Date";
 
   const handleSortChange = (value: string) => {
     const field = value as SortField;

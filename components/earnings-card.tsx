@@ -12,7 +12,7 @@ interface EarningsCardProps {
   earning: EarningsData;
   isWatchlisted: boolean;
   onAction: (action: string, symbol: string) => void;
-  onToggleWatchlist: (symbol: string) => Promise<boolean>;
+  onToggleWatchlist: (symbol: string) => boolean | Promise<boolean>;
 }
 
 export function EarningsCard({

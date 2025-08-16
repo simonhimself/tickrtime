@@ -218,7 +218,7 @@ export function EarningsTable({
               earning={earning}
               isWatchlisted={watchlistedItems.has(earning.symbol)}
               onAction={onRowAction || (() => {})}
-              onToggleWatchlist={onToggleWatchlist || (async () => false)}
+              onToggleWatchlist={onToggleWatchlist || (() => false)}
             />
           ))}
         </div>
