@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Eye, Bell, TrendingUp, MoreHorizontal, Bookmark, ChevronUp, ChevronDown, ChevronRight } from "lucide-react";
+import React from "react";
+import { Eye, Bell, TrendingUp, MoreHorizontal, Bookmark, ChevronUp, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -218,7 +218,7 @@ export function EarningsTable({
               earning={earning}
               isWatchlisted={watchlistedItems.has(earning.symbol)}
               onAction={onRowAction || (() => {})}
-              onToggleWatchlist={onToggleWatchlist || (() => Promise.resolve(false))}
+              onToggleWatchlist={onToggleWatchlist || (async () => false)}
             />
           ))}
         </div>

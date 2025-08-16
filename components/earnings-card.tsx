@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Bookmark, Eye, Bell, TrendingUp, MoreHorizontal } from "lucide-react";
+import { Bookmark, Eye, Bell, TrendingUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
