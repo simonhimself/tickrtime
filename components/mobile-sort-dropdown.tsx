@@ -35,8 +35,8 @@ export function MobileSortDropdown({
   onSort,
   className,
 }: MobileSortDropdownProps) {
-  // const currentOption = SORT_OPTIONS.find(option => option.field === sortField);
-  // const currentLabel = currentOption ? currentOption.label : "Date";
+  // Ensure we always have a valid sort field, defaulting to 'date'
+  const currentSortField = sortField || 'date';
 
   const handleSortChange = (value: string) => {
     const field = value as SortField;
@@ -50,24 +50,14 @@ export function MobileSortDropdown({
       : <ChevronDown className="w-4 h-4" />;
   };
 
-  const getSortText = () => {
-    if (!sortDirection) return "";
-    return sortDirection === "asc" ? " ↑" : " ↓";
-  };
-
   return (
     <div className={cn("sticky top-0 z-20 bg-gray-50/90 dark:bg-gray-900/90 backdrop-blur-sm supports-[backdrop-filter]:bg-gray-50/80 dark:supports-[backdrop-filter]:bg-gray-900/80 border-b border-border shadow-sm", className)}>
       <div className="px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-muted-foreground">Sort by:</span>
-          <Select value={sortField || "date"} onValueChange={handleSortChange}>
+          <Select value={currentSortField} onValueChange={handleSortChange}>
             <SelectTrigger className="w-auto h-8 gap-2 border-0 bg-transparent active:bg-accent transition-colors">
-              <div className="flex items-center gap-1">
-                <SelectValue />
-                <span className="text-blue-600 dark:text-blue-400 font-medium">
-                  {getSortText()}
-                </span>
-              </div>
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {SORT_OPTIONS.map((option) => (
@@ -83,8 +73,9 @@ export function MobileSortDropdown({
           variant="ghost"
           size="sm"
           className="h-8 w-8 p-0"
-          onClick={() => sortField && onSort(sortField)}
+          onClick={() => onSort(currentSortField)}
           title={`Sort ${sortDirection === "asc" ? "descending" : "ascending"}`}
+          aria-label={`Sort by ${SORT_OPTIONS.find(opt => opt.field === currentSortField)?.label} ${sortDirection === "asc" ? "descending" : "ascending"}`}
         >
           {getSortIcon()}
         </Button>

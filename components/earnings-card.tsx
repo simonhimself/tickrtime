@@ -65,28 +65,30 @@ export function EarningsCard({
       )}
       onClick={() => setIsExpanded(!isExpanded)}
     >
-      {/* Header Row - Ticker, Exchange, Date */}
-      <div className="px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-base text-foreground">{earning.symbol}</span>
-          {isWatchlisted && (
-            <Bookmark 
-              className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60" 
-              aria-label="In watchlist"
-            />
-          )}
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {earning.exchange && (
-            <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs px-2 h-5">
-              {earning.exchange}
-            </Badge>
-          )}
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="text-right">
+      {/* Header Row - Structured Layout */}
+      <div className="px-4 py-3 relative">
+        <div className="grid grid-cols-2 items-center gap-4">
+          {/* Left: Ticker + Exchange */}
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-semibold text-base text-foreground">{earning.symbol}</span>
+            {earning.exchange && (
+              <>
+                <span className="text-muted-foreground text-sm">·</span>
+                <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs px-2 h-5 flex-shrink-0">
+                  {earning.exchange}
+                </Badge>
+              </>
+            )}
+            {isWatchlisted && (
+              <Bookmark 
+                className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60 ml-1 flex-shrink-0" 
+                aria-label="In watchlist"
+              />
+            )}
+          </div>
+          
+          {/* Right: Date */}
+          <div className="text-right pr-8">
             {dateInfo ? (
               <>
                 <div className="text-sm font-medium text-foreground">{dateInfo.formattedDate}</div>
@@ -96,27 +98,27 @@ export function EarningsCard({
               <div className="text-sm text-muted-foreground">-</div>
             )}
           </div>
-          
-          {/* Expand/Collapse Indicator */}
-          <div className="flex items-center justify-center w-6 h-6 text-muted-foreground">
-            {isExpanded ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
-          </div>
+        </div>
+        
+        {/* Expand/Collapse Indicator - Positioned as overlay */}
+        <div className="absolute top-1/2 right-4 transform -translate-y-1/2 flex items-center justify-center w-6 h-6 text-muted-foreground z-10">
+          {isExpanded ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
         </div>
       </div>
 
-      {/* Metrics Row - 3 Column Grid */}
+      {/* Metrics Row - Improved 3 Column Grid */}
       <div className="px-4 py-3 border-t border-border bg-muted/5">
-        <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="grid grid-cols-3 gap-3 text-center">
           {/* Estimate */}
-          <div>
+          <div className="min-w-0 px-1">
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
               Estimate
             </div>
-            <div className="text-sm font-semibold text-foreground">
+            <div className="text-sm font-semibold text-foreground truncate">
               {earning.estimate !== null && earning.estimate !== undefined
                 ? formatCurrency(earning.estimate)
                 : "-"}
@@ -124,11 +126,11 @@ export function EarningsCard({
           </div>
 
           {/* Actual EPS */}
-          <div>
+          <div className="min-w-0 px-1">
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
               Actual EPS
             </div>
-            <div className="text-sm font-semibold text-foreground">
+            <div className="text-sm font-semibold text-foreground truncate">
               {earning.actual !== null && earning.actual !== undefined
                 ? formatCurrency(earning.actual)
                 : "-"}
@@ -136,12 +138,12 @@ export function EarningsCard({
           </div>
 
           {/* Surprise */}
-          <div>
+          <div className="min-w-0 px-1">
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
               Surprise
             </div>
             <div className={cn(
-              "text-sm font-semibold",
+              "text-sm font-semibold truncate",
               getSurpriseColorClass(earning.surprisePercent)
             )}>
               {earning.surprisePercent !== null && earning.surprisePercent !== undefined

@@ -109,15 +109,15 @@ export function EarningsTable({
         title={`Sort by ${label}`}
       >
         <span>{label}</span>
-        <div className="flex flex-col items-center justify-center ml-auto w-4 h-4">
+        <div className="w-4 h-4 flex flex-col items-center justify-center">
           {sortIcon === null && (
             <>
               <ChevronUp className="w-3 h-3 -mb-1 opacity-30" />
               <ChevronDown className="w-3 h-3 opacity-30" />
             </>
           )}
-          {sortIcon === "asc" && <ChevronUp className="w-3 h-3 opacity-100 text-blue-600" />}
-          {sortIcon === "desc" && <ChevronDown className="w-3 h-3 opacity-100 text-blue-600" />}
+          {sortIcon === "asc" && <ChevronUp className="w-3 h-3 opacity-100" />}
+          {sortIcon === "desc" && <ChevronDown className="w-3 h-3 opacity-100" />}
         </div>
       </button>
     );
@@ -153,7 +153,7 @@ export function EarningsTable({
       <div className={cn("relative", className)}>
         <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
           {/* Header skeleton */}
-          <div className="grid grid-cols-6 gap-4 px-6 py-3 bg-muted/50 border-b border-border">
+          <div className="grid grid-cols-6 gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-muted/50 border-b border-border">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="h-4 w-16" />
             ))}
@@ -162,7 +162,7 @@ export function EarningsTable({
           {/* Rows skeleton */}
           <div className="divide-y divide-border">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="grid grid-cols-6 gap-4 px-6 py-4">
+              <div key={i} className="grid grid-cols-6 gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4">
                 {Array.from({ length: 6 }).map((_, j) => (
                   <Skeleton key={j} className="h-4 w-full" />
                 ))}
@@ -234,7 +234,7 @@ export function EarningsTable({
           {/* Table Header */}
           <header 
             ref={tableHeaderRef}
-            className="grid grid-cols-6 gap-4 px-6 py-3 bg-muted/50 border-b border-border text-sm sticky top-0 z-20"
+            className="grid grid-cols-6 gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-muted/50 border-b border-border text-xs sm:text-sm sticky top-0 z-20"
             role="row"
           >
           {renderHeaderCell("symbol", "TICKER")}
@@ -257,7 +257,7 @@ export function EarningsTable({
                     if (el) rowRefs.current[earning.symbol] = el;
                   }}
                   className={cn(
-                    "grid grid-cols-6 gap-4 px-6 py-4 transition-all duration-200 cursor-pointer relative table-row-hover border-b border-border",
+                    "grid grid-cols-6 gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 transition-all duration-200 cursor-pointer relative table-row-hover border-b border-border",
                     hoveredRow === earning.symbol
                       ? "bg-blue-50 dark:bg-blue-950/50 shadow-md transform translate-x-1"
                       : "hover:bg-accent/50"
