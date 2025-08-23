@@ -99,7 +99,8 @@ export function SearchFilters({
       {/* Filter Content */}
       <div 
         className={cn(
-          "transition-all duration-200 overflow-hidden",
+          "transition-all duration-200",
+          isMobile && "overflow-hidden",
           isMobile && !isExpanded ? "max-h-0 opacity-0" : "max-h-none opacity-100",
           !isMobile && "space-y-4 md:space-y-0 md:grid md:grid-cols-4 md:gap-4",
           isMobile && "space-y-3"
