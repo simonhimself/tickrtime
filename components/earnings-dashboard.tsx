@@ -318,6 +318,7 @@ export function EarningsDashboard() {
           watchlistCount={watchlist.count}
           onWatchlistClick={handleWatchlistClick}
           onUserAction={(action) => toast.info(`User action: ${action}`)}
+          isWatchlistActive={isWatchlistMode}
         />
         
         <main>

@@ -125,6 +125,7 @@ export interface HeaderProps extends BaseComponentProps {
   watchlistCount: number;
   onWatchlistClick: () => void;
   onUserAction: (action: string) => void;
+  isWatchlistActive?: boolean;
 }
 
 export interface SearchFiltersProps extends BaseComponentProps {

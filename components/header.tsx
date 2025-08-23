@@ -15,6 +15,7 @@ import type { HeaderProps, User as UserType, AuthResponse } from "@/types";
 export function Header({
   watchlistCount,
   onWatchlistClick,
+  isWatchlistActive = false,
   className,
 }: HeaderProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -88,7 +89,7 @@ export function Header({
         <div className="flex items-center gap-1 sm:gap-2">
           <WatchlistToggle 
             count={watchlistCount}
-            isActive={false} // Will be managed by parent component
+            isActive={isWatchlistActive}
             onClick={onWatchlistClick}
           />
           <ThemeToggle />
