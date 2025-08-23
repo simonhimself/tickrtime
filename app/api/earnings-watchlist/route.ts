@@ -113,16 +113,38 @@ export async function GET(req: NextRequest) {
       earningsByTicker.get(symbol)!.push(earning);
     });
 
-    // For each ticker, select the most relevant upcoming earning
-    const allEarnings = Array.from(earningsByTicker.values())
-      .map(tickerEarnings => {
-        // Already sorted by date, so first item is the next earnings
+    // For each requested symbol, return either the next earning or a placeholder
+    const allEarnings = symbols.map(symbol => {
+      const tickerEarnings = earningsByTicker.get(symbol.toUpperCase());
+      
+      if (tickerEarnings && tickerEarnings.length > 0) {
+        // Return the next upcoming earning (already sorted by date)
         return tickerEarnings[0];
-      })
-      .filter(Boolean)
+      } else {
+        // Return placeholder for tickers with no scheduled earnings
+        return {
+          symbol: symbol.toUpperCase(),
+          date: null,
+          quarter: null,
+          year: null,
+          estimate: null,
+          actual: null,
+          surprise: null,
+          surprisePercent: null,
+          marketCap: null,
+          exchange: null,
+          name: null,
+        };
+      }
+    })
       .sort((a, b) => {
-        const dateA = new Date(a.date || 0);
-        const dateB = new Date(b.date || 0);
+        // Sort by date, putting null dates at the end
+        if (!a.date && !b.date) return 0;
+        if (!a.date) return 1;
+        if (!b.date) return -1;
+        
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
         return dateA.getTime() - dateB.getTime();
       });
 
