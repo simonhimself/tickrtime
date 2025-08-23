@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
       try {
         const urlParams = new URLSearchParams({
           symbol: symbol.toUpperCase(),
-          from: fromDate,
+          from: fromDate!,
           to: toDate,
           token: FINNHUB_API_KEY,
         });
