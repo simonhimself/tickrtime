@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building2, User, LogOut } from "lucide-react";
+import { Building2, User } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WatchlistToggle } from "@/components/watchlist-toggle";
+import { UserAvatar } from "@/components/user-avatar";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { cn } from "@/lib/utils";
 import { verifyToken } from "@/lib/auth";
@@ -97,21 +98,10 @@ export function Header({
           {/* Auth Button */}
           {!isLoading && (
             user ? (
-              <div className="flex items-center gap-1 sm:gap-2">
-                <span className="text-xs sm:text-sm text-muted-foreground hidden md:inline max-w-[150px] truncate">
-                  {user.email}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="h-7 sm:h-8 px-2 sm:px-3 gap-1 sm:gap-2"
-                  title="Logout"
-                >
-                  <LogOut className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Logout</span>
-                </Button>
-              </div>
+              <UserAvatar 
+                email={user.email}
+                onLogout={handleLogout}
+              />
             ) : (
               <Button
                 variant="outline"
