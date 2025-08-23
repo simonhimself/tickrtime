@@ -1,72 +1,31 @@
-# Release Notes - v1.5.0
+## 👤 User Profile System
 
-## 🎉 New Features
+Enhanced user experience with personalized settings and account management.
 
-### User Avatar & Profile System
-- **User Avatar Dropdown**: Implemented a sophisticated user avatar component that generates initials from email addresses
-  - Smart initial generation (e.g., "john.doe@" → "JD", "test@" → "TE")
-  - Clean dropdown menu with Profile and Log out options
-  - Consistent blue theme matching the brand identity
+### ✨ Key Features
 
-### Comprehensive Profile Page
-- **Account Management**: New `/profile` page for managing user settings
-  - View account email (read-only)
-  - Set display name
-  - Change password functionality (UI ready, backend integration pending)
-  
-- **User Preferences**: Customizable app behavior
-  - Default time period (Today, Tomorrow, Next 30 Days, Previous 30 Days)
-  - Timezone selection for earnings times display
-  - Data display toggles (Show/Hide Estimates, Surprises, Exchange)
-  - Preferences saved to localStorage for persistence
+• **User Avatar Dropdown** - Smart initial generation from email addresses with clean profile menu
+• **Profile Page** - Comprehensive account settings and user preferences management  
+• **User Preferences** - Customizable default time periods, timezone, and data display options
+• **Account Management** - Display name settings, password change UI, and account deletion with confirmation
 
-- **Account Actions**: 
-  - Account deletion with confirmation dialog
-  - Clean navigation back to dashboard
+### 🔧 Technical Fixes
 
-## 🐛 Bug Fixes
+• **Edge Runtime Authentication** - Fixed critical Profile page logout issue on Cloudflare deployment
+• **API Authentication** - New `/api/auth/me` endpoint for proper server-side JWT verification
+• **Component Architecture** - Added AlertDialog UI component and improved client/server separation
 
-### Authentication in Edge Environment
-- **Fixed Profile Page Authentication**: Resolved critical issue where Profile page would log users out on Cloudflare deployment
-  - Created `/api/auth/me` endpoint for server-side JWT verification
-  - Updated Profile page to use API endpoint instead of direct JWT verification
-  - Updated Header component authentication check to use API endpoint
-  - Ensures proper authentication flow in both local and Cloudflare Edge environments
+### 🚀 Deployment Status
 
-## 🔧 Technical Improvements
+- ✅ **Cloudflare Pages**: Fully compatible with Edge Runtime
+- ✅ **Authentication**: Proper JWT handling in production environment  
+- ✅ **User Experience**: Smooth transitions and responsive design
+- ✅ **Backward Compatibility**: Existing user sessions preserved
 
-- **Component Architecture**: 
-  - Added `AlertDialog` UI component for destructive actions
-  - Improved separation of concerns between client and server code
-  - Better error handling for authentication flows
+### 🔮 Foundation for v1.6.0
 
-- **User Experience**:
-  - Smooth transitions between logged in/out states
-  - Responsive design for all new components
-  - Consistent styling with existing UI patterns
-
-## 📦 Dependencies
-
-No new dependencies added - all features built with existing libraries.
-
-## 🚀 Deployment Notes
-
-- Fully compatible with Cloudflare Pages Edge Runtime
-- No environment variable changes required
-- Backward compatible with existing user sessions
-
-## 🔮 Future Enhancements
-
-This release lays the foundation for:
-- Email notification system (coming in v1.6.0)
-- Extended user profile features
-- Advanced preference management
-- Subscription/billing integration
-
-## Contributors
-
-- Simon Peterhans (@simonhimself)
+This release prepares the groundwork for the upcoming email notification system and advanced user features.
 
 ---
 
-**Full Changelog**: https://github.com/simonhimself/tickrtime/compare/v1.4.0...v1.5.0
+**Contributors**: @simonhimself
