@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
     const results = await Promise.all(promises);
     
     // Flatten and filter to only future earnings
-    const allEarnings = results
+    const allFutureEarnings = results
       .flat()
       .filter((earning) => {
         if (!earning.date) return false;
@@ -101,7 +101,32 @@ export async function GET(req: NextRequest) {
         return dateA.getTime() - dateB.getTime();
       });
 
-    logger.debug(`[API] Found ${allEarnings.length} future earnings for watchlist`);
+    // Smart filtering: For each ticker, show only the next relevant earnings
+    // (either current quarter if not passed, or next quarter)
+    const earningsByTicker = new Map<string, typeof allFutureEarnings>();
+    
+    allFutureEarnings.forEach(earning => {
+      const symbol = earning.symbol;
+      if (!earningsByTicker.has(symbol)) {
+        earningsByTicker.set(symbol, []);
+      }
+      earningsByTicker.get(symbol)!.push(earning);
+    });
+
+    // For each ticker, select the most relevant upcoming earning
+    const allEarnings = Array.from(earningsByTicker.values())
+      .map(tickerEarnings => {
+        // Already sorted by date, so first item is the next earnings
+        return tickerEarnings[0];
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        const dateA = new Date(a.date || 0);
+        const dateB = new Date(b.date || 0);
+        return dateA.getTime() - dateB.getTime();
+      });
+
+    logger.debug(`[API] Found ${allEarnings.length} next relevant earnings for watchlist (filtered from ${allFutureEarnings.length} total future earnings)`);
     
     return NextResponse.json<EarningsResponse[]>(allEarnings);
     
