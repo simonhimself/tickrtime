@@ -94,6 +94,42 @@ export function EarningsDashboard() {
     loadEarningsData("/api/earnings-previous-30-days", "previous30");
   }, [loadEarningsData]);
 
+  const loadWatchlistEarnings = useCallback(async () => {
+    const watchedSymbols = watchlist.getWatchedSymbols();
+    
+    if (watchedSymbols.length === 0) {
+      setEarnings([]);
+      setViewState("empty");
+      return;
+    }
+
+    setViewState("loading");
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/earnings-watchlist?symbols=${watchedSymbols.join(",")}`);
+      
+      if (!response.ok) {
+        const errorMsg = `Failed to fetch watchlist earnings: ${response.status}`;
+        logger.error(errorMsg);
+        setError(errorMsg);
+        setViewState("error");
+        return;
+      }
+
+      const data = await response.json();
+      setEarnings(data);
+      setViewState(data.length > 0 ? "data" : "empty");
+      
+      toast.info(`Found ${data.length} upcoming earnings for your watchlist`);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Failed to fetch watchlist earnings";
+      logger.error("Error fetching watchlist earnings:", err);
+      setError(errorMsg);
+      setViewState("error");
+    }
+  }, [watchlist]);
+
   const handleSearch = useCallback(async () => {
     if (!searchFilters.ticker.trim()) {
       toast.error("Please enter a ticker symbol");
@@ -161,27 +197,14 @@ export function EarningsDashboard() {
       setActivePeriod("watchlist");
       setIsSearchMode(false);
       
-      // Filter current earnings to show only watchlisted items
-      const watchedSymbols = watchlist.getWatchedSymbols();
-      const watchedEarnings = earnings.filter(earning => 
-        watchedSymbols.includes(earning.symbol)
-      );
-      
-      if (watchedEarnings.length > 0) {
-        setEarnings(watchedEarnings);
-        setViewState("data");
-      } else {
-        setEarnings([]);
-        setViewState("empty");
-      }
-      
-      toast.info(`Showing ${watchedEarnings.length} earnings from your watchlist`);
+      // Load all upcoming earnings for watchlisted symbols
+      loadWatchlistEarnings();
     } else {
       // Return to previous view
       setActivePeriod("today");
       loadToday();
     }
-  }, [isWatchlistMode, earnings, watchlist, loadToday]);
+  }, [isWatchlistMode, loadToday, loadWatchlistEarnings]);
 
   // Navigation handlers
   const handleNavigationClick = useCallback((period: TimePeriod) => {
