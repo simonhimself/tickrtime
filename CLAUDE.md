@@ -89,9 +89,33 @@ The application is optimized for Cloudflare Pages:
 - **Branch naming**: Use descriptive names like `feature/add-dark-mode`, `fix/auth-redirect`, `refactor/kv-storage`
 - **Atomic commits**: Each commit should represent a single logical change
 - **Commit messages**: Use clear, descriptive messages in present tense ("Add dark mode toggle", "Fix auth redirect issue")
-- **Before any development work**: Create a new branch with `git checkout -b feature/descriptive-name`
-- **Testing**: Always test changes locally (both `npm run dev` and Wrangler) before merging
-- **Merging**: After testing, merge directly to main and push (no PRs needed for solo development)
+
+### Development Process:
+1. **Create feature branch**: `git checkout -b feature/descriptive-name`
+2. **Push feature branch**: `git push -u origin feature/descriptive-name` (mirrors local workflow on GitHub)
+3. **Make changes and commit**: Atomic commits with descriptive messages
+4. **CRITICAL: Test FULLY before completing**:
+   - Test all functionality affected by changes
+   - Verify on both mobile and desktop (use dev tools)
+   - Test in both light and dark themes if UI changes
+   - Manually verify the specific issue/feature is resolved
+   - Run `npm run dev` and interact with the application
+   - **NEVER mark a task as complete without thorough manual testing**
+5. **Run quality checks**: `npm run lint` and `npm run type-check`
+6. **Merge to main**: `git checkout main && git merge feature/branch-name`
+7. **Push main**: `git push origin main`
+8. **Clean up**: `git branch -d feature/branch-name && git push origin --delete feature/branch-name`
+
+**Commit Message Format**:
+- Use clear, descriptive messages in present tense
+- Focus on the "why" and "what" of the change
+- Do NOT include "Generated with Claude Code" lines
+- Keep commit messages professional and focused
+
+**Testing Requirements**: 
+- Testing is NOT optional - it's mandatory before any merge
+- Development server compiling ≠ feature working correctly
+- Always verify the actual user experience, not just technical functionality
 
 ## Development Patterns
 
