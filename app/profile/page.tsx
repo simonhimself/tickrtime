@@ -23,7 +23,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { verifyToken } from "@/lib/auth";
 import type { User } from "@/types";
 
 export default function ProfilePage() {
@@ -55,19 +54,33 @@ export default function ProfilePage() {
       }
 
       try {
-        const userData = await verifyToken(token);
-        if (!userData) {
+        // Call API endpoint to verify token
+        const response = await fetch("/api/auth/me", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          // Token is invalid, remove it and redirect
+          localStorage.removeItem("tickrtime-auth-token");
           router.push("/");
           return;
         }
 
-        setUser({
-          id: userData.userId,
-          email: userData.email,
-          emailVerified: userData.emailVerified,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        const data = await response.json();
+        if (data.user) {
+          setUser({
+            id: data.user.id,
+            email: data.user.email,
+            emailVerified: data.user.emailVerified,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+        } else {
+          router.push("/");
+          return;
+        }
 
         // Load saved preferences from localStorage
         const savedPrefs = localStorage.getItem("tickrtime-preferences");

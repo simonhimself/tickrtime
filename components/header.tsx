@@ -10,7 +10,6 @@ import { WatchlistToggle } from "@/components/watchlist-toggle";
 import { UserAvatar } from "@/components/user-avatar";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { cn } from "@/lib/utils";
-import { verifyToken } from "@/lib/auth";
 import type { HeaderProps, User as UserType, AuthResponse } from "@/types";
 
 export function Header({
@@ -29,16 +28,26 @@ export function Header({
       const token = localStorage.getItem("tickrtime-auth-token");
       if (token) {
         try {
-          // Validate token and extract user info
-          const userData = await verifyToken(token);
-          if (userData) {
-            setUser({
-              id: userData.userId,
-              email: userData.email,
-              emailVerified: userData.emailVerified,
-              createdAt: new Date().toISOString(), // We don't store this in JWT
-              updatedAt: new Date().toISOString()
-            });
+          // Call API endpoint to validate token
+          const response = await fetch("/api/auth/me", {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.user) {
+              setUser({
+                id: data.user.id,
+                email: data.user.email,
+                emailVerified: data.user.emailVerified,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              });
+            } else {
+              localStorage.removeItem("tickrtime-auth-token");
+            }
           } else {
             // Invalid token, remove it
             localStorage.removeItem("tickrtime-auth-token");
