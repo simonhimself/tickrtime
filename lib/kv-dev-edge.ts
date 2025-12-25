@@ -1,6 +1,7 @@
-import type { KVUser, KVWatchlist } from './auth';
+import type { KVUser, KVWatchlist, KVAlert } from './auth';
 import type { KVInterface } from './kv-factory';
 import { logger } from '@/lib/logger';
+import { generateUUID } from './crypto-edge';
 
 // In-memory storage for development (Edge-compatible)
 // Use globalThis to persist cache across different API calls
@@ -22,6 +23,9 @@ export const KV_KEYS = {
   WATCHLIST: 'watchlist:',
   VERIFICATION: 'verify:',
   EMAIL_TO_USER: 'email:',
+  ALERT: 'alert:',
+  ALERTS: 'alerts:',
+  ALERTS_BY_SYMBOL: 'alerts:symbol:',
 } as const;
 
 // Using unified KV interface directly, no need for DevKV type alias
@@ -40,13 +44,20 @@ export function createDevKV(): KVInterface {
       // Check if expired (for verification tokens)
       try {
         const parsed = JSON.parse(value);
-        if (parsed.expiresAt && new Date(parsed.expiresAt) < new Date()) {
-          getDevStorageCache().delete(key);
-          return null;
+        // If it has expiresAt, it's a wrapped value with expiration
+        if (parsed.expiresAt) {
+          if (new Date(parsed.expiresAt) < new Date()) {
+            getDevStorageCache().delete(key);
+            return null;
+          }
+          // Return the actual value from the wrapper
+          return parsed.value || value;
         }
-        // Return the actual value, not the JSON string
-        return parsed.value || value;
+        // If no expiresAt, it's a plain JSON value (like user data)
+        // Return the original string so the caller can parse it
+        return value;
       } catch {
+        // Not JSON, return as-is
         return value;
       }
     },
@@ -149,10 +160,17 @@ export async function updateUser(kv: KVInterface, user: KVUser): Promise<boolean
 // Delete user
 export async function deleteUser(kv: KVInterface, user: KVUser): Promise<boolean> {
   try {
+    // Delete all user alerts
+    const alerts = await getUserAlerts(kv, user.id);
+    for (const alert of alerts) {
+      await deleteAlert(kv, user.id, alert.id);
+    }
+    
     const batch = [
       { key: KV_KEYS.USER + user.id, value: '' },
       { key: KV_KEYS.EMAIL_TO_USER + user.email, value: '' },
-      { key: KV_KEYS.WATCHLIST + user.id, value: '' }
+      { key: KV_KEYS.WATCHLIST + user.id, value: '' },
+      { key: KV_KEYS.ALERTS + user.id, value: '' }
     ];
     
     await kv.delete(batch.map(item => item.key));
@@ -276,5 +294,165 @@ export async function deleteVerificationToken(kv: KVInterface, token: string): P
   } catch (error) {
     logger.error('Error deleting verification token:', error);
     return false;
+  }
+}
+
+// Get user's alert IDs list
+async function getUserAlertIds(kv: KVInterface, userId: string): Promise<string[]> {
+  try {
+    const alertIdsData = await kv.get(KV_KEYS.ALERTS + userId);
+    if (alertIdsData) {
+      return JSON.parse(alertIdsData);
+    }
+    return [];
+  } catch (error) {
+    logger.error('Error getting user alert IDs:', error);
+    return [];
+  }
+}
+
+// Save user's alert IDs list
+async function saveUserAlertIds(kv: KVInterface, userId: string, alertIds: string[]): Promise<boolean> {
+  try {
+    await kv.put(KV_KEYS.ALERTS + userId, JSON.stringify(alertIds));
+    return true;
+  } catch (error) {
+    logger.error('Error saving user alert IDs:', error);
+    return false;
+  }
+}
+
+// Save alert
+export async function saveAlert(kv: KVInterface, userId: string, alert: KVAlert): Promise<boolean> {
+  try {
+    const alertKey = `${KV_KEYS.ALERT}${userId}:${alert.id}`;
+    const symbolIndexKey = `${KV_KEYS.ALERTS_BY_SYMBOL}${alert.symbol.toUpperCase()}`;
+    
+    // Save the alert
+    await kv.put(alertKey, JSON.stringify(alert));
+    
+    // Update user's alert IDs list
+    const alertIds = await getUserAlertIds(kv, userId);
+    if (!alertIds.includes(alert.id)) {
+      alertIds.push(alert.id);
+      await saveUserAlertIds(kv, userId, alertIds);
+    }
+    
+    // Update symbol index (for cron job lookup)
+    const symbolAlertsData = await kv.get(symbolIndexKey);
+    const symbolAlerts = symbolAlertsData ? JSON.parse(symbolAlertsData) : [];
+    if (!symbolAlerts.includes(alert.id)) {
+      symbolAlerts.push(alert.id);
+      await kv.put(symbolIndexKey, JSON.stringify(symbolAlerts));
+    }
+    
+    return true;
+  } catch (error) {
+    logger.error('Error saving alert:', error);
+    return false;
+  }
+}
+
+// Get alert
+export async function getAlert(kv: KVInterface, userId: string, alertId: string): Promise<KVAlert | null> {
+  try {
+    const alertKey = `${KV_KEYS.ALERT}${userId}:${alertId}`;
+    const alertData = await kv.get(alertKey);
+    return alertData ? JSON.parse(alertData) : null;
+  } catch (error) {
+    logger.error('Error getting alert:', error);
+    return null;
+  }
+}
+
+// Get all alerts for a user
+export async function getUserAlerts(kv: KVInterface, userId: string): Promise<KVAlert[]> {
+  try {
+    const alertIds = await getUserAlertIds(kv, userId);
+    const alerts: KVAlert[] = [];
+    
+    for (const alertId of alertIds) {
+      const alert = await getAlert(kv, userId, alertId);
+      if (alert) {
+        alerts.push(alert);
+      }
+    }
+    
+    return alerts;
+  } catch (error) {
+    logger.error('Error getting user alerts:', error);
+    return [];
+  }
+}
+
+// Update alert
+export async function updateAlert(kv: KVInterface, userId: string, alertId: string, updates: Partial<KVAlert>): Promise<boolean> {
+  try {
+    const alert = await getAlert(kv, userId, alertId);
+    if (!alert) {
+      return false;
+    }
+    
+    const updatedAlert: KVAlert = {
+      ...alert,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    return await saveAlert(kv, userId, updatedAlert);
+  } catch (error) {
+    logger.error('Error updating alert:', error);
+    return false;
+  }
+}
+
+// Delete alert
+export async function deleteAlert(kv: KVInterface, userId: string, alertId: string): Promise<boolean> {
+  try {
+    const alert = await getAlert(kv, userId, alertId);
+    if (!alert) {
+      return false;
+    }
+    
+    const alertKey = `${KV_KEYS.ALERT}${userId}:${alertId}`;
+    const symbolIndexKey = `${KV_KEYS.ALERTS_BY_SYMBOL}${alert.symbol.toUpperCase()}`;
+    
+    // Delete the alert
+    await kv.delete(alertKey);
+    
+    // Update user's alert IDs list
+    const alertIds = await getUserAlertIds(kv, userId);
+    const updatedAlertIds = alertIds.filter(id => id !== alertId);
+    await saveUserAlertIds(kv, userId, updatedAlertIds);
+    
+    // Update symbol index
+    const symbolAlertsData = await kv.get(symbolIndexKey);
+    if (symbolAlertsData) {
+      const symbolAlerts = JSON.parse(symbolAlertsData);
+      const updatedSymbolAlerts = symbolAlerts.filter((id: string) => id !== alertId);
+      if (updatedSymbolAlerts.length > 0) {
+        await kv.put(symbolIndexKey, JSON.stringify(updatedSymbolAlerts));
+      } else {
+        await kv.delete(symbolIndexKey);
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    logger.error('Error deleting alert:', error);
+    return false;
+  }
+}
+
+// Helper to get all active "after" alerts for a specific user (for cron job)
+export async function getActiveAfterAlerts(kv: KVInterface, userId: string): Promise<KVAlert[]> {
+  try {
+    const allAlerts = await getUserAlerts(kv, userId);
+    return allAlerts.filter(
+      alert => alert.status === 'active' && alert.alertType === 'after'
+    );
+  } catch (error) {
+    logger.error('Error getting active after alerts:', error);
+    return [];
   }
 }

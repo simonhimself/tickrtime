@@ -10,6 +10,7 @@ import { SearchFilters } from "@/components/search-filters";
 import { EarningsTable } from "@/components/earnings-table";
 import { useWatchlist } from "@/hooks/use-watchlist";
 import { AlertDialog } from "@/components/alert-dialog";
+import { getEarningsToday, getEarningsTomorrow, getEarningsNext30Days, getEarningsPrevious30Days, getEarnings, getEarningsWatchlist } from "@/lib/api-client";
 import type { 
   EarningsData, 
   ViewState, 
@@ -41,7 +42,7 @@ export function EarningsDashboard() {
   const [alertEarningsData, setAlertEarningsData] = useState<EarningsData | null>(null);
 
   // API loading functions
-  const loadEarningsData = useCallback(async (endpoint: string, period: TimePeriod) => {
+  const loadEarningsData = useCallback(async (loadFn: () => Promise<EarningsResponse>, period: TimePeriod) => {
     setViewState("loading");
     setActivePeriod(period);
     setIsSearchMode(false);
@@ -49,22 +50,7 @@ export function EarningsDashboard() {
     setError(null);
     
     try {
-      const response = await fetch(endpoint);
-      
-      let data: EarningsResponse;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        // If JSON parsing fails, create an error response
-        data = { 
-          earnings: [], 
-          error: `Server error: ${response.status} ${response.statusText}` 
-        };
-      }
-      
-      if (!response.ok) {
-        throw new Error(data.error || `Failed to fetch earnings data: ${response.status}`);
-      }
+      const data = await loadFn();
       
       if (data.error) {
         throw new Error(data.error);
@@ -85,19 +71,19 @@ export function EarningsDashboard() {
   }, []);
 
   const loadToday = useCallback(() => {
-    loadEarningsData("/api/earnings-today", "today");
+    loadEarningsData(getEarningsToday, "today");
   }, [loadEarningsData]);
 
   const loadTomorrow = useCallback(() => {
-    loadEarningsData("/api/earnings-tomorrow", "tomorrow");
+    loadEarningsData(getEarningsTomorrow, "tomorrow");
   }, [loadEarningsData]);
 
   const loadNext30Days = useCallback(() => {
-    loadEarningsData("/api/earnings-next-30-days", "next30");
+    loadEarningsData(getEarningsNext30Days, "next30");
   }, [loadEarningsData]);
 
   const loadPrevious30Days = useCallback(() => {
-    loadEarningsData("/api/earnings-previous-30-days", "previous30");
+    loadEarningsData(getEarningsPrevious30Days, "previous30");
   }, [loadEarningsData]);
 
   const loadWatchlistEarnings = useCallback(async () => {
@@ -113,17 +99,7 @@ export function EarningsDashboard() {
     setError(null);
     
     try {
-      const response = await fetch(`/api/earnings-watchlist?symbols=${watchedSymbols.join(",")}`);
-      
-      if (!response.ok) {
-        const errorMsg = `Failed to fetch watchlist earnings: ${response.status}`;
-        logger.error(errorMsg);
-        setError(errorMsg);
-        setViewState("error");
-        return;
-      }
-
-      const data = await response.json();
+      const data = await getEarningsWatchlist(watchedSymbols);
       setEarnings(data);
       setViewState(data.length > 0 ? "data" : "empty");
       
@@ -149,31 +125,11 @@ export function EarningsDashboard() {
     setError(null);
     
     try {
-      const params = new URLSearchParams({
+      const data: EarningsResponse = await getEarnings({
         symbol: searchFilters.ticker.trim().toUpperCase(),
         year: searchFilters.year,
+        quarter: searchFilters.quarter !== "all" ? searchFilters.quarter : undefined,
       });
-      
-      if (searchFilters.quarter && searchFilters.quarter !== "all") {
-        params.append("quarter", searchFilters.quarter);
-      }
-      
-      const response = await fetch(`/api/earnings?${params.toString()}`);
-      
-      let data: EarningsResponse;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        // If JSON parsing fails, create an error response
-        data = { 
-          earnings: [], 
-          error: `Server error: ${response.status} ${response.statusText}` 
-        };
-      }
-      
-      if (!response.ok) {
-        throw new Error(data.error || `Failed to search earnings: ${response.status}`);
-      }
       
       if (data.error) {
         throw new Error(data.error);
@@ -391,7 +347,8 @@ export function EarningsDashboard() {
         symbol={alertSymbol}
         earningsData={alertEarningsData}
         onSuccess={() => {
-          // Alert created successfully
+          toast.success(`Alert created successfully for ${alertSymbol}`);
+          // Optionally refresh alerts or update UI here
         }}
       />
     </div>

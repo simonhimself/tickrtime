@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AuthResponse } from "@/types";
+import { signup } from "@/lib/api-client";
 
 const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -50,15 +51,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result: AuthResponse = await response.json();
+      const result: AuthResponse = await signup(data);
 
       if (result.success) {
         toast.success(result.message);

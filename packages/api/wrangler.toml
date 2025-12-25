@@ -1,0 +1,85 @@
+name = "tickrtime-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Local development configuration
+[[d1_databases]]
+binding = "DB"
+database_name = "tickrtime-db"
+database_id = "c608e470-c873-46f3-b2c3-46e8ab76c8ac"
+migrations_dir = "migrations"
+
+# KV Namespace for development
+[[kv_namespaces]]
+binding = "TICKRTIME_KV"
+id = "4b47ed2ef3dc4557a2519d04bb0e3f3c"
+preview_id = "eb83c6584f3549fd96cab293ab30a0be"
+
+# Cron triggers for alert processing
+# Runs daily at 9 AM UTC to check for "after" alerts that need to be sent
+[triggers]
+crons = ["0 9 * * *"]
+
+# Environment variables for development
+[vars]
+NODE_ENV = "development"
+JWT_SECRET = "dev-jwt-secret-key-change-in-production"
+NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
+RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
+SEND_VERIFICATION_EMAILS = "false"
+CRON_SECRET = "dev-cron-secret-key"
+
+# Staging environment
+[env.staging]
+name = "tickrtime-api-staging"
+
+# D1 Database binding for staging
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "tickrtime-db"
+database_id = "c608e470-c873-46f3-b2c3-46e8ab76c8ac"
+migrations_dir = "migrations"
+
+# KV namespace for staging
+[[env.staging.kv_namespaces]]
+binding = "TICKRTIME_KV"
+id = "4b47ed2ef3dc4557a2519d04bb0e3f3c"
+
+# Environment variables for staging
+[env.staging.vars]
+NODE_ENV = "staging"
+JWT_SECRET = "staging-jwt-secret-key-change-in-production"
+NEXT_PUBLIC_APP_URL = "https://tickrtime-staging.pages.dev"
+FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
+RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
+SEND_VERIFICATION_EMAILS = "true"
+CRON_SECRET = "staging-cron-secret-key"
+
+# Production environment
+[env.production]
+name = "tickrtime-api"
+
+# D1 Database binding for production
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "tickrtime-db"
+database_id = "c608e470-c873-46f3-b2c3-46e8ab76c8ac"
+migrations_dir = "migrations"
+
+# KV namespace for production
+[[env.production.kv_namespaces]]
+binding = "TICKRTIME_KV"
+id = "4b47ed2ef3dc4557a2519d04bb0e3f3c"
+
+# Environment variables for production
+[env.production.vars]
+NODE_ENV = "production"
+JWT_SECRET = "production-jwt-secret-key-change-in-production"
+NEXT_PUBLIC_APP_URL = "https://tickrtime.pages.dev"
+FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
+RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
+SEND_VERIFICATION_EMAILS = "true"
+CRON_SECRET = "production-cron-secret-key"
+

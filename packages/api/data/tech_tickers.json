@@ -1,0 +1,2246 @@
+[
+  {
+    "symbol": "ZENV",
+    "description": "ZENVIA INC - A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AMPL",
+    "description": "AMPLITUDE INC-CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BMR",
+    "description": "BEAMR IMAGING LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WIX",
+    "description": "WIX.COM LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "EBON",
+    "description": "EBANG INTERNATIONAL HLDGS-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PONY",
+    "description": "PONY AI INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CVLT",
+    "description": "COMMVAULT SYSTEMS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CSPI",
+    "description": "CSP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BOXL",
+    "description": "BOXLIGHT CORP - CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BNZI",
+    "description": "BANZAI INTERNATIONAL INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OS",
+    "description": "ONESTREAM INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VERI",
+    "description": "VERITONE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VRAR",
+    "description": "GLIMPSE GROUP INC/THE",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FIVN",
+    "description": "FIVE9 INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BITF",
+    "description": "BITFARMS LTD/CANADA",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AACIU",
+    "description": "ARMADA ACQUISITION CORP II",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GLE",
+    "description": "GLOBAL ENGINE GROUP HOLDIN-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RSSS",
+    "description": "RESEARCH SOLUTIONS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CRWV",
+    "description": "COREWEAVE INC-CL A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MGIC",
+    "description": "MAGIC SOFTWARE ENTERPRISES",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "LMFA",
+    "description": "LM FUNDING AMERICA INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MLGO",
+    "description": "MICROALGO INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FATN",
+    "description": "FATPIPE INC/UT",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RDCM",
+    "description": "RADCOM LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BTCS",
+    "description": "BTCS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HTCR",
+    "description": "HEARTCORE ENTERPRISES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CXAI",
+    "description": "CXAPP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NTWK",
+    "description": "NETSOL TECHNOLOGIES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DGXX",
+    "description": "DIGI POWER X INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VRSN",
+    "description": "VERISIGN INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FROG",
+    "description": "JFROG LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "XTIA",
+    "description": "XTI AEROSPACE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RDVT",
+    "description": "RED VIOLET INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CYN",
+    "description": "CYNGN INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CMPO",
+    "description": "COMPOSECURE INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "YAAS",
+    "description": "YOUXIN TECHNOLOGY LTD-CL A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CCSI",
+    "description": "CONSENSUS CLOUD SOLUTION",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SSTI",
+    "description": "SOUNDTHINKING INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HCKT",
+    "description": "HACKETT GROUP INC/THE",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GREEL",
+    "description": "GREENIDGE GEN HLD INC - GREE 8 1/2 10/31/26",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CGNT",
+    "description": "COGNYTE SOFTWARE LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CDNS",
+    "description": "CADENCE DESIGN SYS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CTSH",
+    "description": "COGNIZANT TECH SOLUTIONS-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MNDY",
+    "description": "MONDAY.COM LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OTEX",
+    "description": "OPEN TEXT CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AUUD",
+    "description": "AUDDIA INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IDN",
+    "description": "INTELLICHECK INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FRSH",
+    "description": "FRESHWORKS INC-CL A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IIIV",
+    "description": "I3 VERTICALS INC-CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SVCO",
+    "description": "SILVACO GROUP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RMNI",
+    "description": "RIMINI STREET INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IFBD",
+    "description": "INFOBIRD CO LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "XNET",
+    "description": "XUNLEI LTD-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WLDS",
+    "description": "WEARABLE DEVICES LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ABTS",
+    "description": "ABITS GROUP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "INTA",
+    "description": "INTAPP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AUID",
+    "description": "AUTHID INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VRNS",
+    "description": "VARONIS SYSTEMS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RDZN",
+    "description": "ROADZEN INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CRWD",
+    "description": "CROWDSTRIKE HOLDINGS INC - A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PGY",
+    "description": "PAGAYA TECHNOLOGIES LTD -A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "APLD",
+    "description": "APPLIED DIGITAL CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "EGHT",
+    "description": "8X8 INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ZM",
+    "description": "ZOOM COMMUNICATIONS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ZS",
+    "description": "ZSCALER INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DATS",
+    "description": "DATCHAT INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BLKB",
+    "description": "BLACKBAUD INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GRYP",
+    "description": "GRYPHON DIGITAL MINING INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MFH",
+    "description": "MERCURITY FINTECH HOLDING IN",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "XTKG",
+    "description": "X3 HOLDINGS CO LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ARBK",
+    "description": "ARGO BLOCKCHAIN PLC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DSGX",
+    "description": "DESCARTES SYSTEMS GRP/THE",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SCKT",
+    "description": "SOCKET MOBILE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SONM",
+    "description": "SONIM TECHNOLOGIES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IDCC",
+    "description": "INTERDIGITAL INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SAIH",
+    "description": "SAIHEAT LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CLPS",
+    "description": "CLPS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HUT",
+    "description": "HUT 8 CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ALRM",
+    "description": "ALARM.COM HOLDINGS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "API",
+    "description": "AGORA INC-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ARQQ",
+    "description": "ARQIT QUANTUM INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NBIS",
+    "description": "NEBIUS GROUP NV",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BLIN",
+    "description": "BRIDGELINE DIGITAL INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DJCO",
+    "description": "DAILY JOURNAL CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TACT",
+    "description": "TRANSACT TECHNOLOGIES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CXDO",
+    "description": "CREXENDO INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AAPL",
+    "description": "APPLE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IREN",
+    "description": "IREN LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ALLT",
+    "description": "ALLOT LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MARA",
+    "description": "MARA HOLDINGS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BLBX",
+    "description": "BLACKBOXSTOCKS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VRNT",
+    "description": "VERINT SYSTEMS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GRRR",
+    "description": "GORILLA TECHNOLOGY GROUP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MTC",
+    "description": "MMTEC INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ORKT",
+    "description": "ORANGEKLOUD TECHNOLOGY INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NCNO",
+    "description": "NCINO INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "STRF",
+    "description": "MICROSTRATEGY INC - MSTR 10 PERP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RXT",
+    "description": "RACKSPACE TECHNOLOGY INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ZENA",
+    "description": "ZENATECH INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DSP",
+    "description": "VIANT TECHNOLOGY INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SMCI",
+    "description": "SUPER MICRO COMPUTER INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DGNX",
+    "description": "DIGINEX LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RPD",
+    "description": "RAPID7 INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PEGA",
+    "description": "PEGASYSTEMS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IDAI",
+    "description": "T STAMP INC-CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "LOGI",
+    "description": "LOGITECH INTERNATIONAL-REG",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SLNH",
+    "description": "SOLUNA HOLDINGS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GDYN",
+    "description": "GRID DYNAMICS HOLDINGS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "KLTR",
+    "description": "KALTURA INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IMMR",
+    "description": "IMMERSION CORPORATION",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "UBXG",
+    "description": "U-BX TECHNOLOGY LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AVPT",
+    "description": "AVEPOINT INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TLS",
+    "description": "TELOS CORPORATION",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GDS",
+    "description": "GDS HOLDINGS LTD - ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ALKT",
+    "description": "ALKAMI TECHNOLOGY INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TSSI",
+    "description": "TSS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AIXI",
+    "description": "XIAO I CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "APPN",
+    "description": "APPIAN CORP-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DOX",
+    "description": "AMDOCS LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VERX",
+    "description": "VERTEX INC - CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MOVE",
+    "description": "MOVANO INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AWRE",
+    "description": "AWARE INC/MASS",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "KARO",
+    "description": "KAROOOOO LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CCCS",
+    "description": "CCC INTELLIGENT SOLUTIONS HO",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OBLG",
+    "description": "OBLONG INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AEYE",
+    "description": "AUDIOEYE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MNDO",
+    "description": "MIND CTI LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BIGC",
+    "description": "BIGCOMMERCE HOLDINGS-SER 1",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CAN",
+    "description": "CANAAN INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NUKK",
+    "description": "NUKKLEUS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MITK",
+    "description": "MITEK SYSTEMS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FTNT",
+    "description": "FORTINET INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NISN",
+    "description": "NISUN INTERNATIONAL ENTERPRI",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BTCT",
+    "description": "BTC DIGITAL LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PHUN",
+    "description": "PHUNWARE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BTDR",
+    "description": "BITDEER TECHNOLOGIES GROUP-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AIRE",
+    "description": "REALPHA TECH CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "EXFY",
+    "description": "EXPENSIFY INC - A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BNAI",
+    "description": "BRAND ENGAGEMENT NETWORK INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NXTT",
+    "description": "NEXT TECHNOLOGY HOLDING INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AKAM",
+    "description": "AKAMAI TECHNOLOGIES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HOLO",
+    "description": "MICROCLOUD HOLOGRAM INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SMSI",
+    "description": "SMITH MICRO SOFTWARE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AUR",
+    "description": "AURORA INNOVATION INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "LCFY",
+    "description": "LOCAFY LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "LPSN",
+    "description": "LIVEPERSON INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ARBB",
+    "description": "ARB IOT GROUP LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SPNS",
+    "description": "SAPIENS INTERNATIONAL CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ADEA",
+    "description": "ADEIA INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CIFR",
+    "description": "CIPHER MINING INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DCBO",
+    "description": "DOCEBO INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DUOT",
+    "description": "DUOS TECHNOLOGIES GROUP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DOCU",
+    "description": "DOCUSIGN INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WDAY",
+    "description": "WORKDAY INC-CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "III",
+    "description": "INFORMATION SERVICES GROUP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WULF",
+    "description": "TERAWULF INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NCTY",
+    "description": "THE9 LTD-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AISP",
+    "description": "AIRSHIP AI HOLDINGS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BLZE",
+    "description": "BACKBLAZE INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SLNHP",
+    "description": "SOLUNA HOLDINGS INC - SLNH 9 PERP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TCX",
+    "description": "TUCOWS INC-CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GTLB",
+    "description": "GITLAB INC-CL A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "STX",
+    "description": "SEAGATE TECHNOLOGY HOLDINGS",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FOXX",
+    "description": "FOXX DEVELOPMENT HOLDINGS IN",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MSTR",
+    "description": "MICROSTRATEGY INC-CL A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RDWR",
+    "description": "RADWARE LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "APPS",
+    "description": "DIGITAL TURBINE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VERB",
+    "description": "VERB TECHNOLOGY CO INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CLSK",
+    "description": "CLEANSPARK INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HPAI",
+    "description": "HELPORT AI LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "APPF",
+    "description": "APPFOLIO INC - A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DBX",
+    "description": "DROPBOX INC-CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ROP",
+    "description": "ROPER TECHNOLOGIES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AMOD",
+    "description": "ALPHA MODUS HOLDINGS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SNCR",
+    "description": "SYNCHRONOSS TECHNOLOGIES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "LIF",
+    "description": "LIFE360 INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "YXT",
+    "description": "YXT.COM GROUP HOLDING LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "UPLD",
+    "description": "UPLAND SOFTWARE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HUBC",
+    "description": "HUB CYBER SECURITY LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FUFU",
+    "description": "BITFUFU INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FORTY",
+    "description": "FORMULA SYSTEMS 1985-SP ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NTNX",
+    "description": "NUTANIX INC - A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OPRA",
+    "description": "OPERA LTD-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SNDK",
+    "description": "SANDISK CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PRCH",
+    "description": "PORCH GROUP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CRSR",
+    "description": "CORSAIR GAMING INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "XRX",
+    "description": "XEROX HOLDINGS CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MAPS",
+    "description": "WM TECHNOLOGY INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BTBT",
+    "description": "BIT DIGITAL INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MANH",
+    "description": "MANHATTAN ASSOCIATES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DMRC",
+    "description": "DIGIMARC CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BASE",
+    "description": "COUCHBASE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ATGL",
+    "description": "ALPHA TECHNOLOGY GROUP LTD-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "EGAN",
+    "description": "EGAIN CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CHKP",
+    "description": "CHECK POINT SOFTWARE TECH",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "STRD",
+    "description": "MICROSTRATEGY INC - MSTR 10 PERP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BLIV",
+    "description": "BELIVE HOLDINGS",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DOMO",
+    "description": "DOMO INC - CLASS B",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WCT",
+    "description": "WELLCHANGE HOLDINGS CO LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AIP",
+    "description": "ARTERIS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TAOP",
+    "description": "TAOPING INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ALAR",
+    "description": "ALARUM TECHNOLOGIES LTD-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SAGT",
+    "description": "SAGTEC GLOBAL LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MASK",
+    "description": "3 E NETWORK TECHNOLOGY GRP-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CFLT",
+    "description": "CONFLUENT INC-CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "JG",
+    "description": "AURORA MOBILE LTD-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CISO",
+    "description": "CISO GLOBAL INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TZUP",
+    "description": "THUMZUP MEDIA CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NTRP",
+    "description": "NEXTTRIP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "INTU",
+    "description": "INTUIT INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MYSZ",
+    "description": "MY SIZE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HIVE",
+    "description": "HIVE DIGITAL TECHNOLOGIES LT",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IVDA",
+    "description": "IVEDA SOLUTIONS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "EVCM",
+    "description": "EVERCOMMERCE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RIOT",
+    "description": "RIOT PLATFORMS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DTSS",
+    "description": "DATASEA INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MDB",
+    "description": "MONGODB INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OSPN",
+    "description": "ONESPAN INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BTOG",
+    "description": "BIT ORIGIN LTD-CL A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CRNC",
+    "description": "CERENCE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BRZE",
+    "description": "BRAZE INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ADUR",
+    "description": "ADURO CLEAN TECHNOLOGIES INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NVNI",
+    "description": "NVNI GROUP LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DTST",
+    "description": "DATA STORAGE CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GREE",
+    "description": "GREENIDGE GENERATION HOLDING",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CORZ",
+    "description": "CORE SCIENTIFIC INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NTAP",
+    "description": "NETAPP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VNET",
+    "description": "VNET GROUP INC-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OSS",
+    "description": "ONE STOP SYSTEMS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PLTR",
+    "description": "PALANTIR TECHNOLOGIES INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TTAN",
+    "description": "SERVICETITAN INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VEEA",
+    "description": "VEEA INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MSFT",
+    "description": "MICROSOFT CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ADSK",
+    "description": "AUTODESK INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GEN",
+    "description": "GEN DIGITAL INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CLBT",
+    "description": "CELLEBRITE DI LTD",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TEAM",
+    "description": "ATLASSIAN CORP-CL A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "QUBT",
+    "description": "QUANTUM COMPUTING INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "QMCO",
+    "description": "QUANTUM CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BL",
+    "description": "BLACKLINE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "KC",
+    "description": "KINGSOFT CLOUD HOLDINGS-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SHOP",
+    "description": "SHOPIFY INC - CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "JAMF",
+    "description": "JAMF HOLDING CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SAIL",
+    "description": "SAILPOINT INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TDTH",
+    "description": "TRIDENT DIGITAL TECH HOLDING",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GENVR",
+    "description": "GEN DIGITAL INC - CVR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PRGS",
+    "description": "PROGRESS SOFTWARE CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RZLV",
+    "description": "REZOLVE AI PLC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NICE",
+    "description": "NICE LTD - SPON ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OKTA",
+    "description": "OKTA INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PMTS",
+    "description": "CPI CARD GROUP INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BKYI",
+    "description": "BIO-KEY INTERNATIONAL INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AGYS",
+    "description": "AGILYSYS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ALOT",
+    "description": "ASTRONOVA INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MTLS",
+    "description": "MATERIALISE NV-ADR",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "QLYS",
+    "description": "QUALYS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TENB",
+    "description": "TENABLE HOLDINGS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ADBE",
+    "description": "ADOBE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HKIT",
+    "description": "HITEK GLOBAL INC-CL A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ACIW",
+    "description": "ACI WORLDWIDE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PANW",
+    "description": "PALO ALTO NETWORKS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WDC",
+    "description": "WESTERN DIGITAL CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CYBR",
+    "description": "CYBERARK SOFTWARE LTD/ISRAEL",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BSY",
+    "description": "BENTLEY SYSTEMS INC-CLASS B",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "INTZ",
+    "description": "INTRUSION INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TBCH",
+    "description": "TURTLE BEACH CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SNPS",
+    "description": "SYNOPSYS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DDOG",
+    "description": "DATADOG INC - CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ULY",
+    "description": "URGENT.LY INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ANY",
+    "description": "SPHERE 3D CORP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SPSC",
+    "description": "SPS COMMERCE INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TSRI",
+    "description": "TSR INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SOUN",
+    "description": "SOUNDHOUND AI INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PTC",
+    "description": "PTC INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SPT",
+    "description": "SPROUT SOCIAL INC - CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CSAI",
+    "description": "CLOUDASTRUCTURE INC-A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NN",
+    "description": "NEXTNAV INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "STRK",
+    "description": "MICROSTRATEGY INC - MSTR 8 PERP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "REKR",
+    "description": "REKOR SYSTEMS INC",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MIGI",
+    "description": "MAWSON INFRASTRUCTURE GROUP",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "APP",
+    "description": "APPLOVIN CORP-CLASS A",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ARBKL",
+    "description": "ARGO BLOCKCHAIN PLC - ARB 8 3/4 11/30/26",
+    "exchange": "NASDAQ",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WEAV",
+    "description": "WEAVE COMMUNICATIONS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NABL",
+    "description": "N-ABLE INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IT",
+    "description": "GARTNER INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WIT",
+    "description": "WIPRO LTD-ADR",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BBAI",
+    "description": "BIGBEAR.AI HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RNG",
+    "description": "RINGCENTRAL INC-CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BB",
+    "description": "BLACKBERRY LTD",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ORCL",
+    "description": "ORACLE CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "XPER",
+    "description": "XPERI INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OCFT",
+    "description": "ONECONNECT FINANCIAL TECHNO",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GWRE",
+    "description": "GUIDEWIRE SOFTWARE INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HPQ",
+    "description": "HP INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TUYA",
+    "description": "TUYA INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TYL",
+    "description": "TYLER TECHNOLOGIES INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RAMP",
+    "description": "LIVERAMP HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PSTG",
+    "description": "PURE STORAGE INC - CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FSLY",
+    "description": "FASTLY INC - CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "YEXT",
+    "description": "YEXT INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ASAN",
+    "description": "ASANA INC - CL A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PCOR",
+    "description": "PROCORE TECHNOLOGIES INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ZETA",
+    "description": "ZETA GLOBAL HOLDINGS CORP-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RBRK",
+    "description": "RUBRIK INC-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SMWB",
+    "description": "SIMILARWEB LTD",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TWLO",
+    "description": "TWILIO INC - A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BILL",
+    "description": "BILL HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "S",
+    "description": "SENTINELONE INC -CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ASGN",
+    "description": "ASGN INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HKD",
+    "description": "AMTD DIGITAL INC-ADR",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GIB",
+    "description": "CGI INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "KVYO",
+    "description": "KLAVIYO INC-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ACN",
+    "description": "ACCENTURE PLC-CL A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VYX",
+    "description": "NCR VOYIX CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "RSKD",
+    "description": "RISKIFIED LTD-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SNOW",
+    "description": "SNOWFLAKE INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PD",
+    "description": "PAGERDUTY INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TRAK",
+    "description": "REPOSITRAK INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OLO",
+    "description": "OLO INC - CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DXC",
+    "description": "DXC TECHNOLOGY CO",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "AI",
+    "description": "C3.AI INC-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CRM",
+    "description": "SALESFORCE INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DLB",
+    "description": "DOLBY LABORATORIES INC-CL A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CCRD",
+    "description": "CORECARD CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HUBS",
+    "description": "HUBSPOT INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "FICO",
+    "description": "FAIR ISAAC CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "KODK",
+    "description": "EASTMAN KODAK CO",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NET",
+    "description": "CLOUDFLARE INC - CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IBM",
+    "description": "INTL BUSINESS MACHINES CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IONQ",
+    "description": "IONQ INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "INFA",
+    "description": "INFORMATICA INC - CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "INFY",
+    "description": "INFOSYS LTD-SP ADR",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DELL",
+    "description": "DELL TECHNOLOGIES -C",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DV",
+    "description": "DOUBLEVERIFY HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "IOT",
+    "description": "SAMSARA INC-CL A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ETWO",
+    "description": "E2OPEN PARENT HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PERF",
+    "description": "PERFECT CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ESTC",
+    "description": "ELASTIC NV",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GDDY",
+    "description": "GODADDY INC - CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PRO",
+    "description": "PROS HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "OOMA",
+    "description": "OOMA INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "GLOB",
+    "description": "GLOBANT SA",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "LSPD",
+    "description": "LIGHTSPEED COMMERCE INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HPE.PRC",
+    "description": "HP ENTERPRISE CO - HPE 7 5/8 09/01/27",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "VHC",
+    "description": "VIRNETX HOLDING CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "U",
+    "description": "UNITY SOFTWARE INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DOCN",
+    "description": "DIGITALOCEAN HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SAP",
+    "description": "SAP SE-SPONSORED ADR",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "WK",
+    "description": "WORKIVA INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "UIS",
+    "description": "UNISYS CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "PATH",
+    "description": "UIPATH INC - CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CINT",
+    "description": "CI&T INC/UNITED STATES-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "YOU",
+    "description": "CLEAR SECURE INC -CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "SEMR",
+    "description": "SEMRUSH HOLDINGS INC-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ATEN",
+    "description": "A10 NETWORKS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CMCM",
+    "description": "CHEETAH MOBILE INC - ADR",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "EPAM",
+    "description": "EPAM SYSTEMS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BTCM",
+    "description": "BIT MINING LTD - SPON ADR",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "NOW",
+    "description": "SERVICENOW INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BOX",
+    "description": "BOX INC - CLASS A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CWAN",
+    "description": "CLEARWATER ANALYTICS HDS-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "LAW",
+    "description": "CS DISCO INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DAVA",
+    "description": "ENDAVA PLC- SPON ADR",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "TDC",
+    "description": "TERADATA CORP",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DT",
+    "description": "DYNATRACE INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "DBD",
+    "description": "DIEBOLD NIXDORF INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "CXM",
+    "description": "SPRINKLR INC-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "BLND",
+    "description": "BLEND LABS INC-A",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "QTWO",
+    "description": "Q2 HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "ONTF",
+    "description": "ON24 INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "QBTS",
+    "description": "D-WAVE QUANTUM INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "KD",
+    "description": "KYNDRYL HOLDINGS INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "HPE",
+    "description": "HEWLETT PACKARD ENTERPRISE",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  },
+  {
+    "symbol": "MLNK",
+    "description": "MERIDIANLINK INC",
+    "exchange": "NYSE",
+    "finnhubIndustry": "Technology"
+  }
+]

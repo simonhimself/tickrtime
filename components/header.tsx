@@ -29,27 +29,16 @@ export function Header({
       if (token) {
         try {
           // Call API endpoint to validate token
-          const response = await fetch("/api/auth/me", {
-            headers: {
-              "Authorization": `Bearer ${token}`
-            }
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data.user) {
-              setUser({
-                id: data.user.id,
-                email: data.user.email,
-                emailVerified: data.user.emailVerified,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-              });
-            } else {
-              localStorage.removeItem("tickrtime-auth-token");
-            }
+          const data = await getMe();
+          if (data.user) {
+            setUser({
+              id: data.user.id,
+              email: data.user.email,
+              emailVerified: data.user.emailVerified,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            });
           } else {
-            // Invalid token, remove it
             localStorage.removeItem("tickrtime-auth-token");
           }
         } catch (error) {

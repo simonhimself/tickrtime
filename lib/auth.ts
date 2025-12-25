@@ -9,6 +9,7 @@ export interface KVUser {
   passwordHash: string;
   emailVerified: boolean;
   verificationToken?: string;
+  notificationPreferences?: NotificationPreferences;
   createdAt: string;
   updatedAt: string;
 }
@@ -16,6 +17,27 @@ export interface KVUser {
 export interface KVWatchlist {
   tickers: string[];
   lastUpdated: string;
+}
+
+export interface KVAlert {
+  id: string;
+  userId: string;
+  symbol: string;
+  alertType: 'before' | 'after';
+  daysBefore?: number;
+  daysAfter?: number;
+  recurring: boolean;
+  earningsDate: string;
+  scheduledEmailId?: string;
+  status: 'active' | 'sent' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NotificationPreferences {
+  emailEnabled: boolean;
+  defaultDaysBefore: number;
+  defaultDaysAfter: number;
 }
 
 // Generate a secure random token for email verification

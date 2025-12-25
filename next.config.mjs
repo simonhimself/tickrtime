@@ -1,3 +1,8 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Disable ESLint during build for deployment
@@ -5,11 +10,11 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // Enable experimental features for better performance
-  experimental: {
-    // Enable TypeScript plugin for better DX
-    typedRoutes: true,
-  },
+  // Enable typed routes for better DX
+  typedRoutes: true,
+
+  // Set output file tracing root to prevent lockfile detection issues
+  outputFileTracingRoot: path.join(__dirname, './'),
 
   // Server external packages (moved from experimental)
   serverExternalPackages: [],

@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AuthResponse } from "@/types";
+import { verifyEmail } from "@/lib/api-client";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -26,8 +27,7 @@ function VerifyEmailContent() {
       }
 
       try {
-        const response = await fetch(`/api/auth/verify-email?token=${token}`);
-        const data: AuthResponse = await response.json();
+        const data: AuthResponse = await verifyEmail(token);
 
         if (data.success) {
           setStatus("success");

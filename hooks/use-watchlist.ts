@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 import type { WatchlistState, UseWatchlistReturn } from "@/types";
+import { getWatchlist, addToWatchlist as addToWatchlistAPI, removeFromWatchlist as removeFromWatchlistAPI } from "@/lib/api-client";
 
 export function useWatchlist(): UseWatchlistReturn {
   const [watchlist, setWatchlist] = useState<WatchlistState>({
@@ -64,24 +65,7 @@ export function useWatchlist(): UseWatchlistReturn {
     setError(null);
 
     try {
-      const response = await fetch('/api/watchlist', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Token expired or invalid
-          localStorage.removeItem('tickrtime-auth-token');
-          setError('Authentication required');
-          return;
-        }
-        throw new Error(`Failed to load watchlist: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await getWatchlist();
       if (data.success && data.watchlist) {
         setWatchlist(data.watchlist);
       }
@@ -112,28 +96,10 @@ export function useWatchlist(): UseWatchlistReturn {
     setError(null);
 
     try {
-      const response = await fetch('/api/watchlist', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ symbol: normalizedSymbol }),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('tickrtime-auth-token');
-          setError('Authentication required');
-          return false;
-        }
-        throw new Error(`Failed to add to watchlist: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await addToWatchlistAPI(normalizedSymbol);
       if (data.success && data.watchlist) {
         setWatchlist(data.watchlist);
-        toast.success(`${normalizedSymbol} added to watchlist`);
+        // Don't show toast here - let the UI component handle notifications
         return true;
       } else {
         throw new Error(data.message || 'Failed to add to watchlist');
@@ -141,6 +107,7 @@ export function useWatchlist(): UseWatchlistReturn {
     } catch (err: any) {
       console.error("Failed to add to watchlist:", err);
       setError(err.message || "Failed to add to watchlist");
+      // Only show error toast for critical failures
       toast.error(err.message || "Failed to add to watchlist");
       return false;
     } finally {
@@ -162,27 +129,10 @@ export function useWatchlist(): UseWatchlistReturn {
     setError(null);
 
     try {
-      const response = await fetch(`/api/watchlist?symbol=${encodeURIComponent(normalizedSymbol)}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('tickrtime-auth-token');
-          setError('Authentication required');
-          return false;
-        }
-        throw new Error(`Failed to remove from watchlist: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await removeFromWatchlistAPI(normalizedSymbol);
       if (data.success && data.watchlist) {
         setWatchlist(data.watchlist);
-        toast.success(`${normalizedSymbol} removed from watchlist`);
+        // Don't show toast here - let the UI component handle notifications
         return true;
       } else {
         throw new Error(data.message || 'Failed to remove from watchlist');

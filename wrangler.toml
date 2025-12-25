@@ -1,6 +1,17 @@
 name = "tickrtime-dev"
 compatibility_flags = ["nodejs_compat"]
 
+# Cron triggers for alert processing
+# Runs daily at 9 AM UTC to check for "after" alerts that need to be sent
+[triggers]
+crons = ["0 9 * * *"]
+
+# D1 Database configuration
+[[d1_databases]]
+binding = "DB"
+database_name = "tickrtime-db"
+database_id = "c608e470-c873-46f3-b2c3-46e8ab76c8ac"
+
 [env.production]
 name = "tickrtime"
 

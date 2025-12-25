@@ -23,7 +23,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AlertsManager } from "@/components/alerts-manager";
 import type { User } from "@/types";
+import { getMe, getAlertPreferences, updateAlertPreferences } from "@/lib/api-client";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -38,6 +40,12 @@ export default function ProfilePage() {
   const [showEstimates, setShowEstimates] = useState(true);
   const [showSurprises, setShowSurprises] = useState(true);
   const [showExchange, setShowExchange] = useState(true);
+  
+  // Notification preferences
+  const [emailEnabled, setEmailEnabled] = useState(true);
+  const [defaultDaysBefore, setDefaultDaysBefore] = useState(1);
+  const [defaultDaysAfter, setDefaultDaysAfter] = useState(0);
+  const [loadingPreferences, setLoadingPreferences] = useState(false);
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -55,20 +63,7 @@ export default function ProfilePage() {
 
       try {
         // Call API endpoint to verify token
-        const response = await fetch("/api/auth/me", {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          // Token is invalid, remove it and redirect
-          localStorage.removeItem("tickrtime-auth-token");
-          router.push("/");
-          return;
-        }
-
-        const data = await response.json();
+        const data = await getMe();
         if (data.user) {
           setUser({
             id: data.user.id,
@@ -78,6 +73,7 @@ export default function ProfilePage() {
             updatedAt: new Date().toISOString(),
           });
         } else {
+          localStorage.removeItem("tickrtime-auth-token");
           router.push("/");
           return;
         }
@@ -92,6 +88,18 @@ export default function ProfilePage() {
           setShowEstimates(prefs.showEstimates !== false);
           setShowSurprises(prefs.showSurprises !== false);
           setShowExchange(prefs.showExchange !== false);
+        }
+
+        // Load notification preferences from API
+        try {
+          const prefsData = await getAlertPreferences();
+          if (prefsData.success && prefsData.preferences) {
+            setEmailEnabled(prefsData.preferences.emailEnabled ?? true);
+            setDefaultDaysBefore(prefsData.preferences.defaultDaysBefore ?? 1);
+            setDefaultDaysAfter(prefsData.preferences.defaultDaysAfter ?? 0);
+          }
+        } catch (error) {
+          console.error("Error loading notification preferences:", error);
         }
       } catch {
         router.push("/");
@@ -155,6 +163,34 @@ export default function ProfilePage() {
   const handleDeleteAccount = async () => {
     // In a real app, this would call an API endpoint
     toast.info("Account deletion functionality coming soon");
+  };
+
+  const handleSaveNotificationPreferences = async () => {
+    setLoadingPreferences(true);
+    
+    try {
+      const token = localStorage.getItem("tickrtime-auth-token");
+      if (!token) {
+        toast.error("Please log in");
+        return;
+      }
+
+      const data = await updateAlertPreferences({
+        emailEnabled,
+        defaultDaysBefore,
+        defaultDaysAfter,
+      });
+      if (data.success) {
+        toast.success("Notification preferences saved successfully");
+      } else {
+        toast.error(data.message || "Failed to save preferences");
+      }
+    } catch (error) {
+      console.error("Error saving notification preferences:", error);
+      toast.error("Failed to save notification preferences");
+    } finally {
+      setLoadingPreferences(false);
+    }
   };
 
   if (isLoading) {
@@ -374,6 +410,79 @@ export default function ProfilePage() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Notification Preferences */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Notification Preferences</CardTitle>
+            <CardDescription>
+              Configure how and when you want to receive earnings alerts
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="emailEnabled">Email Notifications</Label>
+                <p className="text-xs text-muted-foreground">
+                  Receive earnings alerts via email
+                </p>
+              </div>
+              <Switch
+                id="emailEnabled"
+                checked={emailEnabled}
+                onCheckedChange={setEmailEnabled}
+              />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">Default Alert Timing</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="defaultDaysBefore">Default Days Before Earnings</Label>
+                <Input
+                  id="defaultDaysBefore"
+                  type="number"
+                  min="0"
+                  value={defaultDaysBefore}
+                  onChange={(e) => setDefaultDaysBefore(parseInt(e.target.value) || 1)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Default number of days before earnings to receive alerts
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="defaultDaysAfter">Default Days After Earnings</Label>
+                <Input
+                  id="defaultDaysAfter"
+                  type="number"
+                  min="0"
+                  value={defaultDaysAfter}
+                  onChange={(e) => setDefaultDaysAfter(parseInt(e.target.value) || 0)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Default number of days after earnings to receive alerts
+                </p>
+              </div>
+            </div>
+
+            <Separator />
+
+            <Button 
+              onClick={handleSaveNotificationPreferences}
+              disabled={loadingPreferences}
+              className="w-full sm:w-auto"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {loadingPreferences ? "Saving..." : "Save Notification Preferences"}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* My Alerts */}
+        <AlertsManager className="mb-6" />
 
         {/* Account Actions */}
         <Card>

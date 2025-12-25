@@ -20,8 +20,10 @@
  * ESLint will warn you if you use console.log directly!
  */
 
-const isDevelopment = process.env.NODE_ENV === 'development' || 
-                      process.env.NEXT_PUBLIC_ENV === 'development';
+// Safely check for development mode (works in both Node.js and Edge Runtime)
+const isDevelopment = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') || 
+                      (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_ENV === 'development') ||
+                      false;
 
 export const logger = {
   /**
