@@ -9,6 +9,7 @@ import { NavigationButtons } from "@/components/navigation-buttons";
 import { SearchFilters } from "@/components/search-filters";
 import { EarningsTable } from "@/components/earnings-table";
 import { useWatchlist } from "@/hooks/use-watchlist";
+import { AlertDialog } from "@/components/alert-dialog";
 import type { 
   EarningsData, 
   ViewState, 
@@ -33,6 +34,11 @@ export function EarningsDashboard() {
 
   // Watchlist functionality
   const watchlist = useWatchlist();
+
+  // Alert dialog state
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [alertSymbol, setAlertSymbol] = useState<string>("");
+  const [alertEarningsData, setAlertEarningsData] = useState<EarningsData | null>(null);
 
   // API loading functions
   const loadEarningsData = useCallback(async (endpoint: string, period: TimePeriod) => {
@@ -229,22 +235,37 @@ export function EarningsDashboard() {
   // Row action handlers
   const handleRowAction = useCallback((action: string, symbol: string) => {
     switch (action) {
-      case "View Details":
+      case "View Details": {
         toast.info(`Viewing details for ${symbol}`);
         break;
-      case "Set Alert":
-        toast.success(`Alert set for ${symbol}`);
+      }
+      case "Set Alert": {
+        const earning = earnings.find((e) => e.symbol === symbol);
+        setAlertSymbol(symbol);
+        setAlertEarningsData(earning || null);
+        setAlertDialogOpen(true);
         break;
-      case "View Chart":
+      }
+      case "View Chart": {
+        // Look up exchange from earnings data
+        const earning = earnings.find((e) => e.symbol === symbol);
+        const exchange = earning?.exchange;
+        // Format: EXCHANGE:SYMBOL (e.g., NASDAQ:AAPL) or just SYMBOL if no exchange
+        const symbolParam = exchange ? `${exchange}:${symbol}` : symbol;
+        const tradingViewUrl = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(symbolParam)}`;
+        window.open(tradingViewUrl, '_blank');
         toast.info(`Opening chart for ${symbol}`);
         break;
-      case "More Actions":
+      }
+      case "More Actions": {
         toast.info(`More actions for ${symbol}`);
         break;
-      default:
+      }
+      default: {
         logger.debug("Unknown action:", action);
+      }
     }
-  }, []);
+  }, [earnings]);
 
   const handleWatchlistToggle = useCallback(async (symbol: string) => {
     const wasInWatchlist = watchlist.isInWatchlist(symbol);
@@ -363,6 +384,16 @@ export function EarningsDashboard() {
           </p>
         </footer>
       </div>
+
+      <AlertDialog
+        open={alertDialogOpen}
+        onOpenChange={setAlertDialogOpen}
+        symbol={alertSymbol}
+        earningsData={alertEarningsData}
+        onSuccess={() => {
+          // Alert created successfully
+        }}
+      />
     </div>
   );
 }
