@@ -68,7 +68,7 @@ export interface SearchFilters {
 export type ViewState = "loading" | "data" | "error" | "empty";
 export type SortField = "symbol" | "exchange" | "date" | "estimate" | "actual" | "surprise" | "surprisePercent" | "year" | "quarter" | "hour" | "description";
 export type SortDirection = "asc" | "desc" | null;
-export type TimePeriod = "next30" | "previous30" | "today" | "tomorrow" | "search" | "watchlist";
+export type TimePeriod = "next30" | "previous30" | "today" | "tomorrow" | "search" | "watchlist" | "alerts";
 
 // Table sorting state
 export interface SortState {
@@ -117,6 +117,7 @@ export interface TableProps extends BaseComponentProps {
   onRowAction?: (action: string, symbol: string) => void;
   watchlistedItems?: Set<string>;
   onToggleWatchlist?: (symbol: string) => boolean | Promise<boolean>;
+  alertedItems?: Set<string>;
   sortState?: SortState;
   onSort?: (field: SortField) => void;
 }
@@ -124,8 +125,11 @@ export interface TableProps extends BaseComponentProps {
 export interface HeaderProps extends BaseComponentProps {
   watchlistCount: number;
   onWatchlistClick: () => void;
+  alertsCount?: number;
+  onAlertsClick?: () => void;
   onUserAction: (action: string) => void;
   isWatchlistActive?: boolean;
+  isAlertsActive?: boolean;
 }
 
 export interface SearchFiltersProps extends BaseComponentProps {
@@ -184,6 +188,16 @@ export interface UseWatchlistReturn {
   count: number;
   loading: boolean;
   error: string | null;
+}
+
+export interface UseAlertsReturn {
+  alerts: import("@/lib/auth").KVAlert[];
+  getAlertedSymbols: () => string[];
+  hasAlert: (symbol: string) => boolean;
+  count: number;
+  loading: boolean;
+  error: string | null;
+  refresh: () => Promise<void>;
 }
 
 export interface UseTableSortReturn {

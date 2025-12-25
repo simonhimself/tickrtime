@@ -22,6 +22,7 @@ export function EarningsTable({
   onRowAction,
   watchlistedItems = new Set(),
   onToggleWatchlist,
+  alertedItems = new Set(),
   className,
 }: TableProps) {
   const isMobile = useIsMobile();
@@ -69,8 +70,10 @@ export function EarningsTable({
     },
     {
       icon: Bell,
-      label: "Set Alert",
-      colorClass: "text-yellow-500 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300",
+      label: alertedItems.has(symbol) ? "Alert Set" : "Set Alert",
+      colorClass: alertedItems.has(symbol)
+        ? "text-yellow-600 dark:text-yellow-400 fill-current"
+        : "text-yellow-500 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300",
       onClick: (symbol: string) => onRowAction?.("Set Alert", symbol),
     },
     {

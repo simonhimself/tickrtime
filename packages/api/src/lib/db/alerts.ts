@@ -249,3 +249,4 @@ export async function getActiveAfterAlerts(db: D1Database, earningsDate?: string
   }
 }
 
+

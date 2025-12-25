@@ -62,3 +62,4 @@ npx wrangler d1 execute tickrtime-db --command="SELECT email FROM users;" --remo
 
 You should see your new user's email in the results.
 
+

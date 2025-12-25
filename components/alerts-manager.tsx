@@ -71,6 +71,8 @@ export function AlertsManager({ className }: AlertsManagerProps) {
       if (data.success) {
         toast.success("Alert deleted");
         loadAlerts();
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('alertsChanged'));
       } else {
         toast.error(data.message || "Failed to delete alert");
       }
@@ -232,6 +234,8 @@ export function AlertsManager({ className }: AlertsManagerProps) {
           onSuccess={() => {
             loadAlerts();
             setAlertToEdit(null);
+            // Dispatch event to notify other components
+            window.dispatchEvent(new CustomEvent('alertsChanged'));
           }}
         />
       )}

@@ -18,3 +18,4 @@ export async function requireAuth(c: Context<{ Bindings: Env }>) {
   return userData;
 }
 
+

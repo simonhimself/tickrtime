@@ -7,15 +7,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WatchlistToggle } from "@/components/watchlist-toggle";
+import { AlertsToggle } from "@/components/alerts-toggle";
 import { UserAvatar } from "@/components/user-avatar";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { cn } from "@/lib/utils";
+import { getMe } from "@/lib/api-client";
 import type { HeaderProps, User as UserType, AuthResponse } from "@/types";
 
 export function Header({
   watchlistCount,
   onWatchlistClick,
   isWatchlistActive = false,
+  alertsCount = 0,
+  onAlertsClick,
+  isAlertsActive = false,
   className,
 }: HeaderProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -91,6 +96,13 @@ export function Header({
             isActive={isWatchlistActive}
             onClick={onWatchlistClick}
           />
+          {onAlertsClick && (
+            <AlertsToggle 
+              count={alertsCount}
+              isActive={isAlertsActive}
+              onClick={onAlertsClick}
+            />
+          )}
           <ThemeToggle />
           
           {/* Auth Button */}
