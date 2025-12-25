@@ -5,7 +5,7 @@ import { Bookmark, Eye, Bell, TrendingUp, ChevronDown, ChevronUp, X } from "luci
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatPercentage, formatRelativeDate, getSurpriseColorClass, cn } from "@/lib/utils";
+import { formatCurrency, formatPercentage, formatRelativeDate, getSurpriseColorClass, cn, extractCompanyName } from "@/lib/utils";
 import type { EarningsData, ActionIcon } from "@/types";
 
 interface EarningsCardProps {
@@ -68,22 +68,29 @@ export function EarningsCard({
       {/* Header Row - Structured Layout */}
       <div className="px-4 py-3 relative">
         <div className="grid grid-cols-2 items-center gap-4">
-          {/* Left: Ticker + Exchange */}
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-semibold text-base text-foreground">{earning.symbol}</span>
-            {earning.exchange && (
-              <>
-                <span className="text-muted-foreground text-sm">·</span>
-                <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs px-2 h-5 flex-shrink-0">
-                  {earning.exchange}
-                </Badge>
-              </>
-            )}
-            {isWatchlisted && (
-              <Bookmark 
-                className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60 ml-1 flex-shrink-0" 
-                aria-label="In watchlist"
-              />
+          {/* Left: Ticker + Company Name + Exchange */}
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-semibold text-base text-foreground">{earning.symbol}</span>
+              {earning.exchange && (
+                <>
+                  <span className="text-muted-foreground text-sm">·</span>
+                  <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs px-2 h-5 flex-shrink-0">
+                    {earning.exchange}
+                  </Badge>
+                </>
+              )}
+              {isWatchlisted && (
+                <Bookmark 
+                  className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60 ml-1 flex-shrink-0" 
+                  aria-label="In watchlist"
+                />
+              )}
+            </div>
+            {earning.description && (
+              <span className="text-xs text-muted-foreground truncate mt-0.5">
+                {extractCompanyName(earning.description)}
+              </span>
             )}
           </div>
           

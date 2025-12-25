@@ -148,6 +148,34 @@ export function throttle<T extends (...args: any[]) => any>(
 }
 
 /**
+ * Extract clean company name from description
+ * Removes corporate suffixes like "INC", "CORP", "PLC", "-CL A", "LTD-CL A", etc.
+ */
+export function extractCompanyName(description: string | null | undefined): string {
+  if (!description) {
+    return "-";
+  }
+
+  let name = description
+    // Remove patterns like "LTD-CL A", "PLC-CL A", "INC-CL A" etc.
+    .replace(/\s*-\s*(CL|CLASS)\s*[A-Z]\s*$/gi, "")
+    // Remove corporate suffixes with optional class designations: "INC", "CORP", "PLC", "LTD-CL A", etc.
+    .replace(/\s+(INC|CORP|CORPORATION|PLC|LTD|LIMITED|LLC|CO|COMPANY|HOLDINGS|HLDGS|HLDG)\s*(-?\s*(CL|CLASS)?\s*[A-Z])?\s*$/gi, "")
+    // Remove standalone class designations: "-CL A", "-CLASS A", "-A"
+    .replace(/\s*-\s*(CL|CLASS)?\s*[A-Z]\s*$/gi, "")
+    // Remove "-ADR"
+    .replace(/\s*-\s*ADR\s*$/gi, "")
+    // Remove "GROUP HOLDING" or "HOLDING" at the end
+    .replace(/\s+(GROUP\s+)?HOLDING(S)?\s*$/gi, "")
+    // Remove any trailing dashes or spaces
+    .replace(/\s*-\s*$/, "")
+    .replace(/\s+$/, "")
+    .trim();
+
+  return name || description;
+}
+
+/**
  * Sleep function for async operations
  */
 export function sleep(ms: number): Promise<void> {
