@@ -5,7 +5,7 @@
  * In development, it points to localhost:8787, in production to the deployed Worker.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8789';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
 // Helper to get auth token
 function getAuthToken(): string | null {

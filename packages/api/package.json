@@ -3,7 +3,7 @@
   "version": "1.5.0",
   "private": true,
   "scripts": {
-    "dev": "wrangler dev --local --persist-to .wrangler/state",
+    "dev": "wrangler dev --local --port 8787 --persist-to .wrangler/state",
     "dev:remote": "wrangler dev",
     "deploy": "wrangler deploy",
     "deploy:staging": "wrangler deploy --env staging",
