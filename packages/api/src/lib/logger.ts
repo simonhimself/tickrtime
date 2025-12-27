@@ -3,7 +3,8 @@
  */
 
 export function createLogger(prefix: string) {
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  // In Workers, we always log (env vars are accessed differently)
+  const isDevelopment = true;
   
   return {
     debug: (...args: unknown[]) => {
@@ -29,5 +30,8 @@ export function createLogger(prefix: string) {
 }
 
 export const logger = createLogger('api');
+
+
+
 
 

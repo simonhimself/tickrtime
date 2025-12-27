@@ -19,7 +19,7 @@ async function getUserFromToken(c: any): Promise<{ userId: string; email: string
   }
 
   const token = authHeader.substring(7);
-  return await verifyToken(token, c.env.JWT_SECRET);
+  return await verifyToken(token, c.env!.JWT_SECRET);
 }
 
 // Get watchlist from KV
@@ -66,7 +66,7 @@ app.get('/', async (c) => {
       }, 401);
     }
 
-    const watchlist = await getWatchlist(c.env.TICKRTIME_KV, user.userId);
+    const watchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
 
     return c.json({
       success: true,
@@ -108,12 +108,12 @@ app.post('/', async (c) => {
       }, 400);
     }
 
-    const watchlist = await getWatchlist(c.env.TICKRTIME_KV, user.userId);
+    const watchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
     const normalizedSymbol = symbol.toUpperCase();
-    
+
     if (!watchlist.tickers.includes(normalizedSymbol)) {
       watchlist.tickers.push(normalizedSymbol);
-      const success = await saveWatchlist(c.env.TICKRTIME_KV, user.userId, watchlist);
+      const success = await saveWatchlist(c.env!.TICKRTIME_KV, user.userId, watchlist);
       if (!success) {
         return c.json({
           success: false,
@@ -122,7 +122,7 @@ app.post('/', async (c) => {
       }
     }
 
-    const updatedWatchlist = await getWatchlist(c.env.TICKRTIME_KV, user.userId);
+    const updatedWatchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
 
     return c.json({
       success: true,
@@ -163,11 +163,11 @@ app.delete('/', async (c) => {
       }, 400);
     }
 
-    const watchlist = await getWatchlist(c.env.TICKRTIME_KV, user.userId);
+    const watchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
     const normalizedSymbol = symbol.toUpperCase();
-    
+
     watchlist.tickers = watchlist.tickers.filter((ticker: string) => ticker !== normalizedSymbol);
-    const success = await saveWatchlist(c.env.TICKRTIME_KV, user.userId, watchlist);
+    const success = await saveWatchlist(c.env!.TICKRTIME_KV, user.userId, watchlist);
     if (!success) {
       return c.json({
         success: false,
@@ -175,7 +175,7 @@ app.delete('/', async (c) => {
       }, 500);
     }
 
-    const updatedWatchlist = await getWatchlist(c.env.TICKRTIME_KV, user.userId);
+    const updatedWatchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
 
     return c.json({
       success: true,
@@ -197,5 +197,8 @@ app.delete('/', async (c) => {
 });
 
 export default app;
+
+
+
 
 

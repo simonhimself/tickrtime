@@ -73,7 +73,7 @@ app.post('/signup', async (c) => {
       }, 400);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
 
     // Check if user already exists
     const existingUser = await getUserByEmail(db, email);
@@ -91,7 +91,7 @@ app.post('/signup', async (c) => {
     const user = createUser(email, passwordHash);
 
     // Email verification control
-    const shouldSendEmails = c.env.NODE_ENV === 'production';
+    const shouldSendEmails = c.env!.NODE_ENV === 'production';
     
     let emailVerified = false;
     let verificationToken: string | undefined = user.verificationToken;
@@ -122,7 +122,7 @@ app.post('/signup', async (c) => {
 
     // Save verification token to KV (temporary data, stays in KV)
     if (verificationToken) {
-      await saveVerificationToken(c.env.TICKRTIME_KV, verificationToken, user.id, 24 * 3600); // 24 hours
+      await saveVerificationToken(c.env!.TICKRTIME_KV, verificationToken, user.id, 24 * 3600); // 24 hours
     }
 
     // Send verification email (only if verification is required)
@@ -134,8 +134,8 @@ app.post('/signup', async (c) => {
           token: verificationToken,
           userName: user.email.split('@')[0]
         },
-        c.env.RESEND_API_KEY,
-        c.env.NEXT_PUBLIC_APP_URL
+        c.env!.RESEND_API_KEY,
+        c.env!.NEXT_PUBLIC_APP_URL
       );
       
       if (!emailSent) {
@@ -153,7 +153,7 @@ app.post('/signup', async (c) => {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    const token = await generateToken(userForToken, c.env.JWT_SECRET);
+    const token = await generateToken(userForToken, c.env!.JWT_SECRET);
 
     return c.json<AuthResponse>({
       success: true,
@@ -193,7 +193,7 @@ app.post('/login', async (c) => {
       }, 400);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
 
     // Get user by email from D1
     logger.debug('Login attempt for email:', email);
@@ -224,7 +224,7 @@ app.post('/login', async (c) => {
     }
 
     // Generate JWT token
-    const token = await generateToken(kvUserToUser(user), c.env.JWT_SECRET);
+    const token = await generateToken(kvUserToUser(user), c.env!.JWT_SECRET);
 
     return c.json<AuthResponse>({
       success: true,
@@ -252,14 +252,14 @@ app.get('/me', async (c) => {
     }
 
     const token = authHeader.substring(7);
-    
+
     // Verify the token
-    const userData = await verifyToken(token, c.env.JWT_SECRET);
+    const userData = await verifyToken(token, c.env!.JWT_SECRET);
     if (!userData) {
       return c.json({ error: 'Invalid or expired token' }, 401);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
 
     // Get full user data from D1
     const user = await getUserById(db, userData.userId);
@@ -291,7 +291,7 @@ app.get('/verify-email', async (c) => {
 
     // Get verification token from KV
     logger.debug('Verifying token:', token);
-    const userId = await getVerificationToken(c.env.TICKRTIME_KV, token);
+    const userId = await getVerificationToken(c.env!.TICKRTIME_KV, token);
     
     if (!userId) {
       return c.json<AuthResponse>({
@@ -300,7 +300,7 @@ app.get('/verify-email', async (c) => {
       }, 400);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
 
     // Get user from D1
     const user = await getUserById(db, userId);
@@ -332,7 +332,7 @@ app.get('/verify-email', async (c) => {
     }
 
     // Delete verification token from KV
-    await deleteVerificationToken(c.env.TICKRTIME_KV, token);
+    await deleteVerificationToken(c.env!.TICKRTIME_KV, token);
     
     // Get updated user
     const updatedUser = await getUserById(db, userId);
@@ -344,7 +344,7 @@ app.get('/verify-email', async (c) => {
     }
 
     // Generate JWT token
-    const jwtToken = await generateToken(kvUserToUser(updatedUser), c.env.JWT_SECRET);
+    const jwtToken = await generateToken(kvUserToUser(updatedUser), c.env!.JWT_SECRET);
 
     return c.json<AuthResponse>({
       success: true,
@@ -363,5 +363,8 @@ app.get('/verify-email', async (c) => {
 });
 
 export default app;
+
+
+
 
 

@@ -22,7 +22,7 @@ async function getUserFromToken(c: any): Promise<{ userId: string; email: string
   }
 
   const token = authHeader.substring(7);
-  return await verifyToken(token, c.env.JWT_SECRET);
+  return await verifyToken(token, c.env!.JWT_SECRET);
 }
 
 // Helper to fetch next earnings date from Finnhub
@@ -53,7 +53,7 @@ async function getNextEarningsDate(symbol: string, finnhubApiKey: string | undef
       return null;
     }
 
-    const data = await res.json();
+    const data = await res.json() as { earningsCalendar?: Array<{ date: string }> };
     const earnings = Array.isArray(data.earningsCalendar) ? data.earningsCalendar : [];
 
     // Find the next future earnings date
@@ -80,7 +80,7 @@ app.get('/', async (c) => {
       return c.json({ success: false, message: 'Unauthorized' }, 401);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
     const alerts = await getUserAlerts(db, user.userId);
 
     return c.json({
@@ -126,23 +126,23 @@ app.post('/', async (c) => {
       );
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
     let kvUser = await getUserById(db, user.userId);
-    
+
     // Fallback: if user not found by ID, try by email
     if (!kvUser) {
       kvUser = await getUserByEmail(db, user.email);
       if (!kvUser) {
         return c.json(
-          { 
-            success: false, 
-            message: 'User not found in database. Please sign up again or contact support.' 
+          {
+            success: false,
+            message: 'User not found in database. Please sign up again or contact support.'
           },
           404
         );
       }
     }
-    
+
     const actualUserId = kvUser.id;
 
     // Create alert object
@@ -167,7 +167,7 @@ app.post('/', async (c) => {
       const earningsDateObj = new Date(earningsDate);
       const scheduledDate = new Date(earningsDateObj);
       scheduledDate.setDate(scheduledDate.getDate() - daysBefore);
-      
+
       // Only schedule if the date is in the future
       if (scheduledDate > new Date()) {
         const emailResult = await sendEarningsAlertEmail(
@@ -179,8 +179,8 @@ app.post('/', async (c) => {
             alertType: 'before',
             userName: kvUser.email.split('@')[0],
           },
-          c.env.RESEND_API_KEY,
-          c.env.NEXT_PUBLIC_APP_URL,
+          c.env!.RESEND_API_KEY,
+          c.env!.NEXT_PUBLIC_APP_URL,
           scheduledDate.toISOString()
         );
 
@@ -230,7 +230,7 @@ app.get('/:id', async (c) => {
       return c.json({ success: false, message: 'Unauthorized' }, 401);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
     const alert = await getAlertByUserAndId(db, user.userId, id);
 
     if (!alert) {
@@ -256,7 +256,7 @@ app.put('/:id', async (c) => {
       return c.json({ success: false, message: 'Unauthorized' }, 401);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
     const alert = await getAlertByUserAndId(db, user.userId, id);
 
     if (!alert) {
@@ -286,11 +286,11 @@ app.put('/:id', async (c) => {
       if (kvUser) {
         const finalEarningsDate = updates.earningsDate || alert.earningsDate;
         const finalDaysBefore = updates.daysBefore !== undefined ? updates.daysBefore : alert.daysBefore || 1;
-        
+
         const earningsDateObj = new Date(finalEarningsDate);
         const scheduledDate = new Date(earningsDateObj);
         scheduledDate.setDate(scheduledDate.getDate() - finalDaysBefore);
-        
+
         if (scheduledDate > new Date()) {
           const emailResult = await sendEarningsAlertEmail(
             {
@@ -301,8 +301,8 @@ app.put('/:id', async (c) => {
               alertType: 'before',
               userName: kvUser.email.split('@')[0],
             },
-            c.env.RESEND_API_KEY,
-            c.env.NEXT_PUBLIC_APP_URL,
+            c.env!.RESEND_API_KEY,
+            c.env!.NEXT_PUBLIC_APP_URL,
             scheduledDate.toISOString()
           );
 
@@ -339,7 +339,7 @@ app.delete('/:id', async (c) => {
       return c.json({ success: false, message: 'Unauthorized' }, 401);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
     const alert = await getAlertByUserAndId(db, user.userId, id);
 
     if (!alert) {
@@ -369,7 +369,7 @@ app.get('/preferences', async (c) => {
       return c.json({ success: false, message: 'Unauthorized' }, 401);
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
     let kvUser = await getUserById(db, user.userId);
     
     // Fallback: if user not found by ID, try by email
@@ -433,9 +433,9 @@ app.put('/preferences', async (c) => {
       );
     }
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
     let kvUser = await getUserById(db, user.userId);
-    
+
     // Fallback: if user not found by ID, try by email
     if (!kvUser) {
       kvUser = await getUserByEmail(db, user.email);
@@ -480,5 +480,8 @@ app.put('/preferences', async (c) => {
 });
 
 export default app;
+
+
+
 
 

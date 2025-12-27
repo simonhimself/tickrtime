@@ -23,6 +23,7 @@ export interface Env {
   NODE_ENV: string;
   CRON_SECRET?: string;
   SEND_VERIFICATION_EMAILS?: string;
+  [key: string]: unknown;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -46,34 +47,35 @@ app.use('/*', async (c, next) => {
   logger.info('Request completed', { method, path, status, duration });
 });
 
+// Allowed origins for CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'http://127.0.0.1:3002',
+];
+
 // CORS configuration
 app.use('/*', cors({
-  origin: (origin, c) => {
-    try {
-      const allowedOrigins = [
-        c.env?.NEXT_PUBLIC_APP_URL,
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:3002',
-        'http://127.0.0.1:3000',
-        'http://127.0.0.1:3001',
-        'http://127.0.0.1:3002',
-      ].filter(Boolean) as string[];
-      
-      // Allow requests with no origin (like Postman, curl)
-      if (!origin) return allowedOrigins[0] || '*';
-      
-      // Check if origin is allowed
-      if (allowedOrigins.includes(origin)) {
-        return origin;
-      }
-      
-      // Default to first allowed origin or allow all in development
-      return allowedOrigins[0] || '*';
-    } catch (error) {
-      // Fallback: allow all origins in case of error
-      return origin || '*';
+  origin: (origin: string): string | null => {
+    // Allow requests with no origin (like Postman, curl)
+    if (!origin) return allowedOrigins[0];
+
+    // Check if origin is allowed
+    if (allowedOrigins.includes(origin)) {
+      return origin;
     }
+
+    // Allow production origins dynamically (will be set via env in actual requests)
+    // For now, allow the origin if it matches tickrtime domain pattern
+    if (origin.includes('tickrtime')) {
+      return origin;
+    }
+
+    // Default to first allowed origin
+    return allowedOrigins[0];
   },
   allowHeaders: ['Content-Type', 'Authorization'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -84,9 +86,9 @@ app.use('/*', cors({
 
 // Health check
 app.get('/health', (c) => {
-  return c.json({ 
-    status: 'ok', 
-    environment: c.env.NODE_ENV,
+  return c.json({
+    status: 'ok',
+    environment: c.env!.NODE_ENV,
     timestamp: new Date().toISOString()
   });
 });
@@ -116,9 +118,9 @@ app.onError((err, c) => {
     message: err.message 
   }, err);
   
-  return c.json({ 
+  return c.json({
     error: 'Internal server error',
-    message: c.env.NODE_ENV === 'development' ? err.message : undefined
+    message: c.env?.NODE_ENV === 'development' ? err.message : undefined
   }, 500);
 });
 

@@ -63,8 +63,8 @@ app.post('/check-alerts', async (c) => {
   try {
     // Optional: Add authentication for cron endpoint
     const cronSecret = c.req.header('x-cron-secret');
-    const expectedSecret = c.env.CRON_SECRET;
-    
+    const expectedSecret = c.env!.CRON_SECRET;
+
     if (expectedSecret && cronSecret !== expectedSecret) {
       return c.json({ success: false, message: 'Unauthorized' }, 401);
     }
@@ -73,7 +73,7 @@ app.post('/check-alerts', async (c) => {
     today.setHours(0, 0, 0, 0);
     const todayStr = today.toISOString().split('T')[0]!;
 
-    const db = createDB(c.env);
+    const db = createDB(c.env!);
     
     // Get all active "after" alerts that need to be processed
     const alerts = await getActiveAfterAlerts(db, todayStr);
@@ -99,7 +99,7 @@ app.post('/check-alerts', async (c) => {
         }
 
         // Fetch earnings data
-        const earningsData = await getEarningsData(alert.symbol, alert.earningsDate, c.env.FINNHUB_API_KEY);
+        const earningsData = await getEarningsData(alert.symbol, alert.earningsDate, c.env!.FINNHUB_API_KEY);
 
         // Send email
         const emailResult = await sendEarningsAlertEmail({
@@ -110,7 +110,7 @@ app.post('/check-alerts', async (c) => {
           alertType: 'after',
           userName: kvUser.email.split('@')[0],
           ...earningsData,
-        }, c.env.RESEND_API_KEY, c.env.NEXT_PUBLIC_APP_URL);
+        }, c.env!.RESEND_API_KEY, c.env!.NEXT_PUBLIC_APP_URL);
 
         if (emailResult.success) {
           sentCount++;
@@ -142,5 +142,8 @@ app.post('/check-alerts', async (c) => {
 });
 
 export default app;
+
+
+
 
 

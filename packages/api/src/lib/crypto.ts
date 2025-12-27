@@ -2,7 +2,8 @@
 
 // Convert string to ArrayBuffer
 function stringToArrayBuffer(str: string): ArrayBuffer {
-  return new TextEncoder().encode(str).buffer;
+  const encoded = new TextEncoder().encode(str);
+  return encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength) as ArrayBuffer;
 }
 
 // Convert ArrayBuffer to base64
@@ -154,5 +155,8 @@ export async function verifyJWT(token: string, secret: string): Promise<Record<s
     return null;
   }
 }
+
+
+
 
 

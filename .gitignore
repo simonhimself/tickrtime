@@ -123,3 +123,6 @@ temp/
 .wrangler/
 wrangler.toml.tmp
 .cloudflare/
+
+# Claude Code
+.claude/
