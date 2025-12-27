@@ -15,6 +15,8 @@ export interface EarningsData {
   year?: number;
   exchange?: string;
   description?: string;
+  industry?: string;
+  sector?: string;
 }
 
 // API response wrapper
@@ -66,7 +68,7 @@ export interface SearchFilters {
 
 // UI state types
 export type ViewState = "loading" | "data" | "error" | "empty";
-export type SortField = "symbol" | "exchange" | "date" | "estimate" | "actual" | "surprise" | "surprisePercent" | "year" | "quarter" | "hour" | "description";
+export type SortField = "symbol" | "exchange" | "date" | "estimate" | "actual" | "surprise" | "surprisePercent" | "year" | "quarter" | "hour" | "description" | "industry" | "sector";
 export type SortDirection = "asc" | "desc" | null;
 export type TimePeriod = "next30" | "previous30" | "today" | "tomorrow" | "search" | "watchlist" | "alerts";
 

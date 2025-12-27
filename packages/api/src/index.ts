@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
+import type { D1Database, KVNamespace, ScheduledEvent, ExecutionContext } from '@cloudflare/workers-types';
 import { createLogger } from './lib/logger';
 import authRoutes from './routes/auth';
 import alertsRoutes from './routes/alerts';
@@ -12,6 +12,7 @@ import earningsPrevious30DaysRoutes from './routes/earnings-previous-30-days';
 import earningsWatchlistRoutes from './routes/earnings-watchlist';
 import watchlistRoutes from './routes/watchlist';
 import cronRoutes from './routes/cron';
+import tickersRoutes from './routes/tickers';
 
 export interface Env {
   DB: D1Database;
@@ -23,6 +24,7 @@ export interface Env {
   NODE_ENV: string;
   CRON_SECRET?: string;
   SEND_VERIFICATION_EMAILS?: string;
+  USE_DB_TICKERS?: string; // Feature flag: 'true' to use D1 tickers, 'false' or undefined for legacy JSON
   [key: string]: unknown;
 }
 
@@ -104,6 +106,7 @@ app.route('/api/earnings-previous-30-days', earningsPrevious30DaysRoutes);
 app.route('/api/earnings-watchlist', earningsWatchlistRoutes);
 app.route('/api/watchlist', watchlistRoutes);
 app.route('/api/cron', cronRoutes);
+app.route('/api/tickers', tickersRoutes);
 
 // 404 handler
 app.notFound((c) => {
@@ -124,5 +127,40 @@ app.onError((err, c) => {
   }, 500);
 });
 
-export default app;
+// Export with scheduled event handler for cron triggers
+export default {
+  fetch: app.fetch,
+
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    const cronLogger = createLogger('cron-scheduled');
+    cronLogger.info('Cron trigger fired', { scheduledTime: new Date(event.scheduledTime).toISOString() });
+
+    // Build base URL for internal API calls
+    const baseUrl = env.NODE_ENV === 'production'
+      ? 'https://tickrtime-api.simons.workers.dev'
+      : 'http://localhost:8787';
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-cron-secret': env.CRON_SECRET || '',
+    };
+
+    // Run both cron jobs in parallel
+    const results = await Promise.allSettled([
+      fetch(`${baseUrl}/api/cron/check-alerts`, { method: 'POST', headers }),
+      fetch(`${baseUrl}/api/cron/sync-tickers`, { method: 'POST', headers }),
+    ]);
+
+    // Log results
+    for (const [index, result] of results.entries()) {
+      const jobName = index === 0 ? 'check-alerts' : 'sync-tickers';
+      if (result.status === 'fulfilled') {
+        const response = result.value;
+        cronLogger.info(`${jobName} completed`, { status: response.status });
+      } else {
+        cronLogger.error(`${jobName} failed`, { error: result.reason });
+      }
+    }
+  },
+};
 

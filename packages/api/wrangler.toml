@@ -30,10 +30,15 @@ FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
 RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
 SEND_VERIFICATION_EMAILS = "false"
 CRON_SECRET = "dev-cron-secret-key"
+USE_DB_TICKERS = "true"
 
 # Staging environment
 [env.staging]
 name = "tickrtime-api-staging"
+
+# Cron triggers for staging
+[env.staging.triggers]
+crons = ["0 9 * * *"]
 
 # D1 Database binding for staging
 [[env.staging.d1_databases]]
@@ -56,10 +61,15 @@ FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
 RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
 SEND_VERIFICATION_EMAILS = "true"
 CRON_SECRET = "staging-cron-secret-key"
+USE_DB_TICKERS = "true"
 
 # Production environment
 [env.production]
 name = "tickrtime-api"
+
+# Cron triggers for production
+[env.production.triggers]
+crons = ["0 9 * * *"]
 
 # D1 Database binding for production
 [[env.production.d1_databases]]
@@ -82,4 +92,5 @@ FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
 RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
 SEND_VERIFICATION_EMAILS = "true"
 CRON_SECRET = "production-cron-secret-key"
+USE_DB_TICKERS = "true"
 

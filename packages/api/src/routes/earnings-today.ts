@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import type { Env } from '../index';
 import { createLogger } from '../lib/logger';
-import techTickers from '../../data/tech_tickers.json';
+import { createDB } from '../lib/db';
+import { getActiveTickerSymbols, getTickerMetadata, type TickerMetadata } from '../lib/ticker-data';
 
 // Finnhub API response types
 interface FinnhubEarningsCalendarItem {
@@ -18,12 +19,6 @@ interface FinnhubCalendarResponse {
   earningsCalendar?: FinnhubEarningsCalendarItem[];
 }
 
-interface TechTickerItem {
-  symbol: string;
-  description?: string;
-  exchange?: string;
-}
-
 interface ProcessedEarning {
   symbol: string;
   date: string;
@@ -36,6 +31,8 @@ interface ProcessedEarning {
   year?: number;
   exchange?: string;
   description?: string;
+  industry?: string;
+  sector?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -43,11 +40,13 @@ const logger = createLogger('earnings-today');
 
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 
-function processEarningsData(earnings: FinnhubEarningsCalendarItem[], tickers: TechTickerItem[]): ProcessedEarning[] {
-  const techSymbols = new Set(tickers.map((t) => t.symbol));
-
+function processEarningsData(
+  earnings: FinnhubEarningsCalendarItem[],
+  activeSymbols: Set<string>,
+  tickerMetadata: Map<string, TickerMetadata>
+): ProcessedEarning[] {
   return earnings
-    .filter((e) => techSymbols.has(e.symbol))
+    .filter((e) => activeSymbols.has(e.symbol))
     .map((e) => {
       const actual = typeof e.epsActual === 'number'
         ? e.epsActual
@@ -64,7 +63,7 @@ function processEarningsData(earnings: FinnhubEarningsCalendarItem[], tickers: T
         surprisePercent = estimate !== 0 ? ((actual - estimate) / Math.abs(estimate)) * 100 : null;
       }
 
-      const techTicker = tickers.find((t) => t.symbol === e.symbol);
+      const ticker = tickerMetadata.get(e.symbol);
 
       return {
         symbol: e.symbol,
@@ -76,8 +75,10 @@ function processEarningsData(earnings: FinnhubEarningsCalendarItem[], tickers: T
         hour: e.hour,
         quarter: e.quarter,
         year: e.year,
-        exchange: techTicker?.exchange || undefined,
-        description: techTicker?.description || undefined,
+        exchange: ticker?.exchange,
+        description: ticker?.description,
+        industry: ticker?.industry,
+        sector: ticker?.sector,
       };
     });
 }
@@ -94,6 +95,13 @@ app.get('/', async (c) => {
 
     logger.debug('/api/earnings-today date:', todayStr);
 
+    // Get ticker data (from D1 or JSON based on feature flag)
+    const db = createDB(c.env!);
+    const [activeSymbols, tickerMetadata] = await Promise.all([
+      getActiveTickerSymbols(db, c.env!),
+      getTickerMetadata(db, c.env!),
+    ]);
+
     const url = `${FINNHUB_BASE_URL}/calendar/earnings?from=${todayStr}&to=${todayStr}&token=${c.env!.FINNHUB_API_KEY}`;
 
     const res = await fetch(url);
@@ -105,7 +113,7 @@ app.get('/', async (c) => {
     const data = await res.json() as FinnhubCalendarResponse;
     const earnings = Array.isArray(data.earningsCalendar) ? data.earningsCalendar : [];
 
-    const result = processEarningsData(earnings, techTickers as TechTickerItem[]);
+    const result = processEarningsData(earnings, activeSymbols, tickerMetadata);
     const sortedResult = result.sort((a, b) => a.symbol.localeCompare(b.symbol));
 
     return c.json({

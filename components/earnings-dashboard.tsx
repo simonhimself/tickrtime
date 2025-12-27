@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 
 import { logger } from "@/lib/logger";
@@ -13,7 +13,7 @@ import { useAlerts } from "@/hooks/use-alerts";
 import { AlertConfigPopover } from "@/components/alert-config-popover";
 import { WatchlistSummary } from "@/components/watchlist-summary";
 import { BulkAlertDialog } from "@/components/bulk-alert-dialog";
-import { getEarningsToday, getEarningsTomorrow, getEarningsNext30Days, getEarningsPrevious30Days, getEarnings, getEarningsWatchlist } from "@/lib/api-client";
+import { getEarningsToday, getEarningsTomorrow, getEarningsNext30Days, getEarningsPrevious30Days, getEarnings, getEarningsWatchlist, getSectors } from "@/lib/api-client";
 import type { 
   EarningsData, 
   ViewState, 
@@ -35,6 +35,18 @@ export function EarningsDashboard() {
     year: "2024",
     quarter: "all",
   });
+
+  // Sector filter state
+  const [availableSectors, setAvailableSectors] = useState<string[]>([]);
+  const [selectedSector, setSelectedSector] = useState<string>("all");
+
+  // Filter earnings by selected sector (memoized for performance)
+  const filteredEarnings = useMemo(() => {
+    if (selectedSector === "all") {
+      return earnings;
+    }
+    return earnings.filter(e => e.sector === selectedSector);
+  }, [earnings, selectedSector]);
 
   // Watchlist functionality
   const watchlist = useWatchlist();
@@ -234,7 +246,7 @@ export function EarningsDashboard() {
         break;
       }
       case "Set Alert": {
-        const earning = earnings.find((e) => e.symbol === symbol);
+        const earning = filteredEarnings.find((e) => e.symbol === symbol);
 
         // Auto-add to watchlist if not already watchlisted (alerts are a subset of watchlist)
         if (!watchlist.isInWatchlist(symbol)) {
@@ -254,7 +266,7 @@ export function EarningsDashboard() {
       }
       case "View Chart": {
         // Look up exchange from earnings data
-        const earning = earnings.find((e) => e.symbol === symbol);
+        const earning = filteredEarnings.find((e) => e.symbol === symbol);
         const exchange = earning?.exchange;
         // Format: EXCHANGE:SYMBOL (e.g., NASDAQ:AAPL) or just SYMBOL if no exchange
         const symbolParam = exchange ? `${exchange}:${symbol}` : symbol;
@@ -271,7 +283,7 @@ export function EarningsDashboard() {
         logger.debug("Unknown action:", action);
       }
     }
-  }, [earnings, watchlist]);
+  }, [filteredEarnings, watchlist]);
 
   const handleWatchlistToggle = useCallback(async (symbol: string) => {
     const wasInWatchlist = watchlist.isInWatchlist(symbol);
@@ -295,6 +307,23 @@ export function EarningsDashboard() {
       toggleWatchlistMode();
     }
   }, [watchlist.count, toggleWatchlistMode]);
+
+  // Load available sectors on mount
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const data = await getSectors();
+        if (data.sectors && data.sectors.length > 0) {
+          setAvailableSectors(data.sectors);
+        }
+      } catch (err) {
+        logger.error("Failed to fetch sectors:", err);
+        // Fallback sectors if API fails
+        setAvailableSectors(["Technology"]);
+      }
+    };
+    fetchSectors();
+  }, []);
 
   // Load initial data
   useEffect(() => {
@@ -365,6 +394,33 @@ export function EarningsDashboard() {
                 loading={viewState === "loading"}
               />
             )}
+
+            {/* Sector filter - show when not in search or watchlist mode */}
+            {!isWatchlistMode && !isSearchMode && availableSectors.length > 1 && (
+              <div className="flex items-center gap-2 mt-4">
+                <label htmlFor="sector-filter" className="text-sm text-muted-foreground">
+                  Filter by sector:
+                </label>
+                <select
+                  id="sector-filter"
+                  value={selectedSector}
+                  onChange={(e) => setSelectedSector(e.target.value)}
+                  className="px-3 py-1.5 text-sm border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="all">All Sectors</option>
+                  {availableSectors.map((sector) => (
+                    <option key={sector} value={sector}>
+                      {sector}
+                    </option>
+                  ))}
+                </select>
+                {selectedSector !== "all" && (
+                  <span className="text-xs text-muted-foreground">
+                    Showing {filteredEarnings.length} of {earnings.length} results
+                  </span>
+                )}
+              </div>
+            )}
           </section>
 
           {/* Watchlist Summary (only in watchlist mode) */}
@@ -388,7 +444,7 @@ export function EarningsDashboard() {
           )}
           
           <EarningsTable
-            data={earnings}
+            data={filteredEarnings}
             loading={viewState === "loading"}
             error={error}
             onRowAction={handleRowAction}

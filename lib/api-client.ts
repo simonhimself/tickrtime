@@ -225,3 +225,62 @@ export async function removeFromWatchlist(symbol: string): Promise<WatchlistApiR
   }).then(res => res.json());
 }
 
+// Tickers API
+interface TickerData {
+  symbol: string;
+  description?: string;
+  exchange: string;
+  industry?: string;
+  sector?: string;
+  isActive?: boolean;
+  profileFetchedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface TickersListResponse {
+  tickers: TickerData[];
+  total: number;
+  limit: number;
+  offset: number;
+  message?: string;
+  error?: string;
+}
+
+interface SectorsResponse {
+  sectors: string[];
+  error?: string;
+}
+
+interface TickerResponse extends TickerData {
+  error?: string;
+}
+
+export async function getTickers(params?: {
+  sector?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<TickersListResponse> {
+  const queryParams = new URLSearchParams();
+  if (params?.sector) queryParams.set('sector', params.sector);
+  if (params?.search) queryParams.set('search', params.search);
+  if (params?.limit) queryParams.set('limit', String(params.limit));
+  if (params?.offset) queryParams.set('offset', String(params.offset));
+
+  const query = queryParams.toString();
+  const url = `${API_BASE}/api/tickers${query ? `?${query}` : ''}`;
+  const res = await fetch(url);
+  return res.json();
+}
+
+export async function getSectors(): Promise<SectorsResponse> {
+  const res = await fetch(`${API_BASE}/api/tickers/sectors`);
+  return res.json();
+}
+
+export async function getTicker(symbol: string): Promise<TickerResponse> {
+  const res = await fetch(`${API_BASE}/api/tickers/${encodeURIComponent(symbol)}`);
+  return res.json();
+}
+
