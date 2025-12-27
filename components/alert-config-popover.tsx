@@ -90,7 +90,9 @@ export function AlertConfigPopover({
         (a) => a.symbol.toUpperCase() === symbol.toUpperCase() && a.alertType === "after" && a.status === "active"
       );
 
-      setBeforeEnabled(!!newBeforeAlert);
+      // Pre-check "before" for new alerts (no existing alerts), otherwise use existing state
+      const hasAnyExistingAlert = newBeforeAlert || newAfterAlert;
+      setBeforeEnabled(hasAnyExistingAlert ? !!newBeforeAlert : true);
       setAfterEnabled(!!newAfterAlert);
       // Use user's preference for new alerts, or existing alert's value
       setDaysBefore(newBeforeAlert?.daysBefore?.toString() || userDefaultDaysBefore.toString());
