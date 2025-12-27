@@ -40,8 +40,9 @@ export default function ProfilePage() {
   const [showSurprises, setShowSurprises] = useState(true);
   const [showExchange, setShowExchange] = useState(true);
   
-  // Notification preferences (simplified - only days before)
+  // Notification preferences
   const [defaultDaysBefore, setDefaultDaysBefore] = useState(2);
+  const [defaultDaysAfter, setDefaultDaysAfter] = useState(1);
   const [loadingPreferences, setLoadingPreferences] = useState(false);
 
   // Password change state
@@ -92,6 +93,7 @@ export default function ProfilePage() {
           const prefsData = await getAlertPreferences();
           if (prefsData.success && prefsData.preferences) {
             setDefaultDaysBefore(prefsData.preferences.defaultDaysBefore ?? 2);
+            setDefaultDaysAfter(prefsData.preferences.defaultDaysAfter ?? 1);
           }
         } catch (error) {
           console.error("Error loading notification preferences:", error);
@@ -172,6 +174,7 @@ export default function ProfilePage() {
 
       const data = await updateAlertPreferences({
         defaultDaysBefore,
+        defaultDaysAfter,
       });
       if (data.success) {
         toast.success("Notification preferences saved successfully");
@@ -418,7 +421,7 @@ export default function ProfilePage() {
               <Input
                 id="defaultDaysBefore"
                 type="number"
-                min="1"
+                min="0"
                 max="30"
                 value={defaultDaysBefore}
                 onChange={(e) => setDefaultDaysBefore(parseInt(e.target.value) || 2)}
@@ -426,6 +429,22 @@ export default function ProfilePage() {
               />
               <p className="text-xs text-muted-foreground">
                 New alerts will default to this many days before earnings
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="defaultDaysAfter">Default Days After Earnings</Label>
+              <Input
+                id="defaultDaysAfter"
+                type="number"
+                min="0"
+                max="30"
+                value={defaultDaysAfter}
+                onChange={(e) => setDefaultDaysAfter(parseInt(e.target.value) || 1)}
+                className="max-w-[120px]"
+              />
+              <p className="text-xs text-muted-foreground">
+                New alerts will default to this many days after earnings
               </p>
             </div>
 

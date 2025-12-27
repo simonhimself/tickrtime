@@ -46,8 +46,9 @@ export function AlertConfigPopover({
     (a) => a.symbol.toUpperCase() === symbol.toUpperCase() && a.alertType === "after" && a.status === "active"
   );
 
-  // User's default preference (fetched from profile settings)
+  // User's default preferences (fetched from profile settings)
   const [userDefaultDaysBefore, setUserDefaultDaysBefore] = useState(2);
+  const [userDefaultDaysAfter, setUserDefaultDaysAfter] = useState(1);
 
   // Form state
   const [beforeEnabled, setBeforeEnabled] = useState(!!beforeAlert);
@@ -64,12 +65,17 @@ export function AlertConfigPopover({
       // Fetch user preferences for default days
       getAlertPreferences()
         .then((data) => {
-          if (data.success && data.preferences?.defaultDaysBefore) {
-            setUserDefaultDaysBefore(data.preferences.defaultDaysBefore);
+          if (data.success && data.preferences) {
+            if (data.preferences.defaultDaysBefore) {
+              setUserDefaultDaysBefore(data.preferences.defaultDaysBefore);
+            }
+            if (data.preferences.defaultDaysAfter !== undefined) {
+              setUserDefaultDaysAfter(data.preferences.defaultDaysAfter);
+            }
           }
         })
         .catch(() => {
-          // Use fallback default of 2 if fetch fails
+          // Use fallback defaults if fetch fails
         });
     }
   }, [open]);
@@ -88,11 +94,11 @@ export function AlertConfigPopover({
       setAfterEnabled(!!newAfterAlert);
       // Use user's preference for new alerts, or existing alert's value
       setDaysBefore(newBeforeAlert?.daysBefore?.toString() || userDefaultDaysBefore.toString());
-      setDaysAfter(newAfterAlert?.daysAfter?.toString() || "1");
+      setDaysAfter(newAfterAlert?.daysAfter?.toString() || userDefaultDaysAfter.toString());
       setRecurring(newBeforeAlert?.recurring || newAfterAlert?.recurring || false);
       setEarningsDate(earningsData?.date || newBeforeAlert?.earningsDate || newAfterAlert?.earningsDate || "");
     }
-  }, [open, symbol, existingAlerts, earningsData?.date, userDefaultDaysBefore]);
+  }, [open, symbol, existingAlerts, earningsData?.date, userDefaultDaysBefore, userDefaultDaysAfter]);
 
   // Fetch earnings date if not available
   useEffect(() => {
