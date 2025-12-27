@@ -98,7 +98,19 @@ export function AlertConfigPopover({
       setDaysBefore(newBeforeAlert?.daysBefore?.toString() || userDefaultDaysBefore.toString());
       setDaysAfter(newAfterAlert?.daysAfter?.toString() || userDefaultDaysAfter.toString());
       setRecurring(newBeforeAlert?.recurring || newAfterAlert?.recurring || false);
-      setEarningsDate(earningsData?.date || newBeforeAlert?.earningsDate || newAfterAlert?.earningsDate || "");
+
+      // Check if the passed date is in the past (e.g., from "Previous 30 Days" view)
+      const passedDate = earningsData?.date;
+      const today = new Date(new Date().toDateString()); // Midnight today
+      const isPastDate = passedDate && new Date(passedDate) < today;
+
+      if (isPastDate) {
+        // Past date - clear it so fetchEarningsDate fetches the upcoming earnings
+        setEarningsDate("");
+      } else {
+        // Future date or existing alert date - use it
+        setEarningsDate(passedDate || newBeforeAlert?.earningsDate || newAfterAlert?.earningsDate || "");
+      }
     }
   }, [open, symbol, existingAlerts, earningsData?.date, userDefaultDaysBefore, userDefaultDaysAfter]);
 
