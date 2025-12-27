@@ -11,6 +11,7 @@ import type { EarningsData, ActionIcon } from "@/types";
 interface EarningsCardProps {
   earning: EarningsData;
   isWatchlisted: boolean;
+  hasAlert?: boolean;
   onAction: (action: string, symbol: string) => void;
   onToggleWatchlist: (symbol: string) => boolean | Promise<boolean>;
 }
@@ -18,6 +19,7 @@ interface EarningsCardProps {
 export function EarningsCard({
   earning,
   isWatchlisted,
+  hasAlert = false,
   onAction,
   onToggleWatchlist,
 }: EarningsCardProps) {
@@ -44,8 +46,10 @@ export function EarningsCard({
     },
     {
       icon: Bell,
-      label: "Alert",
-      colorClass: "text-yellow-500 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300",
+      label: hasAlert ? "Edit Alert" : "Set Alert",
+      colorClass: hasAlert
+        ? "text-yellow-500 fill-current"
+        : "text-yellow-500 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300",
       onClick: () => onAction("Set Alert", earning.symbol),
     },
     {
@@ -81,9 +85,15 @@ export function EarningsCard({
                 </>
               )}
               {isWatchlisted && (
-                <Bookmark 
-                  className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60 ml-1 flex-shrink-0" 
+                <Bookmark
+                  className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60 ml-1 flex-shrink-0"
                   aria-label="In watchlist"
+                />
+              )}
+              {hasAlert && (
+                <Bell
+                  className="w-3 h-3 text-yellow-500 fill-current opacity-80 flex-shrink-0"
+                  aria-label="Alert set"
                 />
               )}
             </div>

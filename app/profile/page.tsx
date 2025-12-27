@@ -23,7 +23,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { AlertsManager } from "@/components/alerts-manager";
 import type { User } from "@/types";
 import { getMe, getAlertPreferences, updateAlertPreferences } from "@/lib/api-client";
 
@@ -42,9 +41,8 @@ export default function ProfilePage() {
   const [showExchange, setShowExchange] = useState(true);
   
   // Notification preferences
-  const [emailEnabled, setEmailEnabled] = useState(true);
-  const [defaultDaysBefore, setDefaultDaysBefore] = useState(1);
-  const [defaultDaysAfter, setDefaultDaysAfter] = useState(0);
+  const [defaultDaysBefore, setDefaultDaysBefore] = useState(2);
+  const [defaultDaysAfter, setDefaultDaysAfter] = useState(1);
   const [loadingPreferences, setLoadingPreferences] = useState(false);
 
   // Password change state
@@ -94,9 +92,8 @@ export default function ProfilePage() {
         try {
           const prefsData = await getAlertPreferences();
           if (prefsData.success && prefsData.preferences) {
-            setEmailEnabled(prefsData.preferences.emailEnabled ?? true);
-            setDefaultDaysBefore(prefsData.preferences.defaultDaysBefore ?? 1);
-            setDefaultDaysAfter(prefsData.preferences.defaultDaysAfter ?? 0);
+            setDefaultDaysBefore(prefsData.preferences.defaultDaysBefore ?? 2);
+            setDefaultDaysAfter(prefsData.preferences.defaultDaysAfter ?? 1);
           }
         } catch (error) {
           console.error("Error loading notification preferences:", error);
@@ -176,7 +173,6 @@ export default function ProfilePage() {
       }
 
       const data = await updateAlertPreferences({
-        emailEnabled,
         defaultDaysBefore,
         defaultDaysAfter,
       });
@@ -414,75 +410,54 @@ export default function ProfilePage() {
         {/* Notification Preferences */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Notification Preferences</CardTitle>
+            <CardTitle>Alert Settings</CardTitle>
             <CardDescription>
-              Configure how and when you want to receive earnings alerts
+              Configure default timing for new earnings alerts
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="emailEnabled">Email Notifications</Label>
-                <p className="text-xs text-muted-foreground">
-                  Receive earnings alerts via email
-                </p>
-              </div>
-              <Switch
-                id="emailEnabled"
-                checked={emailEnabled}
-                onCheckedChange={setEmailEnabled}
+            <div className="space-y-2">
+              <Label htmlFor="defaultDaysBefore">Default Days Before Earnings</Label>
+              <Input
+                id="defaultDaysBefore"
+                type="number"
+                min="0"
+                max="30"
+                value={defaultDaysBefore}
+                onChange={(e) => setDefaultDaysBefore(parseInt(e.target.value) || 2)}
+                className="max-w-[120px]"
               />
+              <p className="text-xs text-muted-foreground">
+                New alerts will default to this many days before earnings
+              </p>
             </div>
 
-            <Separator />
-
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium">Default Alert Timing</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="defaultDaysBefore">Default Days Before Earnings</Label>
-                <Input
-                  id="defaultDaysBefore"
-                  type="number"
-                  min="0"
-                  value={defaultDaysBefore}
-                  onChange={(e) => setDefaultDaysBefore(parseInt(e.target.value) || 1)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Default number of days before earnings to receive alerts
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="defaultDaysAfter">Default Days After Earnings</Label>
-                <Input
-                  id="defaultDaysAfter"
-                  type="number"
-                  min="0"
-                  value={defaultDaysAfter}
-                  onChange={(e) => setDefaultDaysAfter(parseInt(e.target.value) || 0)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Default number of days after earnings to receive alerts
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="defaultDaysAfter">Default Days After Earnings</Label>
+              <Input
+                id="defaultDaysAfter"
+                type="number"
+                min="0"
+                max="30"
+                value={defaultDaysAfter}
+                onChange={(e) => setDefaultDaysAfter(parseInt(e.target.value) || 1)}
+                className="max-w-[120px]"
+              />
+              <p className="text-xs text-muted-foreground">
+                New alerts will default to this many days after earnings
+              </p>
             </div>
 
-            <Separator />
-
-            <Button 
+            <Button
               onClick={handleSaveNotificationPreferences}
               disabled={loadingPreferences}
-              className="w-full sm:w-auto"
+              size="sm"
             >
               <Save className="h-4 w-4 mr-2" />
-              {loadingPreferences ? "Saving..." : "Save Notification Preferences"}
+              {loadingPreferences ? "Saving..." : "Save"}
             </Button>
           </CardContent>
         </Card>
-
-        {/* My Alerts */}
-        <AlertsManager className="mb-6" />
 
         {/* Account Actions */}
         <Card>

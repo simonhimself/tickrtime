@@ -118,6 +118,9 @@ export interface TableProps extends BaseComponentProps {
   watchlistedItems?: Set<string>;
   onToggleWatchlist?: (symbol: string) => boolean | Promise<boolean>;
   alertedItems?: Set<string>;
+  alerts?: import("@/lib/auth").KVAlert[];
+  isWatchlistMode?: boolean;
+  onAlertClick?: (symbol: string, earningsData: EarningsData) => void;
   sortState?: SortState;
   onSort?: (field: SortField) => void;
 }
@@ -125,11 +128,8 @@ export interface TableProps extends BaseComponentProps {
 export interface HeaderProps extends BaseComponentProps {
   watchlistCount: number;
   onWatchlistClick: () => void;
-  alertsCount?: number;
-  onAlertsClick?: () => void;
   onUserAction: (action: string) => void;
   isWatchlistActive?: boolean;
-  isAlertsActive?: boolean;
 }
 
 export interface SearchFiltersProps extends BaseComponentProps {
