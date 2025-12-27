@@ -24,7 +24,7 @@
     "dev:frontend": "next dev",
     "dev:api": "turbo dev --filter=@tickrtime/api",
     "dev:wrangler": "wrangler dev --port 3001",
-    "build": "turbo build",
+    "build": "next build",
     "build:cf": "npx @cloudflare/next-on-pages@1",
     "start": "next start",
     "lint": "turbo lint",
