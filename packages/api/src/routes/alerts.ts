@@ -12,8 +12,6 @@ import type { NotificationPreferences } from '../lib/db/users';
 const app = new Hono<{ Bindings: Env }>();
 const logger = createLogger('alerts');
 
-const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
-
 // Helper function to get user from token
 async function getUserFromToken(c: any): Promise<{ userId: string; email: string; emailVerified: boolean } | null> {
   const authHeader = c.req.header('authorization');
@@ -23,53 +21,6 @@ async function getUserFromToken(c: any): Promise<{ userId: string; email: string
 
   const token = authHeader.substring(7);
   return await verifyToken(token, c.env!.JWT_SECRET);
-}
-
-// Helper to fetch next earnings date from Finnhub
-async function getNextEarningsDate(symbol: string, finnhubApiKey: string | undefined): Promise<string | null> {
-  try {
-    if (!finnhubApiKey) {
-      logger.error('FINNHUB_API_KEY not set');
-      return null;
-    }
-
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const fromDate = today.toISOString().split('T')[0];
-    const toDate = `${currentYear + 1}-12-31`;
-
-    const urlParams = new URLSearchParams({
-      symbol: symbol.toUpperCase(),
-      from: fromDate!,
-      to: toDate,
-      token: finnhubApiKey,
-    });
-
-    const url = `${FINNHUB_BASE_URL}/calendar/earnings?${urlParams.toString()}`;
-    const res = await fetch(url);
-
-    if (!res.ok) {
-      logger.error(`Failed to fetch earnings for ${symbol}:`, res.status);
-      return null;
-    }
-
-    const data = await res.json() as { earningsCalendar?: Array<{ date: string }> };
-    const earnings = Array.isArray(data.earningsCalendar) ? data.earningsCalendar : [];
-
-    // Find the next future earnings date
-    const futureEarnings = earnings
-      .filter((item: any) => item.date && new Date(item.date) >= today)
-      .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    if (futureEarnings.length > 0) {
-      return futureEarnings[0].date;
-    }
-
-    return null;
-  } catch (error) {
-    logger.error(`Error fetching earnings date for ${symbol}:`, error);
-    return null;
-  }
 }
 
 // GET /api/alerts - Get all alerts for authenticated user

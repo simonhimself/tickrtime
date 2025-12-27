@@ -1,5 +1,4 @@
 import type { KVUser, KVWatchlist, KVAlert } from './auth';
-import { generateUUID } from './crypto-edge';
 
 // Cloudflare KV namespace type
 interface KVNamespace {

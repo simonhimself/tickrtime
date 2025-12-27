@@ -61,7 +61,7 @@ const allowedOrigins = [
 app.use('/*', cors({
   origin: (origin: string): string | null => {
     // Allow requests with no origin (like Postman, curl)
-    if (!origin) return allowedOrigins[0];
+    if (!origin) return allowedOrigins[0] ?? null;
 
     // Check if origin is allowed
     if (allowedOrigins.includes(origin)) {
@@ -75,7 +75,7 @@ app.use('/*', cors({
     }
 
     // Default to first allowed origin
-    return allowedOrigins[0];
+    return allowedOrigins[0] ?? null;
   },
   allowHeaders: ['Content-Type', 'Authorization'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

@@ -2,7 +2,6 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import type { KVUser, KVWatchlist, KVAlert } from './auth';
 import { logger } from '@/lib/logger';
-import { generateUUID } from './crypto-edge';
 
 // File-based storage for development persistence
 const STORAGE_FILE = path.join(process.cwd(), '.dev-storage.json');

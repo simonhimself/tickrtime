@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { toast } from "sonner";
 
 import type { KVAlert } from "@/lib/auth";
 import type { UseAlertsReturn } from "@/types";

@@ -2,7 +2,6 @@ import { Hono } from 'hono';
 import type { Env } from '../index';
 import { createLogger } from '../lib/logger';
 import { verifyToken } from '../lib/auth';
-import { createDB } from '../lib/db';
 
 const app = new Hono<{ Bindings: Env }>();
 const logger = createLogger('watchlist');

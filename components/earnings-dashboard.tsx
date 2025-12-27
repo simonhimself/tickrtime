@@ -106,10 +106,10 @@ export function EarningsDashboard() {
     
     try {
       const data = await getEarningsWatchlist(watchedSymbols);
-      setEarnings(data);
-      setViewState(data.length > 0 ? "data" : "empty");
-      
-      toast.info(`Found ${data.length} upcoming earnings for your watchlist`);
+      setEarnings(data.earnings);
+      setViewState(data.earnings.length > 0 ? "data" : "empty");
+
+      toast.info(`Found ${data.earnings.length} upcoming earnings for your watchlist`);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Failed to fetch watchlist earnings";
       logger.error("Error fetching watchlist earnings:", err);
@@ -132,10 +132,10 @@ export function EarningsDashboard() {
     
     try {
       const data = await getEarningsWatchlist(alertedSymbols);
-      setEarnings(data);
-      setViewState(data.length > 0 ? "data" : "empty");
-      
-      toast.info(`Found ${data.length} upcoming earnings for your alerts`);
+      setEarnings(data.earnings);
+      setViewState(data.earnings.length > 0 ? "data" : "empty");
+
+      toast.info(`Found ${data.earnings.length} upcoming earnings for your alerts`);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Failed to fetch alerts earnings";
       logger.error("Error fetching alerts earnings:", err);

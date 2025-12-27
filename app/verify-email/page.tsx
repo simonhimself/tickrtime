@@ -8,7 +8,7 @@ import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AuthResponse } from "@/types";
-import { verifyEmail } from "@/lib/api-client";
+import { verifyEmail as verifyEmailApi } from "@/lib/api-client";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -17,9 +17,9 @@ function VerifyEmailContent() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const verifyEmail = async () => {
+    const performVerification = async () => {
       const token = searchParams.get("token");
-      
+
       if (!token) {
         setStatus("error");
         setMessage("No verification token provided");
@@ -27,7 +27,7 @@ function VerifyEmailContent() {
       }
 
       try {
-        const data: AuthResponse = await verifyEmail(token);
+        const data: AuthResponse = await verifyEmailApi(token);
 
         if (data.success) {
           setStatus("success");
@@ -52,7 +52,7 @@ function VerifyEmailContent() {
       }
     };
 
-    verifyEmail();
+    performVerification();
   }, [searchParams]);
 
   const handleContinue = () => {

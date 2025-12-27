@@ -1,7 +1,6 @@
 import type { KVUser, KVWatchlist, KVAlert } from './auth';
 import type { KVInterface } from './kv-factory';
 import { logger } from '@/lib/logger';
-import { generateUUID } from './crypto-edge';
 
 // In-memory storage for development (Edge-compatible)
 // Use globalThis to persist cache across different API calls

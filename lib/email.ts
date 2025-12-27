@@ -293,12 +293,12 @@ const createAfterEarningsAlertEmail = (data: EarningsAlertData) => ({
             <p><strong>Earnings Date:</strong> ${new Date(data.earningsDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
           
-          ${data.actual !== null || data.estimate !== null || data.surprise !== null ? `
+          ${data.actual != null || data.estimate != null || data.surprise != null ? `
           <table class="results-table">
-            ${data.estimate !== null ? `<tr><td>Estimate:</td><td>$${data.estimate.toFixed(2)}</td></tr>` : ''}
-            ${data.actual !== null ? `<tr><td>Actual:</td><td>$${data.actual.toFixed(2)}</td></tr>` : ''}
-            ${data.surprise !== null ? `<tr><td>Surprise:</td><td class="${data.surprise >= 0 ? 'positive' : 'negative'}">${data.surprise >= 0 ? '+' : ''}$${data.surprise.toFixed(2)}</td></tr>` : ''}
-            ${data.surprisePercent !== null ? `<tr><td>Surprise %:</td><td class="${data.surprisePercent >= 0 ? 'positive' : 'negative'}">${data.surprisePercent >= 0 ? '+' : ''}${data.surprisePercent.toFixed(2)}%</td></tr>` : ''}
+            ${data.estimate != null ? `<tr><td>Estimate:</td><td>$${data.estimate.toFixed(2)}</td></tr>` : ''}
+            ${data.actual != null ? `<tr><td>Actual:</td><td>$${data.actual.toFixed(2)}</td></tr>` : ''}
+            ${data.surprise != null ? `<tr><td>Surprise:</td><td class="${data.surprise >= 0 ? 'positive' : 'negative'}">${data.surprise >= 0 ? '+' : ''}$${data.surprise.toFixed(2)}</td></tr>` : ''}
+            ${data.surprisePercent != null ? `<tr><td>Surprise %:</td><td class="${data.surprisePercent >= 0 ? 'positive' : 'negative'}">${data.surprisePercent >= 0 ? '+' : ''}${data.surprisePercent.toFixed(2)}%</td></tr>` : ''}
           </table>
           ` : '<p>Earnings results are being processed. Check back soon for detailed information.</p>'}
           

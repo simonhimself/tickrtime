@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { z } from 'zod';
 import type { Env } from '../index';
 import { createLogger } from '../lib/logger';
 import {
@@ -20,19 +19,6 @@ import type { SignupRequest, AuthResponse, AuthRequest } from '@tickrtime/shared
 
 const app = new Hono<{ Bindings: Env }>();
 const logger = createLogger('auth');
-
-// Signup schema
-const signupSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  confirmPassword: z.string().min(8),
-});
-
-// Login schema
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
 
 // POST /api/auth/signup
 app.post('/signup', async (c) => {

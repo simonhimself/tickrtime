@@ -1,6 +1,6 @@
 import { generateUUID, hashPassword, verifyPassword, signJWT, verifyJWT } from './crypto';
 import type { User } from '@tickrtime/shared';
-import type { KVUser, NotificationPreferences } from './db/users';
+import type { KVUser } from './db/users';
 
 export { type KVUser, type NotificationPreferences } from './db/users';
 export { type KVAlert } from './db/alerts';
