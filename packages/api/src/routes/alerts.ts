@@ -172,6 +172,125 @@ app.post('/', async (c) => {
   }
 });
 
+// GET /api/alerts/preferences - Get user's notification preferences
+// NOTE: This route MUST be defined BEFORE /:id to avoid "preferences" being matched as an ID
+app.get('/preferences', async (c) => {
+  try {
+    const user = await getUserFromToken(c);
+    if (!user) {
+      return c.json({ success: false, message: 'Unauthorized' }, 401);
+    }
+
+    const db = createDB(c.env!);
+    let kvUser = await getUserById(db, user.userId);
+
+    // Fallback: if user not found by ID, try by email
+    if (!kvUser) {
+      kvUser = await getUserByEmail(db, user.email);
+      if (!kvUser) {
+        return c.json(
+          { success: false, message: 'User not found. Please log out and log back in.' },
+          404
+        );
+      }
+    }
+
+    // Return preferences or defaults
+    const preferences: NotificationPreferences = kvUser.notificationPreferences || {
+      emailEnabled: true,
+      defaultDaysBefore: 2,
+      defaultDaysAfter: 0,
+    };
+
+    return c.json({
+      success: true,
+      preferences,
+    });
+  } catch (error) {
+    logger.error('Get notification preferences error:', error);
+    return c.json({ success: false, message: 'Internal server error' }, 500);
+  }
+});
+
+// PUT /api/alerts/preferences - Update user's notification preferences
+app.put('/preferences', async (c) => {
+  try {
+    const user = await getUserFromToken(c);
+    if (!user) {
+      return c.json({ success: false, message: 'Unauthorized' }, 401);
+    }
+
+    const body = await c.req.json();
+    const { emailEnabled, defaultDaysBefore, defaultDaysAfter } = body;
+
+    // Validation
+    if (emailEnabled !== undefined && typeof emailEnabled !== 'boolean') {
+      return c.json(
+        { success: false, message: 'emailEnabled must be a boolean' },
+        400
+      );
+    }
+
+    if (defaultDaysBefore !== undefined && (typeof defaultDaysBefore !== 'number' || defaultDaysBefore < 0)) {
+      return c.json(
+        { success: false, message: 'defaultDaysBefore must be a non-negative number' },
+        400
+      );
+    }
+
+    if (defaultDaysAfter !== undefined && (typeof defaultDaysAfter !== 'number' || defaultDaysAfter < 0)) {
+      return c.json(
+        { success: false, message: 'defaultDaysAfter must be a non-negative number' },
+        400
+      );
+    }
+
+    const db = createDB(c.env!);
+    let kvUser = await getUserById(db, user.userId);
+
+    // Fallback: if user not found by ID, try by email
+    if (!kvUser) {
+      kvUser = await getUserByEmail(db, user.email);
+      if (!kvUser) {
+        return c.json(
+          { success: false, message: 'User not found. Please log out and log back in.' },
+          404
+        );
+      }
+    }
+
+    // Update preferences
+    const currentPreferences = kvUser.notificationPreferences || {
+      emailEnabled: true,
+      defaultDaysBefore: 2,
+      defaultDaysAfter: 0,
+    };
+
+    const updatedPreferences: NotificationPreferences = {
+      emailEnabled: emailEnabled !== undefined ? emailEnabled : currentPreferences.emailEnabled,
+      defaultDaysBefore: defaultDaysBefore !== undefined ? defaultDaysBefore : currentPreferences.defaultDaysBefore,
+      defaultDaysAfter: defaultDaysAfter !== undefined ? defaultDaysAfter : currentPreferences.defaultDaysAfter,
+    };
+
+    const success = await updateUser(db, kvUser.id, {
+      notificationPreferences: updatedPreferences,
+    });
+
+    if (!success) {
+      return c.json({ success: false, message: 'Failed to update preferences' }, 500);
+    }
+
+    return c.json({
+      success: true,
+      message: 'Preferences updated successfully',
+      preferences: updatedPreferences,
+    });
+  } catch (error) {
+    logger.error('Update notification preferences error:', error);
+    return c.json({ success: false, message: 'Internal server error' }, 500);
+  }
+});
+
 // GET /api/alerts/:id - Get specific alert
 app.get('/:id', async (c) => {
   try {
@@ -308,124 +427,6 @@ app.delete('/:id', async (c) => {
     });
   } catch (error) {
     logger.error('Delete alert error:', error);
-    return c.json({ success: false, message: 'Internal server error' }, 500);
-  }
-});
-
-// GET /api/alerts/preferences - Get user's notification preferences
-app.get('/preferences', async (c) => {
-  try {
-    const user = await getUserFromToken(c);
-    if (!user) {
-      return c.json({ success: false, message: 'Unauthorized' }, 401);
-    }
-
-    const db = createDB(c.env!);
-    let kvUser = await getUserById(db, user.userId);
-    
-    // Fallback: if user not found by ID, try by email
-    if (!kvUser) {
-      kvUser = await getUserByEmail(db, user.email);
-      if (!kvUser) {
-        return c.json(
-          { success: false, message: 'User not found. Please log out and log back in.' },
-          404
-        );
-      }
-    }
-
-    // Return preferences or defaults
-    const preferences: NotificationPreferences = kvUser.notificationPreferences || {
-      emailEnabled: true,
-      defaultDaysBefore: 1,
-      defaultDaysAfter: 0,
-    };
-
-    return c.json({
-      success: true,
-      preferences,
-    });
-  } catch (error) {
-    logger.error('Get notification preferences error:', error);
-    return c.json({ success: false, message: 'Internal server error' }, 500);
-  }
-});
-
-// PUT /api/alerts/preferences - Update user's notification preferences
-app.put('/preferences', async (c) => {
-  try {
-    const user = await getUserFromToken(c);
-    if (!user) {
-      return c.json({ success: false, message: 'Unauthorized' }, 401);
-    }
-
-    const body = await c.req.json();
-    const { emailEnabled, defaultDaysBefore, defaultDaysAfter } = body;
-
-    // Validation
-    if (emailEnabled !== undefined && typeof emailEnabled !== 'boolean') {
-      return c.json(
-        { success: false, message: 'emailEnabled must be a boolean' },
-        400
-      );
-    }
-
-    if (defaultDaysBefore !== undefined && (typeof defaultDaysBefore !== 'number' || defaultDaysBefore < 0)) {
-      return c.json(
-        { success: false, message: 'defaultDaysBefore must be a non-negative number' },
-        400
-      );
-    }
-
-    if (defaultDaysAfter !== undefined && (typeof defaultDaysAfter !== 'number' || defaultDaysAfter < 0)) {
-      return c.json(
-        { success: false, message: 'defaultDaysAfter must be a non-negative number' },
-        400
-      );
-    }
-
-    const db = createDB(c.env!);
-    let kvUser = await getUserById(db, user.userId);
-
-    // Fallback: if user not found by ID, try by email
-    if (!kvUser) {
-      kvUser = await getUserByEmail(db, user.email);
-      if (!kvUser) {
-        return c.json(
-          { success: false, message: 'User not found. Please log out and log back in.' },
-          404
-        );
-      }
-    }
-
-    // Update preferences
-    const currentPreferences = kvUser.notificationPreferences || {
-      emailEnabled: true,
-      defaultDaysBefore: 1,
-      defaultDaysAfter: 0,
-    };
-
-    const updatedPreferences: NotificationPreferences = {
-      emailEnabled: emailEnabled !== undefined ? emailEnabled : currentPreferences.emailEnabled,
-      defaultDaysBefore: defaultDaysBefore !== undefined ? defaultDaysBefore : currentPreferences.defaultDaysBefore,
-      defaultDaysAfter: defaultDaysAfter !== undefined ? defaultDaysAfter : currentPreferences.defaultDaysAfter,
-    };
-
-    const success = await updateUser(db, kvUser.id, {
-      notificationPreferences: updatedPreferences,
-    });
-
-    if (!success) {
-      return c.json({ success: false, message: 'Failed to update preferences' }, 500);
-    }
-
-    return c.json({
-      success: true,
-      message: 'Preferences updated successfully',
-      preferences: updatedPreferences,
-    });
-  } catch (error) {
-    logger.error('Update notification preferences error:', error);
     return c.json({ success: false, message: 'Internal server error' }, 500);
   }
 });

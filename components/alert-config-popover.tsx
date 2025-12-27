@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { createAlert, updateAlert, deleteAlert, getEarningsWatchlist } from "@/lib/api-client";
+import { createAlert, updateAlert, deleteAlert, getEarningsWatchlist, getAlertPreferences } from "@/lib/api-client";
 import type { EarningsData } from "@/types";
 import type { KVAlert } from "@/lib/auth";
 
@@ -46,6 +46,9 @@ export function AlertConfigPopover({
     (a) => a.symbol.toUpperCase() === symbol.toUpperCase() && a.alertType === "after" && a.status === "active"
   );
 
+  // User's default preference (fetched from profile settings)
+  const [userDefaultDaysBefore, setUserDefaultDaysBefore] = useState(2);
+
   // Form state
   const [beforeEnabled, setBeforeEnabled] = useState(!!beforeAlert);
   const [afterEnabled, setAfterEnabled] = useState(!!afterAlert);
@@ -54,6 +57,22 @@ export function AlertConfigPopover({
   const [recurring, setRecurring] = useState(beforeAlert?.recurring || afterAlert?.recurring || false);
   const [loading, setLoading] = useState(false);
   const [earningsDate, setEarningsDate] = useState<string>(earningsData?.date || "");
+
+  // Fetch user's default preferences when dialog opens
+  useEffect(() => {
+    if (open) {
+      // Fetch user preferences for default days
+      getAlertPreferences()
+        .then((data) => {
+          if (data.success && data.preferences?.defaultDaysBefore) {
+            setUserDefaultDaysBefore(data.preferences.defaultDaysBefore);
+          }
+        })
+        .catch(() => {
+          // Use fallback default of 2 if fetch fails
+        });
+    }
+  }, [open]);
 
   // Reset form when symbol changes or dialog opens
   useEffect(() => {
@@ -67,12 +86,13 @@ export function AlertConfigPopover({
 
       setBeforeEnabled(!!newBeforeAlert);
       setAfterEnabled(!!newAfterAlert);
-      setDaysBefore(newBeforeAlert?.daysBefore?.toString() || "2");
+      // Use user's preference for new alerts, or existing alert's value
+      setDaysBefore(newBeforeAlert?.daysBefore?.toString() || userDefaultDaysBefore.toString());
       setDaysAfter(newAfterAlert?.daysAfter?.toString() || "1");
       setRecurring(newBeforeAlert?.recurring || newAfterAlert?.recurring || false);
       setEarningsDate(earningsData?.date || newBeforeAlert?.earningsDate || newAfterAlert?.earningsDate || "");
     }
-  }, [open, symbol, existingAlerts, earningsData?.date]);
+  }, [open, symbol, existingAlerts, earningsData?.date, userDefaultDaysBefore]);
 
   // Fetch earnings date if not available
   useEffect(() => {
