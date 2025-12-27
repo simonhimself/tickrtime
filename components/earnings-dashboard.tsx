@@ -30,7 +30,6 @@ export function EarningsDashboard() {
   const [activePeriod, setActivePeriod] = useState<TimePeriod>("today");
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [isWatchlistMode, setIsWatchlistMode] = useState(false);
-  const [isAlertsMode, setIsAlertsMode] = useState(false);
   const [searchFilters, setSearchFilters] = useState<SearchFiltersType>({
     ticker: "",
     year: "2024",
@@ -57,7 +56,6 @@ export function EarningsDashboard() {
     setActivePeriod(period);
     setIsSearchMode(false);
     setIsWatchlistMode(false);
-    setIsAlertsMode(false);
     setError(null);
     
     try {
@@ -152,33 +150,6 @@ export function EarningsDashboard() {
     }
   }, [watchlist]);
 
-  const loadAlertsEarnings = useCallback(async () => {
-    const alertedSymbols = alerts.getAlertedSymbols();
-    
-    if (alertedSymbols.length === 0) {
-      setEarnings([]);
-      setViewState("empty");
-      return;
-    }
-
-    setViewState("loading");
-    setError(null);
-    
-    try {
-      const data = await getEarningsWatchlist(alertedSymbols);
-      setEarnings(data.earnings);
-      setViewState(data.earnings.length > 0 ? "data" : "empty");
-
-      toast.info(`Found ${data.earnings.length} upcoming earnings for your alerts`);
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to fetch alerts earnings";
-      logger.error("Error fetching alerts earnings:", err);
-      setError(errorMsg);
-      setViewState("error");
-    }
-  }, [alerts]);
-
-
   const handleSearch = useCallback(async () => {
     if (!searchFilters.ticker.trim()) {
       toast.error("Please enter a ticker symbol");
@@ -189,7 +160,6 @@ export function EarningsDashboard() {
     setActivePeriod("search");
     setIsSearchMode(true);
     setIsWatchlistMode(false);
-    setIsAlertsMode(false);
     setError(null);
     
     try {
@@ -222,12 +192,11 @@ export function EarningsDashboard() {
   const toggleWatchlistMode = useCallback(() => {
     const newWatchlistMode = !isWatchlistMode;
     setIsWatchlistMode(newWatchlistMode);
-    
+
     if (newWatchlistMode) {
       setActivePeriod("watchlist");
       setIsSearchMode(false);
-      setIsAlertsMode(false);
-      
+
       // Load all upcoming earnings for watchlisted symbols
       loadWatchlistEarnings();
     } else {
@@ -236,24 +205,6 @@ export function EarningsDashboard() {
       loadToday();
     }
   }, [isWatchlistMode, loadToday, loadWatchlistEarnings]);
-
-  const toggleAlertsMode = useCallback(() => {
-    const newAlertsMode = !isAlertsMode;
-    setIsAlertsMode(newAlertsMode);
-    
-    if (newAlertsMode) {
-      setActivePeriod("alerts");
-      setIsSearchMode(false);
-      setIsWatchlistMode(false);
-      
-      // Load all upcoming earnings for alerted symbols
-      loadAlertsEarnings();
-    } else {
-      // Return to previous view
-      setActivePeriod("today");
-      loadToday();
-    }
-  }, [isAlertsMode, loadToday, loadAlertsEarnings]);
 
   // Navigation handlers
   const handleNavigationClick = useCallback((period: TimePeriod) => {
@@ -345,14 +296,6 @@ export function EarningsDashboard() {
     }
   }, [watchlist.count, toggleWatchlistMode]);
 
-  const handleAlertsClick = useCallback(() => {
-    if (alerts.count === 0) {
-      toast.info("You have no active alerts. Set alerts from the earnings table to get notified!");
-    } else {
-      toggleAlertsMode();
-    }
-  }, [alerts.count, toggleAlertsMode]);
-
   // Load initial data
   useEffect(() => {
     loadToday();
@@ -360,20 +303,8 @@ export function EarningsDashboard() {
 
   // Get description text based on current state
   const getDescriptionText = () => {
-    if (isAlertsMode) {
-      return `Showing earnings for your ${alerts.count} alerted tickers. ${
-        alerts.count === 0 
-          ? "Set alerts from the earnings table to get notified." 
-          : "Click the alerts icon again to return to the main view."
-      }`;
-    }
-    
     if (isWatchlistMode) {
-      return `Showing earnings for your ${watchlist.count} watched tickers. ${
-        watchlist.count === 0 
-          ? "Add tickers to your watchlist using the floating actions." 
-          : "Click the watchlist icon again to return to the main view."
-      }`;
+      return `Your watchlist: ${watchlist.count} stocks tracked. Click the bookmark icon to return to the earnings calendar.`;
     }
     
     if (isSearchMode) {
@@ -409,13 +340,10 @@ export function EarningsDashboard() {
   return (
     <div className="min-h-screen bg-background p-2 sm:p-4 md:p-6 transition-colors">
       <div className="max-w-7xl mx-auto">
-        <Header 
+        <Header
           watchlistCount={watchlist.count}
           onWatchlistClick={handleWatchlistClick}
           isWatchlistActive={isWatchlistMode}
-          alertsCount={alerts.count}
-          onAlertsClick={handleAlertsClick}
-          isAlertsActive={isAlertsMode}
           onUserAction={(action) => toast.info(`User action: ${action}`)}
         />
         
@@ -429,11 +357,14 @@ export function EarningsDashboard() {
               {getDescriptionText()}
             </p>
             
-            <NavigationButtons 
-              activeButton={activePeriod}
-              onButtonClick={handleNavigationClick}
-              loading={viewState === "loading"}
-            />
+            {/* Hide navigation in watchlist mode - show all upcoming for watched stocks */}
+            {!isWatchlistMode && (
+              <NavigationButtons
+                activeButton={activePeriod}
+                onButtonClick={handleNavigationClick}
+                loading={viewState === "loading"}
+              />
+            )}
           </section>
 
           {/* Watchlist Summary (only in watchlist mode) */}
@@ -446,12 +377,15 @@ export function EarningsDashboard() {
             />
           )}
 
-          <SearchFilters
-            filters={searchFilters}
-            onFiltersChange={setSearchFilters}
-            onSearch={handleSearch}
-            loading={viewState === "loading"}
-          />
+          {/* Hide filters in watchlist mode - they don't apply */}
+          {!isWatchlistMode && (
+            <SearchFilters
+              filters={searchFilters}
+              onFiltersChange={setSearchFilters}
+              onSearch={handleSearch}
+              loading={viewState === "loading"}
+            />
+          )}
           
           <EarningsTable
             data={earnings}
