@@ -76,8 +76,9 @@ app.post('/signup', async (c) => {
     // Create user object
     const user = createUser(email, passwordHash);
 
-    // Email verification control
-    const shouldSendEmails = c.env!.NODE_ENV === 'production';
+    // Email verification control - use SEND_VERIFICATION_EMAILS env var
+    // Set to "true" to require email verification, "false" to auto-verify
+    const shouldSendEmails = c.env!.SEND_VERIFICATION_EMAILS === 'true';
     
     let emailVerified = false;
     let verificationToken: string | undefined = user.verificationToken;
