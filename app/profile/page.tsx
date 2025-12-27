@@ -23,7 +23,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { AlertsManager } from "@/components/alerts-manager";
 import type { User } from "@/types";
 import { getMe, getAlertPreferences, updateAlertPreferences } from "@/lib/api-client";
 
@@ -416,7 +415,7 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle>Notification Preferences</CardTitle>
             <CardDescription>
-              Configure how and when you want to receive earnings alerts
+              Configure default settings for earnings alerts. Manage individual alerts from your watchlist.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -480,9 +479,6 @@ export default function ProfilePage() {
             </Button>
           </CardContent>
         </Card>
-
-        {/* My Alerts */}
-        <AlertsManager className="mb-6" />
 
         {/* Account Actions */}
         <Card>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Eye, Bell, TrendingUp, MoreHorizontal, Bookmark, ChevronUp, ChevronDown } from "lucide-react";
+import { Eye, Bell, TrendingUp, MoreHorizontal, Bookmark, ChevronUp, ChevronDown, Repeat } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,9 @@ export function EarningsTable({
   watchlistedItems = new Set(),
   onToggleWatchlist,
   alertedItems = new Set(),
+  alerts = [],
+  isWatchlistMode = false,
+  onAlertClick,
   className,
 }: TableProps) {
   const isMobile = useIsMobile();
@@ -47,6 +50,38 @@ export function EarningsTable({
     getSortIcon,
     isSortable,
   } = useTableSort(data);
+
+  // Helper to get alerts for a symbol
+  const getAlertsForSymbol = (symbol: string) => {
+    const normalizedSymbol = symbol.toUpperCase();
+    return alerts.filter(
+      (a) => a.symbol.toUpperCase() === normalizedSymbol && a.status === "active"
+    );
+  };
+
+  // Format alert display text
+  const getAlertDisplayText = (symbol: string) => {
+    const symbolAlerts = getAlertsForSymbol(symbol);
+    if (symbolAlerts.length === 0) return null;
+
+    const beforeAlert = symbolAlerts.find((a) => a.alertType === "before");
+    const afterAlert = symbolAlerts.find((a) => a.alertType === "after");
+
+    if (beforeAlert && afterAlert) {
+      return `${beforeAlert.daysBefore}d before +1`;
+    } else if (beforeAlert) {
+      return `${beforeAlert.daysBefore}d before`;
+    } else if (afterAlert) {
+      return `${afterAlert.daysAfter}d after`;
+    }
+    return null;
+  };
+
+  // Check if symbol has recurring alerts
+  const hasRecurringAlert = (symbol: string) => {
+    const symbolAlerts = getAlertsForSymbol(symbol);
+    return symbolAlerts.some((a) => a.recurring);
+  };
 
   // Action icons configuration
   const getActionIcons = (symbol: string): ActionIcon[] => [
@@ -219,6 +254,7 @@ export function EarningsTable({
               key={`${earning.symbol}-${earning.date}`}
               earning={earning}
               isWatchlisted={watchlistedItems.has(earning.symbol)}
+              hasAlert={getAlertsForSymbol(earning.symbol).length > 0}
               onAction={onRowAction || (() => {})}
               onToggleWatchlist={onToggleWatchlist || (() => false)}
             />
@@ -235,15 +271,23 @@ export function EarningsTable({
       <div className="bg-card rounded-lg shadow-sm border border-border overflow-x-auto">
         <div className="min-w-[640px]">
           {/* Table Header */}
-          <header 
+          <header
             ref={tableHeaderRef}
-            className="grid grid-cols-7 gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-muted/50 border-b border-border text-xs sm:text-sm sticky top-0 z-20"
+            className={cn(
+              "grid gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-muted/50 border-b border-border text-xs sm:text-sm sticky top-0 z-20",
+              isWatchlistMode ? "grid-cols-8" : "grid-cols-7"
+            )}
             role="row"
           >
           {renderHeaderCell("symbol", "TICKER")}
           {renderHeaderCell("description", "COMPANY")}
           {renderHeaderCell("exchange", "EXCHANGE")}
           {renderHeaderCell("date", "EARNINGS DATE")}
+          {isWatchlistMode && (
+            <div role="columnheader" className="text-muted-foreground font-medium">
+              ALERT
+            </div>
+          )}
           {renderHeaderCell("estimate", "ESTIMATE")}
           {renderHeaderCell("actual", "EPS")}
           {renderHeaderCell("surprisePercent", "SURPRISE")}
@@ -261,7 +305,8 @@ export function EarningsTable({
                     if (el) rowRefs.current[earning.symbol] = el;
                   }}
                   className={cn(
-                    "grid grid-cols-7 gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 transition-all duration-200 cursor-pointer relative table-row-hover border-b border-border",
+                    "grid gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 transition-all duration-200 cursor-pointer relative table-row-hover border-b border-border",
+                    isWatchlistMode ? "grid-cols-8" : "grid-cols-7",
                     hoveredRow === earning.symbol
                       ? "bg-blue-50 dark:bg-blue-950/50 shadow-md transform translate-x-1"
                       : "hover:bg-accent/50"
@@ -310,6 +355,35 @@ export function EarningsTable({
                       <span className="text-sm text-muted-foreground">-</span>
                     )}
                   </div>
+
+                  {/* Alert Status (watchlist mode only) */}
+                  {isWatchlistMode && (
+                    <div
+                      className="flex items-center gap-1.5 cursor-pointer hover:bg-accent/50 rounded px-1 -mx-1 transition-colors"
+                      role="cell"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAlertClick?.(earning.symbol, earning);
+                      }}
+                    >
+                      {getAlertDisplayText(earning.symbol) ? (
+                        <>
+                          <Bell className="w-3.5 h-3.5 text-yellow-500 fill-current" />
+                          <span className="text-sm text-foreground">
+                            {getAlertDisplayText(earning.symbol)}
+                          </span>
+                          {hasRecurringAlert(earning.symbol) && (
+                            <Repeat className="w-3 h-3 text-muted-foreground" />
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <Bell className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Add alert</span>
+                        </>
+                      )}
+                    </div>
+                  )}
 
                   {/* Estimate */}
                   <div className="flex items-center text-sm text-foreground" role="cell">

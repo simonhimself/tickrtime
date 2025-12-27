@@ -118,6 +118,9 @@ export interface TableProps extends BaseComponentProps {
   watchlistedItems?: Set<string>;
   onToggleWatchlist?: (symbol: string) => boolean | Promise<boolean>;
   alertedItems?: Set<string>;
+  alerts?: import("@/lib/auth").KVAlert[];
+  isWatchlistMode?: boolean;
+  onAlertClick?: (symbol: string, earningsData: EarningsData) => void;
   sortState?: SortState;
   onSort?: (field: SortField) => void;
 }

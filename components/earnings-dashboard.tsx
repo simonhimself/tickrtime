@@ -10,7 +10,9 @@ import { SearchFilters } from "@/components/search-filters";
 import { EarningsTable } from "@/components/earnings-table";
 import { useWatchlist } from "@/hooks/use-watchlist";
 import { useAlerts } from "@/hooks/use-alerts";
-import { AlertDialog } from "@/components/alert-dialog";
+import { AlertConfigPopover } from "@/components/alert-config-popover";
+import { WatchlistSummary } from "@/components/watchlist-summary";
+import { BulkAlertDialog } from "@/components/bulk-alert-dialog";
 import { getEarningsToday, getEarningsTomorrow, getEarningsNext30Days, getEarningsPrevious30Days, getEarnings, getEarningsWatchlist } from "@/lib/api-client";
 import type { 
   EarningsData, 
@@ -45,6 +47,9 @@ export function EarningsDashboard() {
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [alertSymbol, setAlertSymbol] = useState<string>("");
   const [alertEarningsData, setAlertEarningsData] = useState<EarningsData | null>(null);
+
+  // Bulk alert dialog state
+  const [bulkAlertDialogOpen, setBulkAlertDialogOpen] = useState(false);
 
   // API loading functions
   const loadEarningsData = useCallback(async (loadFn: () => Promise<EarningsResponse>, period: TimePeriod) => {
@@ -94,7 +99,7 @@ export function EarningsDashboard() {
 
   const loadWatchlistEarnings = useCallback(async () => {
     const watchedSymbols = watchlist.getWatchedSymbols();
-    
+
     if (watchedSymbols.length === 0) {
       setEarnings([]);
       setViewState("empty");
@@ -103,13 +108,42 @@ export function EarningsDashboard() {
 
     setViewState("loading");
     setError(null);
-    
+
     try {
       const data = await getEarningsWatchlist(watchedSymbols);
-      setEarnings(data.earnings);
-      setViewState(data.earnings.length > 0 ? "data" : "empty");
+      // Normalize response: API returns array directly, not { earnings: [] }
+      const earningsArray = Array.isArray(data) ? data : (data.earnings || []);
 
-      toast.info(`Found ${data.earnings.length} upcoming earnings for your watchlist`);
+      // Find symbols without earnings data
+      const symbolsWithEarnings = new Set(earningsArray.map((e) => e.symbol.toUpperCase()));
+      const symbolsWithoutEarnings = watchedSymbols.filter(
+        (s) => !symbolsWithEarnings.has(s.toUpperCase())
+      );
+
+      // Create placeholder entries for stocks without earnings data
+      const placeholders: EarningsData[] = symbolsWithoutEarnings.map((symbol) => ({
+        symbol: symbol.toUpperCase(),
+        date: "",
+        actual: null,
+        estimate: null,
+        surprise: null,
+        surprisePercent: null,
+        description: "No upcoming earnings data",
+      }));
+
+      // Merge earnings with placeholders (earnings first, then placeholders)
+      const mergedEarnings = [...earningsArray, ...placeholders];
+
+      setEarnings(mergedEarnings);
+      setViewState(mergedEarnings.length > 0 ? "data" : "empty");
+
+      const withData = earningsArray.length;
+      const withoutData = placeholders.length;
+      if (withoutData > 0) {
+        toast.info(`Found ${withData} upcoming earnings. ${withoutData} stock${withoutData > 1 ? "s" : ""} without earnings date.`);
+      } else {
+        toast.info(`Found ${withData} upcoming earnings for your watchlist`);
+      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Failed to fetch watchlist earnings";
       logger.error("Error fetching watchlist earnings:", err);
@@ -242,7 +276,7 @@ export function EarningsDashboard() {
   }, [loadToday, loadTomorrow, loadNext30Days, loadPrevious30Days]);
 
   // Row action handlers
-  const handleRowAction = useCallback((action: string, symbol: string) => {
+  const handleRowAction = useCallback(async (action: string, symbol: string) => {
     switch (action) {
       case "View Details": {
         toast.info(`Viewing details for ${symbol}`);
@@ -250,6 +284,18 @@ export function EarningsDashboard() {
       }
       case "Set Alert": {
         const earning = earnings.find((e) => e.symbol === symbol);
+
+        // Auto-add to watchlist if not already watchlisted (alerts are a subset of watchlist)
+        if (!watchlist.isInWatchlist(symbol)) {
+          const added = await watchlist.addToWatchlist(symbol);
+          if (added) {
+            toast.success(`${symbol} added to watchlist`);
+          } else {
+            // If we couldn't add to watchlist, don't proceed with alert
+            return;
+          }
+        }
+
         setAlertSymbol(symbol);
         setAlertEarningsData(earning || null);
         setAlertDialogOpen(true);
@@ -274,7 +320,7 @@ export function EarningsDashboard() {
         logger.debug("Unknown action:", action);
       }
     }
-  }, [earnings]);
+  }, [earnings, watchlist]);
 
   const handleWatchlistToggle = useCallback(async (symbol: string) => {
     const wasInWatchlist = watchlist.isInWatchlist(symbol);
@@ -390,14 +436,24 @@ export function EarningsDashboard() {
             />
           </section>
 
-          <SearchFilters 
+          {/* Watchlist Summary (only in watchlist mode) */}
+          {isWatchlistMode && (
+            <WatchlistSummary
+              watchlistCount={watchlist.count}
+              earnings={earnings}
+              alerts={alerts.alerts}
+              onBulkAlertClick={() => setBulkAlertDialogOpen(true)}
+            />
+          )}
+
+          <SearchFilters
             filters={searchFilters}
             onFiltersChange={setSearchFilters}
             onSearch={handleSearch}
             loading={viewState === "loading"}
           />
           
-          <EarningsTable 
+          <EarningsTable
             data={earnings}
             loading={viewState === "loading"}
             error={error}
@@ -405,6 +461,13 @@ export function EarningsDashboard() {
             watchlistedItems={watchlistedItems}
             onToggleWatchlist={handleWatchlistToggle}
             alertedItems={alertedItems}
+            alerts={alerts.alerts}
+            isWatchlistMode={isWatchlistMode}
+            onAlertClick={(symbol, earningsData) => {
+              setAlertSymbol(symbol);
+              setAlertEarningsData(earningsData);
+              setAlertDialogOpen(true);
+            }}
           />
         </main>
 
@@ -417,17 +480,25 @@ export function EarningsDashboard() {
         </footer>
       </div>
 
-      <AlertDialog
+      <AlertConfigPopover
         open={alertDialogOpen}
         onOpenChange={setAlertDialogOpen}
         symbol={alertSymbol}
         earningsData={alertEarningsData}
+        existingAlerts={alerts.alerts}
         onSuccess={() => {
-          toast.success(`Alert created successfully for ${alertSymbol}`);
           // Refresh alerts state
           alerts.refresh();
-          // Dispatch event to notify other components
-          window.dispatchEvent(new CustomEvent('alertsChanged'));
+        }}
+      />
+
+      <BulkAlertDialog
+        open={bulkAlertDialogOpen}
+        onOpenChange={setBulkAlertDialogOpen}
+        earnings={earnings}
+        existingAlerts={alerts.alerts}
+        onSuccess={() => {
+          alerts.refresh();
         }}
       />
     </div>
