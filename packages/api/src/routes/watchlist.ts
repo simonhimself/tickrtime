@@ -2,16 +2,19 @@ import { Hono } from 'hono';
 import type { Env } from '../index';
 import { createLogger } from '../lib/logger';
 import { verifyToken } from '../lib/auth';
+import {
+  getWatchlistByUserId,
+  addTickerToWatchlist,
+  removeTickerFromWatchlist,
+} from '../lib/db/watchlists';
 
 const app = new Hono<{ Bindings: Env }>();
 const logger = createLogger('watchlist');
 
-const KV_KEYS = {
-  WATCHLIST: 'watchlist:',
-} as const;
-
 // Helper function to get user from token
-async function getUserFromToken(c: any): Promise<{ userId: string; email: string } | null> {
+async function getUserFromToken(
+  c: { req: { header: (name: string) => string | undefined }; env?: Env }
+): Promise<{ userId: string; email: string } | null> {
   const authHeader = c.req.header('authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
@@ -19,39 +22,6 @@ async function getUserFromToken(c: any): Promise<{ userId: string; email: string
 
   const token = authHeader.substring(7);
   return await verifyToken(token, c.env!.JWT_SECRET);
-}
-
-// Get watchlist from KV
-async function getWatchlist(kv: any, userId: string) {
-  try {
-    const watchlistData = await kv.get(KV_KEYS.WATCHLIST + userId);
-    if (watchlistData) {
-      return JSON.parse(watchlistData);
-    }
-    
-    return {
-      tickers: [],
-      lastUpdated: new Date().toISOString(),
-    };
-  } catch (error) {
-    logger.error('Error getting watchlist:', error);
-    return {
-      tickers: [],
-      lastUpdated: new Date().toISOString(),
-    };
-  }
-}
-
-// Save watchlist to KV
-async function saveWatchlist(kv: any, userId: string, watchlist: any): Promise<boolean> {
-  try {
-    watchlist.lastUpdated = new Date().toISOString();
-    await kv.put(KV_KEYS.WATCHLIST + userId, JSON.stringify(watchlist));
-    return true;
-  } catch (error) {
-    logger.error('Error saving watchlist:', error);
-    return false;
-  }
 }
 
 // GET /api/watchlist - Get user's watchlist
@@ -65,16 +35,18 @@ app.get('/', async (c) => {
       }, 401);
     }
 
-    const watchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
+    const watchlist = await getWatchlistByUserId(c.env!.DB, user.userId);
+    const tickers = watchlist?.tickers || [];
+    const lastUpdated = watchlist?.lastUpdated || new Date().toISOString();
 
     return c.json({
       success: true,
       message: 'Watchlist retrieved successfully',
       watchlist: {
-        tickers: watchlist.tickers.map((symbol: string) => ({ symbol, addedAt: watchlist.lastUpdated })),
-        lastUpdated: watchlist.lastUpdated
+        tickers,
+        lastUpdated,
       },
-      tickers: watchlist.tickers
+      tickers: tickers.map((t) => t.symbol), // legacy flat array for compatibility
     });
 
   } catch (error) {
@@ -107,30 +79,24 @@ app.post('/', async (c) => {
       }, 400);
     }
 
-    const watchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
     const normalizedSymbol = symbol.toUpperCase();
+    const result = await addTickerToWatchlist(c.env!.DB, user.userId, normalizedSymbol);
 
-    if (!watchlist.tickers.includes(normalizedSymbol)) {
-      watchlist.tickers.push(normalizedSymbol);
-      const success = await saveWatchlist(c.env!.TICKRTIME_KV, user.userId, watchlist);
-      if (!success) {
-        return c.json({
-          success: false,
-          message: 'Failed to add ticker to watchlist'
-        }, 500);
-      }
+    if (!result.success) {
+      return c.json({
+        success: false,
+        message: 'Failed to add ticker to watchlist'
+      }, 500);
     }
-
-    const updatedWatchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
 
     return c.json({
       success: true,
       message: `${normalizedSymbol} added to watchlist`,
       watchlist: {
-        tickers: updatedWatchlist.tickers.map((s: string) => ({ symbol: s, addedAt: updatedWatchlist.lastUpdated })),
-        lastUpdated: updatedWatchlist.lastUpdated
+        tickers: result.tickers,
+        lastUpdated: result.lastUpdated,
       },
-      tickers: updatedWatchlist.tickers
+      tickers: result.tickers.map((t) => t.symbol),
     });
 
   } catch (error) {
@@ -162,28 +128,24 @@ app.delete('/', async (c) => {
       }, 400);
     }
 
-    const watchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
     const normalizedSymbol = symbol.toUpperCase();
+    const result = await removeTickerFromWatchlist(c.env!.DB, user.userId, normalizedSymbol);
 
-    watchlist.tickers = watchlist.tickers.filter((ticker: string) => ticker !== normalizedSymbol);
-    const success = await saveWatchlist(c.env!.TICKRTIME_KV, user.userId, watchlist);
-    if (!success) {
+    if (!result.success) {
       return c.json({
         success: false,
         message: 'Failed to remove ticker from watchlist'
       }, 500);
     }
 
-    const updatedWatchlist = await getWatchlist(c.env!.TICKRTIME_KV, user.userId);
-
     return c.json({
       success: true,
       message: `${normalizedSymbol} removed from watchlist`,
       watchlist: {
-        tickers: updatedWatchlist.tickers.map((s: string) => ({ symbol: s, addedAt: updatedWatchlist.lastUpdated })),
-        lastUpdated: updatedWatchlist.lastUpdated
+        tickers: result.tickers,
+        lastUpdated: result.lastUpdated,
       },
-      tickers: updatedWatchlist.tickers
+      tickers: result.tickers.map((t) => t.symbol),
     });
 
   } catch (error) {
@@ -196,8 +158,3 @@ app.delete('/', async (c) => {
 });
 
 export default app;
-
-
-
-
-

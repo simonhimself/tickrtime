@@ -4,7 +4,6 @@ import { logger } from './logger';
 const KV_KEYS = {
   VERIFICATION: 'verify:',
   PASSWORD_RESET: 'reset:',
-  WATCHLIST: 'watchlist:',
 } as const;
 
 export async function saveVerificationToken(
@@ -84,18 +83,6 @@ export async function deletePasswordResetToken(
     logger.debug('Deleted password reset token from KV');
   } catch (error) {
     logger.error('Error deleting password reset token:', error);
-  }
-}
-
-export async function deleteWatchlist(
-  kv: KVNamespace,
-  userId: string
-): Promise<void> {
-  try {
-    await kv.delete(KV_KEYS.WATCHLIST + userId);
-    logger.debug('Deleted watchlist from KV for user:', userId);
-  } catch (error) {
-    logger.error('Error deleting watchlist:', error);
   }
 }
 

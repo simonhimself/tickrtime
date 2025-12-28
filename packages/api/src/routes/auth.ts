@@ -21,8 +21,8 @@ import {
   savePasswordResetToken,
   getPasswordResetToken,
   deletePasswordResetToken,
-  deleteWatchlist,
 } from '../lib/kv';
+import { deleteWatchlist } from '../lib/db/watchlists';
 import { sendVerificationEmail, sendPasswordResetEmail, cancelScheduledEmail } from '../lib/email';
 import { generateUUID } from '../lib/crypto';
 import type { SignupRequest, AuthResponse, AuthRequest } from '@tickrtime/shared';
@@ -740,8 +740,8 @@ app.delete('/account', async (c) => {
       logger.debug('Cancelled scheduled emails:', successCount, '/', alertsResult.scheduledEmailIds.length);
     }
 
-    // Step 3: Delete watchlist from KV
-    await deleteWatchlist(c.env!.TICKRTIME_KV, userId);
+    // Step 3: Delete watchlist from D1 (also happens via CASCADE, but explicit for clarity)
+    await deleteWatchlist(db, userId);
     logger.debug('Deleted watchlist for user:', userId);
 
     // Step 4: Delete user from D1
