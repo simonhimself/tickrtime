@@ -29,6 +29,21 @@ jest.mock('@/hooks/use-table-sort', () => ({
   }),
 }))
 
+jest.mock('@/hooks/use-preferences', () => ({
+  usePreferences: () => ({
+    preferences: {
+      displayName: '',
+      defaultPeriod: 'today',
+      timezone: 'America/New_York',
+      showEstimates: true,
+      showSurprises: true,
+      showExchange: true,
+    },
+    loading: false,
+    updatePreferences: jest.fn(),
+  }),
+}))
+
 describe('EarningsTable', () => {
   const mockData: EarningsData[] = [
     {
@@ -93,15 +108,16 @@ describe('EarningsTable', () => {
 
   it('renders earnings data correctly', () => {
     render(<EarningsTable {...defaultProps} />)
-    
+
     // Check headers
     expect(screen.getByText('TICKER')).toBeInTheDocument()
+    expect(screen.getByText('COMPANY')).toBeInTheDocument()
     expect(screen.getByText('EXCHANGE')).toBeInTheDocument()
     expect(screen.getByText('EARNINGS DATE')).toBeInTheDocument()
     expect(screen.getByText('ESTIMATE')).toBeInTheDocument()
     expect(screen.getByText('EPS')).toBeInTheDocument()
     expect(screen.getByText('SURPRISE')).toBeInTheDocument()
-    
+
     // Check data rows
     expect(screen.getByText('AAPL')).toBeInTheDocument()
     expect(screen.getByText('GOOGL')).toBeInTheDocument()
@@ -149,16 +165,16 @@ describe('EarningsTable', () => {
 
   it('renders table structure correctly', () => {
     render(<EarningsTable {...defaultProps} />)
-    
+
     // Check for proper table structure
     const rows = screen.getAllByRole('row')
     expect(rows).toHaveLength(3) // header + 2 data rows
-    
+
     const cells = screen.getAllByRole('cell')
-    expect(cells).toHaveLength(12) // 2 rows × 6 columns
-    
+    expect(cells).toHaveLength(14) // 2 rows x 7 columns (TICKER, COMPANY, EXCHANGE, DATE, ESTIMATE, EPS, SURPRISE)
+
     const columnHeaders = screen.getAllByRole('columnheader')
-    expect(columnHeaders).toHaveLength(6)
+    expect(columnHeaders).toHaveLength(7) // TICKER, COMPANY, EXCHANGE, EARNINGS DATE, ESTIMATE, EPS, SURPRISE
   })
 
   it('applies correct CSS classes for styling', () => {

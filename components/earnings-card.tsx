@@ -6,6 +6,7 @@ import { Bookmark, Eye, Bell, TrendingUp, ChevronDown, ChevronUp, X } from "luci
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatPercentage, formatRelativeDate, getSurpriseColorClass, cn, extractCompanyName } from "@/lib/utils";
+import type { DisplayPreferences } from "@/hooks/use-preferences";
 import type { EarningsData, ActionIcon } from "@/types";
 
 interface EarningsCardProps {
@@ -14,7 +15,17 @@ interface EarningsCardProps {
   hasAlert?: boolean;
   onAction: (action: string, symbol: string) => void;
   onToggleWatchlist: (symbol: string) => boolean | Promise<boolean>;
+  preferences?: DisplayPreferences;
 }
+
+const DEFAULT_PREFERENCES: DisplayPreferences = {
+  displayName: "",
+  defaultPeriod: "today",
+  timezone: "America/New_York",
+  showEstimates: true,
+  showSurprises: true,
+  showExchange: true,
+};
 
 export function EarningsCard({
   earning,
@@ -22,9 +33,10 @@ export function EarningsCard({
   hasAlert = false,
   onAction,
   onToggleWatchlist,
+  preferences = DEFAULT_PREFERENCES,
 }: EarningsCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const dateInfo = earning.date ? formatRelativeDate(earning.date) : null;
+  const dateInfo = earning.date ? formatRelativeDate(earning.date, preferences.timezone) : null;
 
   // Action icons configuration
   const getActionIcons = (): ActionIcon[] => [
@@ -76,7 +88,7 @@ export function EarningsCard({
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2 min-w-0">
               <span className="font-semibold text-base text-foreground">{earning.symbol}</span>
-              {earning.exchange && (
+              {preferences.showExchange && earning.exchange && (
                 <>
                   <span className="text-muted-foreground text-sm">·</span>
                   <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs px-2 h-5 flex-shrink-0">
@@ -127,22 +139,30 @@ export function EarningsCard({
         </div>
       </div>
 
-      {/* Metrics Row - Improved 3 Column Grid */}
+      {/* Metrics Row - Dynamic Grid based on preferences */}
       <div className="px-4 py-3 border-t border-border bg-muted/5">
-        <div className="grid grid-cols-3 gap-3 text-center">
-          {/* Estimate */}
-          <div className="min-w-0 px-1">
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-              Estimate
+        <div className={cn(
+          "grid gap-3 text-center",
+          // Dynamic columns: EPS is always shown, Estimate and Surprise are optional
+          preferences.showEstimates && preferences.showSurprises ? "grid-cols-3" :
+          preferences.showEstimates || preferences.showSurprises ? "grid-cols-2" :
+          "grid-cols-1"
+        )}>
+          {/* Estimate - conditionally rendered */}
+          {preferences.showEstimates && (
+            <div className="min-w-0 px-1">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                Estimate
+              </div>
+              <div className="text-sm font-semibold text-foreground truncate">
+                {earning.estimate !== null && earning.estimate !== undefined
+                  ? formatCurrency(earning.estimate)
+                  : "-"}
+              </div>
             </div>
-            <div className="text-sm font-semibold text-foreground truncate">
-              {earning.estimate !== null && earning.estimate !== undefined
-                ? formatCurrency(earning.estimate)
-                : "-"}
-            </div>
-          </div>
+          )}
 
-          {/* Actual EPS */}
+          {/* Actual EPS - always shown */}
           <div className="min-w-0 px-1">
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
               Actual EPS
@@ -154,20 +174,22 @@ export function EarningsCard({
             </div>
           </div>
 
-          {/* Surprise */}
-          <div className="min-w-0 px-1">
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-              Surprise
+          {/* Surprise - conditionally rendered */}
+          {preferences.showSurprises && (
+            <div className="min-w-0 px-1">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                Surprise
+              </div>
+              <div className={cn(
+                "text-sm font-semibold truncate",
+                getSurpriseColorClass(earning.surprisePercent)
+              )}>
+                {earning.surprisePercent !== null && earning.surprisePercent !== undefined
+                  ? formatPercentage(earning.surprisePercent, { showSign: true })
+                  : "-"}
+              </div>
             </div>
-            <div className={cn(
-              "text-sm font-semibold truncate",
-              getSurpriseColorClass(earning.surprisePercent)
-            )}>
-              {earning.surprisePercent !== null && earning.surprisePercent !== undefined
-                ? formatPercentage(earning.surprisePercent, { showSign: true })
-                : "-"}
-            </div>
-          </div>
+          )}
         </div>
       </div>
 

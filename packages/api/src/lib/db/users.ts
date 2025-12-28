@@ -150,7 +150,7 @@ export async function updateUser(
 ): Promise<boolean> {
   try {
     const now = new Date().toISOString();
-    
+
     const fields: string[] = ['updated_at = ?'];
     const values: unknown[] = [now];
 
@@ -179,6 +179,20 @@ export async function updateUser(
     return result.success && result.meta.changes > 0;
   } catch (error) {
     logger.error('Error updating user:', error);
+    return false;
+  }
+}
+
+export async function deleteUser(db: D1Database, userId: string): Promise<boolean> {
+  try {
+    const result = await db
+      .prepare('DELETE FROM users WHERE id = ?')
+      .bind(userId)
+      .run();
+
+    return result.success && result.meta.changes > 0;
+  } catch (error) {
+    logger.error('Error deleting user:', error);
     return false;
   }
 }

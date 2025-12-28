@@ -22,6 +22,11 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuration
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY || '';
@@ -327,11 +332,6 @@ async function insertTickers(tickers: TickerToInsert[], isRemote: boolean): Prom
   }
 
   console.log('\n  Insert complete!');
-}
-
-// Legacy wrapper for local inserts
-async function insertTickersLocal(tickers: TickerToInsert[]): Promise<void> {
-  return insertTickers(tickers, false);
 }
 
 // Update ticker with profile data

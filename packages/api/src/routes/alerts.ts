@@ -4,8 +4,8 @@ import { createLogger } from '../lib/logger';
 import { verifyToken } from '../lib/auth';
 import { createDB } from '../lib/db';
 import { getUserById, getUserByEmail, updateUser } from '../lib/db/users';
-import { createAlert, getUserAlerts, getAlertByUserAndId, updateAlert, deleteAlert } from '../lib/db/alerts';
-import { generateUUID } from '../lib/crypto';
+import { createAlert, getUserAlerts, getAlertByUserAndId, updateAlert, deleteAlert, getAlertById } from '../lib/db/alerts';
+import { generateUUID, verifyUnsubscribeToken, generateUnsubscribeToken } from '../lib/crypto';
 import { sendEarningsAlertEmail } from '../lib/email';
 import type { NotificationPreferences } from '../lib/db/users';
 
@@ -121,6 +121,19 @@ app.post('/', async (c) => {
 
       // Only schedule if the date is in the future
       if (scheduledDate > new Date()) {
+        // Generate unsubscribe tokens
+        const appUrl = c.env!.NEXT_PUBLIC_APP_URL;
+        const jwtSecret = c.env!.JWT_SECRET;
+
+        const unsubscribeAlertToken = await generateUnsubscribeToken(
+          { alertId: alert.id, userId: actualUserId, type: 'alert' },
+          jwtSecret
+        );
+        const unsubscribeAllToken = await generateUnsubscribeToken(
+          { alertId: alert.id, userId: actualUserId, type: 'all' },
+          jwtSecret
+        );
+
         const emailResult = await sendEarningsAlertEmail(
           {
             email: kvUser.email,
@@ -129,9 +142,11 @@ app.post('/', async (c) => {
             daysUntil: daysBefore,
             alertType: 'before',
             userName: kvUser.email.split('@')[0],
+            unsubscribeAlertUrl: `${appUrl}/api/alerts/unsubscribe?token=${unsubscribeAlertToken}`,
+            unsubscribeAllUrl: `${appUrl}/api/alerts/unsubscribe?token=${unsubscribeAllToken}`,
           },
           c.env!.RESEND_API_KEY,
-          c.env!.NEXT_PUBLIC_APP_URL,
+          appUrl,
           scheduledDate.toISOString()
         );
 
@@ -291,6 +306,238 @@ app.put('/preferences', async (c) => {
   }
 });
 
+// GET /api/alerts/unsubscribe - One-click unsubscribe from email link
+// NOTE: This route MUST be defined BEFORE /:id to avoid "unsubscribe" being matched as an ID
+app.get('/unsubscribe', async (c) => {
+  try {
+    const token = c.req.query('token');
+
+    if (!token) {
+      return c.html(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invalid Unsubscribe Link - TickrTime</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+            .container { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+            h1 { color: #dc3545; }
+            p { color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Invalid Link</h1>
+            <p>This unsubscribe link is invalid or has expired.</p>
+            <p>Please log in to TickrTime to manage your notification preferences.</p>
+          </div>
+        </body>
+        </html>
+      `, 400);
+    }
+
+    // Verify the unsubscribe token
+    const payload = await verifyUnsubscribeToken(token, c.env!.JWT_SECRET);
+
+    if (!payload) {
+      return c.html(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invalid Unsubscribe Link - TickrTime</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+            .container { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+            h1 { color: #dc3545; }
+            p { color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Invalid Link</h1>
+            <p>This unsubscribe link is invalid or has been tampered with.</p>
+            <p>Please log in to TickrTime to manage your notification preferences.</p>
+          </div>
+        </body>
+        </html>
+      `, 400);
+    }
+
+    const db = createDB(c.env!);
+
+    if (payload.type === 'all') {
+      // Disable all email notifications for this user
+      const user = await getUserById(db, payload.userId);
+      if (!user) {
+        return c.html(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>User Not Found - TickrTime</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+              .container { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+              h1 { color: #dc3545; }
+              p { color: #666; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>User Not Found</h1>
+              <p>We could not find your account. It may have been deleted.</p>
+            </div>
+          </body>
+          </html>
+        `, 404);
+      }
+
+      // Update user preferences to disable email
+      const currentPreferences = user.notificationPreferences || {
+        emailEnabled: true,
+        defaultDaysBefore: 2,
+        defaultDaysAfter: 0,
+      };
+
+      await updateUser(db, payload.userId, {
+        notificationPreferences: {
+          ...currentPreferences,
+          emailEnabled: false,
+        },
+      });
+
+      logger.info('User unsubscribed from all emails:', payload.userId);
+
+      return c.html(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Unsubscribed - TickrTime</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+            .container { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+            h1 { color: #28a745; }
+            p { color: #666; }
+            a { color: #667eea; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Unsubscribed</h1>
+            <p>You have been unsubscribed from all TickrTime email notifications.</p>
+            <p>You can re-enable notifications anytime by logging into your account and updating your preferences.</p>
+            <p><a href="${c.env!.NEXT_PUBLIC_APP_URL}">Go to TickrTime</a></p>
+          </div>
+        </body>
+        </html>
+      `);
+    } else {
+      // Unsubscribe from specific alert - delete or cancel it
+      const alert = await getAlertById(db, payload.alertId);
+
+      if (!alert) {
+        return c.html(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Alert Not Found - TickrTime</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+              .container { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+              h1 { color: #ffc107; }
+              p { color: #666; }
+              a { color: #667eea; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Alert Not Found</h1>
+              <p>This alert may have already been deleted or does not exist.</p>
+              <p><a href="${c.env!.NEXT_PUBLIC_APP_URL}">Go to TickrTime</a></p>
+            </div>
+          </body>
+          </html>
+        `);
+      }
+
+      // Verify the alert belongs to this user
+      if (alert.userId !== payload.userId) {
+        return c.html(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Unauthorized - TickrTime</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+              .container { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+              h1 { color: #dc3545; }
+              p { color: #666; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Unauthorized</h1>
+              <p>You are not authorized to modify this alert.</p>
+            </div>
+          </body>
+          </html>
+        `, 403);
+      }
+
+      // Delete the alert
+      await deleteAlert(db, payload.alertId);
+
+      logger.info('User unsubscribed from alert:', payload.alertId, 'for symbol:', alert.symbol);
+
+      return c.html(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Alert Removed - TickrTime</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+            .container { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+            h1 { color: #28a745; }
+            p { color: #666; }
+            .symbol { font-weight: bold; color: #667eea; }
+            a { color: #667eea; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Alert Removed</h1>
+            <p>You have been unsubscribed from the <span class="symbol">${alert.symbol}</span> earnings alert.</p>
+            <p>You can create new alerts anytime by logging into your account.</p>
+            <p><a href="${c.env!.NEXT_PUBLIC_APP_URL}">Go to TickrTime</a></p>
+          </div>
+        </body>
+        </html>
+      `);
+    }
+  } catch (error) {
+    logger.error('Unsubscribe error:', error);
+    return c.html(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Error - TickrTime</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+          .container { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; }
+          h1 { color: #dc3545; }
+          p { color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Something Went Wrong</h1>
+          <p>We encountered an error processing your request. Please try again later.</p>
+        </div>
+      </body>
+      </html>
+    `, 500);
+  }
+});
+
 // GET /api/alerts/:id - Get specific alert
 app.get('/:id', async (c) => {
   try {
@@ -362,6 +609,19 @@ app.put('/:id', async (c) => {
         scheduledDate.setDate(scheduledDate.getDate() - finalDaysBefore);
 
         if (scheduledDate > new Date()) {
+          // Generate unsubscribe tokens
+          const appUrl = c.env!.NEXT_PUBLIC_APP_URL;
+          const jwtSecret = c.env!.JWT_SECRET;
+
+          const unsubscribeAlertToken = await generateUnsubscribeToken(
+            { alertId: id, userId: user.userId, type: 'alert' },
+            jwtSecret
+          );
+          const unsubscribeAllToken = await generateUnsubscribeToken(
+            { alertId: id, userId: user.userId, type: 'all' },
+            jwtSecret
+          );
+
           const emailResult = await sendEarningsAlertEmail(
             {
               email: kvUser.email,
@@ -370,9 +630,11 @@ app.put('/:id', async (c) => {
               daysUntil: finalDaysBefore,
               alertType: 'before',
               userName: kvUser.email.split('@')[0],
+              unsubscribeAlertUrl: `${appUrl}/api/alerts/unsubscribe?token=${unsubscribeAlertToken}`,
+              unsubscribeAllUrl: `${appUrl}/api/alerts/unsubscribe?token=${unsubscribeAllToken}`,
             },
             c.env!.RESEND_API_KEY,
-            c.env!.NEXT_PUBLIC_APP_URL,
+            appUrl,
             scheduledDate.toISOString()
           );
 

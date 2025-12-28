@@ -131,7 +131,7 @@ app.onError((err, c) => {
 export default {
   fetch: app.fetch,
 
-  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+  async scheduled(event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
     const cronLogger = createLogger('cron-scheduled');
     cronLogger.info('Cron trigger fired', { scheduledTime: new Date(event.scheduledTime).toISOString() });
 

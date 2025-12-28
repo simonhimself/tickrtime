@@ -61,31 +61,67 @@ export function formatPercentage(
 }
 
 /**
- * Format a date relative to today
+ * Format a date relative to today, with optional timezone conversion
  */
-export function formatRelativeDate(dateString: string): { formattedDate: string; relativeText: string } {
+export function formatRelativeDate(
+  dateString: string,
+  timezone?: string
+): { formattedDate: string; relativeText: string } {
+  // Parse the date string - API returns dates in YYYY-MM-DD format (UTC)
   const date = new Date(dateString);
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  
-  const isToday = date.toDateString() === today.toDateString();
-  const isTomorrow = date.toDateString() === tomorrow.toDateString();
-  
-  const formattedDate = date.toLocaleDateString("en-US", { 
-    month: "short", 
-    day: "numeric" 
+
+  // Get today in the target timezone (or local timezone if not specified)
+  const now = new Date();
+
+  // Format the date in the target timezone
+  const formatOptions: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    ...(timezone ? { timeZone: timezone } : {})
+  };
+
+  const formattedDate = date.toLocaleDateString("en-US", formatOptions);
+
+  // Get date strings in the target timezone for comparison
+  const todayStr = now.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    ...(timezone ? { timeZone: timezone } : {})
   });
-  
+
+  const dateStr = date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    ...(timezone ? { timeZone: timezone } : {})
+  });
+
+  // Calculate tomorrow in target timezone
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    ...(timezone ? { timeZone: timezone } : {})
+  });
+
+  const isToday = dateStr === todayStr;
+  const isTomorrow = dateStr === tomorrowStr;
+
   let relativeText = "";
   if (isToday) {
     relativeText = "Today";
   } else if (isTomorrow) {
     relativeText = "Tomorrow";
   } else {
-    const diffTime = date.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+    // Calculate days difference using timezone-aware dates
+    const todayMidnight = new Date(todayStr);
+    const dateMidnight = new Date(dateStr);
+    const diffTime = dateMidnight.getTime() - todayMidnight.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
     if (diffDays > 0) {
       relativeText = `In ${diffDays} day${diffDays > 1 ? "s" : ""}`;
     } else {
@@ -93,7 +129,7 @@ export function formatRelativeDate(dateString: string): { formattedDate: string;
       relativeText = `${absDays} day${absDays > 1 ? "s" : ""} ago`;
     }
   }
-  
+
   return { formattedDate, relativeText };
 }
 
@@ -156,7 +192,7 @@ export function extractCompanyName(description: string | null | undefined): stri
     return "-";
   }
 
-  let name = description
+  const name = description
     // Remove patterns like "LTD-CL A", "PLC-CL A", "INC-CL A" etc.
     .replace(/\s*-\s*(CL|CLASS)\s*[A-Z]\s*$/gi, "")
     // Remove corporate suffixes with optional class designations: "INC", "CORP", "PLC", "LTD-CL A", etc.

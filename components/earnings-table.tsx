@@ -12,8 +12,13 @@ import { MobileSortDropdown } from "@/components/mobile-sort-dropdown";
 import { useTableHover } from "@/hooks/use-table-hover";
 import { useTableSort } from "@/hooks/use-table-sort";
 import { useIsMobile } from "@/hooks/use-media-query";
+import { usePreferences, type DisplayPreferences } from "@/hooks/use-preferences";
 import { formatCurrency, formatPercentage, formatRelativeDate, getSurpriseColorClass, cn, extractCompanyName } from "@/lib/utils";
 import type { EarningsData, ActionIcon, TableProps } from "@/types";
+
+interface EarningsTableExtendedProps extends TableProps {
+  preferences?: DisplayPreferences;
+}
 
 export function EarningsTable({
   data,
@@ -27,8 +32,13 @@ export function EarningsTable({
   isWatchlistMode = false,
   onAlertClick,
   className,
-}: TableProps) {
+  preferences: propPreferences,
+}: EarningsTableExtendedProps) {
   const isMobile = useIsMobile();
+  const { preferences: hookPreferences } = usePreferences();
+
+  // Use prop preferences if provided, otherwise use hook preferences
+  const preferences = propPreferences ?? hookPreferences;
   
   const {
     hoveredRow,
@@ -246,7 +256,7 @@ export function EarningsTable({
           sortDirection={sortState.direction}
           onSort={handleSort}
         />
-        
+
         {/* Mobile Cards */}
         <div className="pt-6 px-4 space-y-4">
           {sortedData.map((earning) => (
@@ -257,6 +267,7 @@ export function EarningsTable({
               hasAlert={getAlertsForSymbol(earning.symbol).length > 0}
               onAction={onRowAction || (() => {})}
               onToggleWatchlist={onToggleWatchlist || (() => false)}
+              preferences={preferences}
             />
           ))}
         </div>
@@ -264,7 +275,29 @@ export function EarningsTable({
     );
   }
 
-  // Desktop table layout  
+  // Calculate dynamic column count based on visible columns
+  // Base columns: Ticker, Company, Date, EPS (always shown) = 4
+  // Optional: Exchange, Estimate, Surprise, Alert (watchlist mode)
+  const baseColumns = 4;
+  const optionalColumns = (preferences.showExchange ? 1 : 0) +
+                          (preferences.showEstimates ? 1 : 0) +
+                          (preferences.showSurprises ? 1 : 0) +
+                          (isWatchlistMode ? 1 : 0);
+  const totalColumns = baseColumns + optionalColumns;
+
+  // Generate dynamic grid-cols class
+  const getGridColsClass = (cols: number) => {
+    const gridColsMap: Record<number, string> = {
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+      6: "grid-cols-6",
+      7: "grid-cols-7",
+      8: "grid-cols-8",
+    };
+    return gridColsMap[cols] || "grid-cols-7";
+  };
+
+  // Desktop table layout
   return (
     <div className={cn("relative", className)}>
       {/* Desktop table wrapper */}
@@ -275,29 +308,29 @@ export function EarningsTable({
             ref={tableHeaderRef}
             className={cn(
               "grid gap-2 sm:gap-4 px-3 sm:px-6 py-2 sm:py-3 bg-muted/50 border-b border-border text-xs sm:text-sm sticky top-0 z-20",
-              isWatchlistMode ? "grid-cols-8" : "grid-cols-7"
+              getGridColsClass(totalColumns)
             )}
             role="row"
           >
           {renderHeaderCell("symbol", "TICKER")}
           {renderHeaderCell("description", "COMPANY")}
-          {renderHeaderCell("exchange", "EXCHANGE")}
+          {preferences.showExchange && renderHeaderCell("exchange", "EXCHANGE")}
           {renderHeaderCell("date", "EARNINGS DATE")}
           {isWatchlistMode && (
             <div role="columnheader" className="text-muted-foreground font-medium">
               ALERT
             </div>
           )}
-          {renderHeaderCell("estimate", "ESTIMATE")}
+          {preferences.showEstimates && renderHeaderCell("estimate", "ESTIMATE")}
           {renderHeaderCell("actual", "EPS")}
-          {renderHeaderCell("surprisePercent", "SURPRISE")}
+          {preferences.showSurprises && renderHeaderCell("surprisePercent", "SURPRISE")}
         </header>
 
           {/* Table Body */}
           <div role="table">
             {sortedData.map((earning) => {
-              const dateInfo = earning.date ? formatRelativeDate(earning.date) : null;
-              
+              const dateInfo = earning.date ? formatRelativeDate(earning.date, preferences.timezone) : null;
+
               return (
                 <div
                   key={`${earning.symbol}-${earning.date}`}
@@ -306,7 +339,7 @@ export function EarningsTable({
                   }}
                   className={cn(
                     "grid gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4 transition-all duration-200 cursor-pointer relative table-row-hover border-b border-border",
-                    isWatchlistMode ? "grid-cols-8" : "grid-cols-7",
+                    getGridColsClass(totalColumns),
                     hoveredRow === earning.symbol
                       ? "bg-blue-50 dark:bg-blue-950/50 shadow-md transform translate-x-1"
                       : "hover:bg-accent/50"
@@ -321,8 +354,8 @@ export function EarningsTable({
                   <div className="flex items-center gap-2" role="cell">
                     <span className="font-medium text-sm text-foreground">{earning.symbol}</span>
                     {watchlistedItems.has(earning.symbol) && (
-                      <Bookmark 
-                        className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60" 
+                      <Bookmark
+                        className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-current opacity-60"
                         aria-label="In watchlist"
                       />
                     )}
@@ -333,16 +366,18 @@ export function EarningsTable({
                     {extractCompanyName(earning.description)}
                   </div>
 
-                  {/* Exchange */}
-                  <div className="flex items-center" role="cell">
-                    {earning.exchange ? (
-                      <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs px-2 h-6">
-                        {earning.exchange}
-                      </Badge>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">-</span>
-                    )}
-                  </div>
+                  {/* Exchange - conditionally rendered */}
+                  {preferences.showExchange && (
+                    <div className="flex items-center" role="cell">
+                      {earning.exchange ? (
+                        <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs px-2 h-6">
+                          {earning.exchange}
+                        </Badge>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Earnings Date */}
                   <div className="flex flex-col" role="cell">
@@ -385,12 +420,14 @@ export function EarningsTable({
                     </div>
                   )}
 
-                  {/* Estimate */}
-                  <div className="flex items-center text-sm text-foreground" role="cell">
-                    {earning.estimate !== null && earning.estimate !== undefined
-                      ? formatCurrency(earning.estimate)
-                      : "-"}
-                  </div>
+                  {/* Estimate - conditionally rendered */}
+                  {preferences.showEstimates && (
+                    <div className="flex items-center text-sm text-foreground" role="cell">
+                      {earning.estimate !== null && earning.estimate !== undefined
+                        ? formatCurrency(earning.estimate)
+                        : "-"}
+                    </div>
+                  )}
 
                   {/* Actual EPS */}
                   <div className="flex items-center text-sm text-foreground" role="cell">
@@ -399,18 +436,20 @@ export function EarningsTable({
                       : "-"}
                   </div>
 
-                  {/* Surprise */}
-                  <div 
-                    className={cn(
-                      "flex items-center text-sm",
-                      getSurpriseColorClass(earning.surprisePercent)
-                    )} 
-                    role="cell"
-                  >
-                    {earning.surprisePercent !== null && earning.surprisePercent !== undefined
-                      ? formatPercentage(earning.surprisePercent, { showSign: true })
-                      : "-"}
-                  </div>
+                  {/* Surprise - conditionally rendered */}
+                  {preferences.showSurprises && (
+                    <div
+                      className={cn(
+                        "flex items-center text-sm",
+                        getSurpriseColorClass(earning.surprisePercent)
+                      )}
+                      role="cell"
+                    >
+                      {earning.surprisePercent !== null && earning.surprisePercent !== undefined
+                        ? formatPercentage(earning.surprisePercent, { showSign: true })
+                        : "-"}
+                    </div>
+                  )}
                 </div>
               );
             })}

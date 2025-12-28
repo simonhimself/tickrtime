@@ -121,14 +121,14 @@ export async function verifyJWT(token: string, secret: string): Promise<Record<s
     if (parts.length !== 3) {
       return null;
     }
-    
+
     const [headerBase64, payloadBase64, signatureBase64] = parts;
     const data = `${headerBase64}.${payloadBase64}`;
-    
+
     const dataBuffer = stringToArrayBuffer(data);
     const secretBuffer = stringToArrayBuffer(secret);
     const signatureBuffer = base64ToArrayBuffer(signatureBase64!);
-    
+
     const key = await crypto.subtle.importKey(
       'raw',
       secretBuffer,
@@ -136,22 +136,114 @@ export async function verifyJWT(token: string, secret: string): Promise<Record<s
       false,
       ['verify']
     );
-    
+
     const isValid = await crypto.subtle.verify('HMAC', key, signatureBuffer, dataBuffer);
     if (!isValid) {
       return null;
     }
-    
+
     const payload = JSON.parse(atob(payloadBase64!));
     const now = Math.floor(Date.now() / 1000);
-    
+
     if (payload.exp && payload.exp < now) {
       return null; // Token expired
     }
-    
+
     return payload;
   } catch (error) {
     console.error('JWT verification error:', error);
+    return null;
+  }
+}
+
+// Unsubscribe token payload type
+export interface UnsubscribeTokenPayload {
+  alertId: string;
+  userId: string;
+  type: 'alert' | 'all'; // 'alert' to unsubscribe from specific alert, 'all' to disable all email notifications
+}
+
+// Generate unsubscribe token (URL-safe, signed)
+export async function generateUnsubscribeToken(
+  payload: UnsubscribeTokenPayload,
+  secret: string
+): Promise<string> {
+  const payloadString = JSON.stringify(payload);
+  const payloadBase64 = btoa(payloadString);
+
+  const dataBuffer = stringToArrayBuffer(payloadBase64);
+  const secretBuffer = stringToArrayBuffer(secret);
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    secretBuffer,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, dataBuffer);
+  const signatureBase64 = arrayBufferToBase64(signatureBuffer);
+
+  // URL-safe encoding: replace + with -, / with _, remove =
+  const urlSafePayload = payloadBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  const urlSafeSignature = signatureBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+  return `${urlSafePayload}.${urlSafeSignature}`;
+}
+
+// Verify and decode unsubscribe token
+export async function verifyUnsubscribeToken(
+  token: string,
+  secret: string
+): Promise<UnsubscribeTokenPayload | null> {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 2) {
+      return null;
+    }
+
+    const [urlSafePayload, urlSafeSignature] = parts;
+
+    // Restore base64 from URL-safe encoding
+    const payloadBase64 = urlSafePayload!
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      + '='.repeat((4 - (urlSafePayload!.length % 4)) % 4);
+
+    const signatureBase64 = urlSafeSignature!
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      + '='.repeat((4 - (urlSafeSignature!.length % 4)) % 4);
+
+    const dataBuffer = stringToArrayBuffer(payloadBase64);
+    const secretBuffer = stringToArrayBuffer(secret);
+    const signatureBuffer = base64ToArrayBuffer(signatureBase64);
+
+    const key = await crypto.subtle.importKey(
+      'raw',
+      secretBuffer,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    );
+
+    const isValid = await crypto.subtle.verify('HMAC', key, signatureBuffer, dataBuffer);
+    if (!isValid) {
+      return null;
+    }
+
+    const payloadString = atob(payloadBase64);
+    const payload = JSON.parse(payloadString) as UnsubscribeTokenPayload;
+
+    // Validate required fields
+    if (!payload.alertId || !payload.userId || !payload.type) {
+      return null;
+    }
+
+    return payload;
+  } catch (error) {
+    console.error('Unsubscribe token verification error:', error);
     return null;
   }
 }

@@ -13,6 +13,7 @@ import {
   mapIndustryToSector,
 } from '../lib/db/tickers';
 import { sendEarningsAlertEmail } from '../lib/email';
+import { generateUnsubscribeToken } from '../lib/crypto';
 
 const app = new Hono<{ Bindings: Env }>();
 const logger = createLogger('cron');
@@ -76,6 +77,69 @@ async function getEarningsData(symbol: string, date: string, finnhubApiKey: stri
   }
 }
 
+// Finnhub earnings calendar response type
+interface FinnhubEarningsCalendarItem {
+  symbol: string;
+  date: string;
+  hour?: string;
+  quarter?: number;
+  year?: number;
+}
+
+interface FinnhubCalendarResponse {
+  earningsCalendar?: FinnhubEarningsCalendarItem[];
+}
+
+// Helper to fetch the next earnings date for a symbol (for recurring alerts)
+async function getNextEarningsDate(
+  symbol: string,
+  afterDate: string,
+  finnhubApiKey: string | undefined
+): Promise<string | null> {
+  try {
+    if (!finnhubApiKey) {
+      return null;
+    }
+
+    // Search from the day after the current earnings date to 1 year out
+    const fromDate = new Date(afterDate);
+    fromDate.setDate(fromDate.getDate() + 1);
+    const fromDateStr = fromDate.toISOString().split('T')[0]!;
+
+    const toDate = new Date(afterDate);
+    toDate.setFullYear(toDate.getFullYear() + 1);
+    const toDateStr = toDate.toISOString().split('T')[0]!;
+
+    // Use the calendar endpoint filtered by symbol
+    const url = `${FINNHUB_BASE_URL}/calendar/earnings?symbol=${symbol.toUpperCase()}&from=${fromDateStr}&to=${toDateStr}&token=${finnhubApiKey}`;
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      logger.warn(`Failed to fetch next earnings date for ${symbol}: ${res.status}`);
+      return null;
+    }
+
+    const data = (await res.json()) as FinnhubCalendarResponse;
+    const earnings = Array.isArray(data.earningsCalendar) ? data.earningsCalendar : [];
+
+    // Find the first upcoming earnings date for this symbol
+    const nextEarnings = earnings
+      .filter((e) => e.symbol === symbol.toUpperCase() && e.date > afterDate)
+      .sort((a, b) => a.date.localeCompare(b.date))[0];
+
+    if (nextEarnings) {
+      logger.debug(`Next earnings date for ${symbol}: ${nextEarnings.date}`);
+      return nextEarnings.date;
+    }
+
+    logger.debug(`No upcoming earnings found for ${symbol} after ${afterDate}`);
+    return null;
+  } catch (error) {
+    logger.error(`Error fetching next earnings date for ${symbol}:`, error);
+    return null;
+  }
+}
+
 // POST /api/cron/check-alerts - Check and process "after" alerts (called by cron job)
 app.post('/check-alerts', async (c) => {
   try {
@@ -99,27 +163,62 @@ app.post('/check-alerts', async (c) => {
     let processedCount = 0;
     let sentCount = 0;
 
+    let recurringUpdatedCount = 0;
+
     // Process each alert
     for (const alert of alerts) {
       processedCount++;
-      
+
       const earningsDate = new Date(alert.earningsDate);
       earningsDate.setHours(0, 0, 0, 0);
-      
+
       const alertDate = new Date(earningsDate);
       alertDate.setDate(alertDate.getDate() + (alert.daysAfter || 0));
-      
+
       // Check if alert date has passed
       if (alertDate <= today) {
         const kvUser = await getUserById(db, alert.userId);
         if (!kvUser || !kvUser.notificationPreferences?.emailEnabled) {
+          // If email is disabled, still update recurring alerts to next date
+          if (alert.recurring) {
+            const nextEarningsDate = await getNextEarningsDate(
+              alert.symbol,
+              alert.earningsDate,
+              c.env!.FINNHUB_API_KEY
+            );
+            if (nextEarningsDate) {
+              await updateAlert(db, alert.id, {
+                earningsDate: nextEarningsDate,
+                status: 'active',
+              });
+              recurringUpdatedCount++;
+            } else {
+              // No next earnings date found, mark as sent
+              await updateAlert(db, alert.id, {
+                status: 'sent',
+              });
+            }
+          }
           continue;
         }
 
         // Fetch earnings data
         const earningsData = await getEarningsData(alert.symbol, alert.earningsDate, c.env!.FINNHUB_API_KEY);
 
-        // Send email
+        // Generate unsubscribe tokens
+        const appUrl = c.env!.NEXT_PUBLIC_APP_URL;
+        const jwtSecret = c.env!.JWT_SECRET;
+
+        const unsubscribeAlertToken = await generateUnsubscribeToken(
+          { alertId: alert.id, userId: alert.userId, type: 'alert' },
+          jwtSecret
+        );
+        const unsubscribeAllToken = await generateUnsubscribeToken(
+          { alertId: alert.id, userId: alert.userId, type: 'all' },
+          jwtSecret
+        );
+
+        // Send email with unsubscribe links
         const emailResult = await sendEarningsAlertEmail({
           email: kvUser.email,
           symbol: alert.symbol,
@@ -127,17 +226,37 @@ app.post('/check-alerts', async (c) => {
           daysAfter: alert.daysAfter,
           alertType: 'after',
           userName: kvUser.email.split('@')[0],
+          unsubscribeAlertUrl: `${appUrl}/api/alerts/unsubscribe?token=${unsubscribeAlertToken}`,
+          unsubscribeAllUrl: `${appUrl}/api/alerts/unsubscribe?token=${unsubscribeAllToken}`,
           ...earningsData,
-        }, c.env!.RESEND_API_KEY, c.env!.NEXT_PUBLIC_APP_URL);
+        }, c.env!.RESEND_API_KEY, appUrl);
 
         if (emailResult.success) {
           sentCount++;
-          
-          // Update alert: if recurring, keep active; otherwise mark as sent
+
+          // Update alert: if recurring, update to next earnings date; otherwise mark as sent
           if (alert.recurring) {
-            await updateAlert(db, alert.id, {
-              status: 'active',
-            });
+            const nextEarningsDate = await getNextEarningsDate(
+              alert.symbol,
+              alert.earningsDate,
+              c.env!.FINNHUB_API_KEY
+            );
+
+            if (nextEarningsDate) {
+              // Update alert with next earnings date and keep active
+              await updateAlert(db, alert.id, {
+                earningsDate: nextEarningsDate,
+                status: 'active',
+              });
+              recurringUpdatedCount++;
+              logger.info(`Recurring alert ${alert.id} for ${alert.symbol} updated to next date: ${nextEarningsDate}`);
+            } else {
+              // No next earnings date found, mark as sent
+              await updateAlert(db, alert.id, {
+                status: 'sent',
+              });
+              logger.info(`Recurring alert ${alert.id} for ${alert.symbol} marked as sent (no next date found)`);
+            }
           } else {
             await updateAlert(db, alert.id, {
               status: 'sent',
@@ -149,9 +268,10 @@ app.post('/check-alerts', async (c) => {
 
     return c.json({
       success: true,
-      message: `Processed ${processedCount} alerts, sent ${sentCount} emails`,
+      message: `Processed ${processedCount} alerts, sent ${sentCount} emails, ${recurringUpdatedCount} recurring alerts updated`,
       processed: processedCount,
       sent: sentCount,
+      recurringUpdated: recurringUpdatedCount,
     });
   } catch (error) {
     logger.error('Cron check alerts error:', error);

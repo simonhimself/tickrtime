@@ -12,9 +12,19 @@ import {
   kvUserToUser,
 } from '../lib/auth';
 import { createDB } from '../lib/db';
-import { getUserByEmail, getUserById, createUser as createUserInDB, updateUser } from '../lib/db/users';
-import { saveVerificationToken, getVerificationToken, deleteVerificationToken } from '../lib/kv';
-import { sendVerificationEmail } from '../lib/email';
+import { getUserByEmail, getUserById, createUser as createUserInDB, updateUser, deleteUser } from '../lib/db/users';
+import { deleteAllUserAlerts } from '../lib/db/alerts';
+import {
+  saveVerificationToken,
+  getVerificationToken,
+  deleteVerificationToken,
+  savePasswordResetToken,
+  getPasswordResetToken,
+  deletePasswordResetToken,
+  deleteWatchlist,
+} from '../lib/kv';
+import { sendVerificationEmail, sendPasswordResetEmail, cancelScheduledEmail } from '../lib/email';
+import { generateUUID } from '../lib/crypto';
 import type { SignupRequest, AuthResponse, AuthRequest } from '@tickrtime/shared';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -342,6 +352,323 @@ app.get('/verify-email', async (c) => {
 
   } catch (error) {
     logger.error('Email verification error:', error);
+    return c.json<AuthResponse>({
+      success: false,
+      message: 'Internal server error'
+    }, 500);
+  }
+});
+
+// POST /api/auth/forgot-password
+app.post('/forgot-password', async (c) => {
+  try {
+    const body = await c.req.json<{ email: string }>();
+    const { email } = body;
+
+    // Validate input
+    if (!email) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Email is required'
+      }, 400);
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Invalid email format'
+      }, 400);
+    }
+
+    const db = createDB(c.env!);
+
+    // Check if user exists
+    const user = await getUserByEmail(db, email);
+
+    // Always return success to prevent email enumeration
+    // But only send email if user exists
+    if (user) {
+      // Generate password reset token
+      const resetToken = generateUUID();
+
+      // Save token to KV with 1-hour TTL
+      await savePasswordResetToken(c.env!.TICKRTIME_KV, resetToken, user.id, 3600);
+
+      // Send password reset email
+      const emailSent = await sendPasswordResetEmail(
+        {
+          email: user.email,
+          token: resetToken,
+          userName: user.email.split('@')[0]
+        },
+        c.env!.RESEND_API_KEY,
+        c.env!.NEXT_PUBLIC_APP_URL
+      );
+
+      if (!emailSent) {
+        logger.warn('Failed to send password reset email to:', email);
+      } else {
+        logger.debug('Password reset email sent to:', email);
+      }
+    } else {
+      logger.debug('Password reset requested for non-existent email:', email);
+    }
+
+    // Always return success to prevent email enumeration
+    return c.json<AuthResponse>({
+      success: true,
+      message: 'If an account with that email exists, a password reset link has been sent.'
+    });
+
+  } catch (error) {
+    logger.error('Forgot password error:', error);
+    return c.json<AuthResponse>({
+      success: false,
+      message: 'Internal server error'
+    }, 500);
+  }
+});
+
+// POST /api/auth/reset-password
+app.post('/reset-password', async (c) => {
+  try {
+    const body = await c.req.json<{ token: string; newPassword: string }>();
+    const { token, newPassword } = body;
+
+    // Validate input
+    if (!token || !newPassword) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Token and new password are required'
+      }, 400);
+    }
+
+    // Validate password strength
+    const passwordValidation = isValidPassword(newPassword);
+    if (!passwordValidation.valid) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: passwordValidation.message
+      }, 400);
+    }
+
+    // Get user ID from token
+    const userId = await getPasswordResetToken(c.env!.TICKRTIME_KV, token);
+
+    if (!userId) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Invalid or expired reset token'
+      }, 400);
+    }
+
+    const db = createDB(c.env!);
+
+    // Verify user exists
+    const user = await getUserById(db, userId);
+    if (!user) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'User not found'
+      }, 404);
+    }
+
+    // Hash new password
+    const newPasswordHash = await hashPasswordAsync(newPassword);
+
+    // Update user password in D1
+    const updated = await updateUser(db, userId, {
+      passwordHash: newPasswordHash,
+    });
+
+    if (!updated) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Failed to update password'
+      }, 500);
+    }
+
+    // Delete reset token from KV
+    await deletePasswordResetToken(c.env!.TICKRTIME_KV, token);
+
+    logger.debug('Password reset successfully for user:', userId);
+
+    return c.json<AuthResponse>({
+      success: true,
+      message: 'Password has been reset successfully. You can now log in with your new password.'
+    });
+
+  } catch (error) {
+    logger.error('Reset password error:', error);
+    return c.json<AuthResponse>({
+      success: false,
+      message: 'Internal server error'
+    }, 500);
+  }
+});
+
+// POST /api/auth/resend-verification
+app.post('/resend-verification', async (c) => {
+  try {
+    const body = await c.req.json<{ email: string }>();
+    const { email } = body;
+
+    // Validate input
+    if (!email) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Email is required'
+      }, 400);
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Invalid email format'
+      }, 400);
+    }
+
+    const db = createDB(c.env!);
+
+    // Get user by email
+    const user = await getUserByEmail(db, email);
+
+    // Check if user exists
+    if (!user) {
+      // Return success to prevent email enumeration
+      return c.json<AuthResponse>({
+        success: true,
+        message: 'If an unverified account with that email exists, a verification link has been sent.'
+      });
+    }
+
+    // Check if already verified
+    if (user.emailVerified) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Email is already verified'
+      }, 400);
+    }
+
+    // Generate new verification token
+    const verificationToken = generateUUID();
+
+    // Save verification token to KV with 24-hour TTL
+    await saveVerificationToken(c.env!.TICKRTIME_KV, verificationToken, user.id, 24 * 3600);
+
+    // Send verification email
+    const emailSent = await sendVerificationEmail(
+      {
+        email: user.email,
+        token: verificationToken,
+        userName: user.email.split('@')[0]
+      },
+      c.env!.RESEND_API_KEY,
+      c.env!.NEXT_PUBLIC_APP_URL
+    );
+
+    if (!emailSent) {
+      logger.warn('Failed to resend verification email to:', email);
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Failed to send verification email. Please try again later.'
+      }, 500);
+    }
+
+    logger.debug('Verification email resent to:', email);
+
+    return c.json<AuthResponse>({
+      success: true,
+      message: 'If an unverified account with that email exists, a verification link has been sent.'
+    });
+
+  } catch (error) {
+    logger.error('Resend verification error:', error);
+    return c.json<AuthResponse>({
+      success: false,
+      message: 'Internal server error'
+    }, 500);
+  }
+});
+
+// DELETE /api/auth/account - Delete user account and all associated data
+app.delete('/account', async (c) => {
+  try {
+    // Get token from Authorization header
+    const authHeader = c.req.header('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'No authorization token provided'
+      }, 401);
+    }
+
+    const token = authHeader.substring(7);
+
+    // Verify the token
+    const userData = await verifyToken(token, c.env!.JWT_SECRET);
+    if (!userData) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Invalid or expired token'
+      }, 401);
+    }
+
+    const db = createDB(c.env!);
+    const userId = userData.userId;
+
+    // Verify user exists
+    const user = await getUserById(db, userId);
+    if (!user) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'User not found'
+      }, 404);
+    }
+
+    logger.info('Starting account deletion for user:', userId);
+
+    // Step 1: Delete all alerts and get scheduled email IDs
+    const alertsResult = await deleteAllUserAlerts(db, userId);
+    logger.debug('Deleted alerts:', alertsResult.deleted, 'Scheduled emails to cancel:', alertsResult.scheduledEmailIds.length);
+
+    // Step 2: Cancel any scheduled emails via Resend API
+    if (alertsResult.scheduledEmailIds.length > 0 && c.env!.RESEND_API_KEY) {
+      const cancelResults = await Promise.allSettled(
+        alertsResult.scheduledEmailIds.map(emailId =>
+          cancelScheduledEmail(emailId, c.env!.RESEND_API_KEY)
+        )
+      );
+
+      const successCount = cancelResults.filter(r => r.status === 'fulfilled' && r.value.success).length;
+      logger.debug('Cancelled scheduled emails:', successCount, '/', alertsResult.scheduledEmailIds.length);
+    }
+
+    // Step 3: Delete watchlist from KV
+    await deleteWatchlist(c.env!.TICKRTIME_KV, userId);
+    logger.debug('Deleted watchlist for user:', userId);
+
+    // Step 4: Delete user from D1
+    const userDeleted = await deleteUser(db, userId);
+    if (!userDeleted) {
+      logger.error('Failed to delete user from database:', userId);
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Failed to delete account'
+      }, 500);
+    }
+
+    logger.info('Account deletion completed for user:', userId);
+
+    return c.json<AuthResponse>({
+      success: true,
+      message: 'Account and all associated data have been deleted successfully'
+    });
+
+  } catch (error) {
+    logger.error('Account deletion error:', error);
     return c.json<AuthResponse>({
       success: false,
       message: 'Internal server error'

@@ -230,10 +230,10 @@ export async function deleteAlert(db: D1Database, alertId: string): Promise<bool
 export async function getActiveAfterAlerts(db: D1Database, earningsDate?: string): Promise<KVAlert[]> {
   try {
     const dateToCheck = earningsDate || new Date().toISOString().split('T')[0];
-    
+
     const result = await db
-      .prepare(`SELECT * FROM alerts 
-                 WHERE status = ? AND alert_type = ? AND earnings_date <= ? 
+      .prepare(`SELECT * FROM alerts
+                 WHERE status = ? AND alert_type = ? AND earnings_date <= ?
                  ORDER BY earnings_date ASC`)
       .bind('active', 'after', dateToCheck)
       .all<AlertRow>();
@@ -246,6 +246,39 @@ export async function getActiveAfterAlerts(db: D1Database, earningsDate?: string
   } catch (error) {
     logger.error('Error getting active after alerts:', error);
     return [];
+  }
+}
+
+export async function deleteAllUserAlerts(db: D1Database, userId: string): Promise<{ deleted: number; scheduledEmailIds: string[] }> {
+  try {
+    // First, get all alerts with scheduled email IDs so we can cancel them
+    const alertsResult = await db
+      .prepare('SELECT scheduled_email_id FROM alerts WHERE user_id = ? AND scheduled_email_id IS NOT NULL')
+      .bind(userId)
+      .all<{ scheduled_email_id: string }>();
+
+    const scheduledEmailIds: string[] = [];
+    if (alertsResult.success && alertsResult.results) {
+      for (const row of alertsResult.results) {
+        if (row.scheduled_email_id) {
+          scheduledEmailIds.push(row.scheduled_email_id);
+        }
+      }
+    }
+
+    // Delete all alerts for the user
+    const result = await db
+      .prepare('DELETE FROM alerts WHERE user_id = ?')
+      .bind(userId)
+      .run();
+
+    return {
+      deleted: result.success ? result.meta.changes : 0,
+      scheduledEmailIds,
+    };
+  } catch (error) {
+    logger.error('Error deleting all user alerts:', error);
+    return { deleted: 0, scheduledEmailIds: [] };
   }
 }
 
