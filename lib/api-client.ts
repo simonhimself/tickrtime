@@ -153,6 +153,12 @@ export async function deleteAlert(id: string): Promise<ApiResponse> {
   }).then(res => res.json());
 }
 
+export async function deleteAlertsBySymbol(symbol: string): Promise<ApiResponse & { deleted?: number }> {
+  return authenticatedFetch(`/api/alerts/symbol/${encodeURIComponent(symbol)}`, {
+    method: 'DELETE',
+  }).then(res => res.json());
+}
+
 export async function getAlertPreferences(): Promise<GetAlertPreferencesResponse> {
   return authenticatedFetch('/api/alerts/preferences').then(res => res.json());
 }

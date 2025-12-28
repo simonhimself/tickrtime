@@ -195,6 +195,7 @@ export interface UseWatchlistReturn {
 export interface UseAlertsReturn {
   alerts: import("@/lib/auth").KVAlert[];
   getAlertedSymbols: () => string[];
+  getAlertsForSymbol: (symbol: string) => import("@/lib/auth").KVAlert[];
   hasAlert: (symbol: string) => boolean;
   count: number;
   loading: boolean;

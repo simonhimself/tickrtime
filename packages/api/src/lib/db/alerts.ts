@@ -249,6 +249,47 @@ export async function getActiveAfterAlerts(db: D1Database, earningsDate?: string
   }
 }
 
+export async function deleteAlertsBySymbol(
+  db: D1Database,
+  userId: string,
+  symbol: string
+): Promise<{ deleted: number; scheduledEmailIds: string[] }> {
+  try {
+    const normalizedSymbol = symbol.toUpperCase();
+
+    // First, get all alerts with scheduled email IDs so we can cancel them
+    const alertsResult = await db
+      .prepare(
+        'SELECT scheduled_email_id FROM alerts WHERE user_id = ? AND symbol = ? AND scheduled_email_id IS NOT NULL'
+      )
+      .bind(userId, normalizedSymbol)
+      .all<{ scheduled_email_id: string }>();
+
+    const scheduledEmailIds: string[] = [];
+    if (alertsResult.success && alertsResult.results) {
+      for (const row of alertsResult.results) {
+        if (row.scheduled_email_id) {
+          scheduledEmailIds.push(row.scheduled_email_id);
+        }
+      }
+    }
+
+    // Delete all alerts for this symbol
+    const result = await db
+      .prepare('DELETE FROM alerts WHERE user_id = ? AND symbol = ?')
+      .bind(userId, normalizedSymbol)
+      .run();
+
+    return {
+      deleted: result.success ? result.meta.changes : 0,
+      scheduledEmailIds,
+    };
+  } catch (error) {
+    logger.error('Error deleting alerts by symbol:', error);
+    return { deleted: 0, scheduledEmailIds: [] };
+  }
+}
+
 export async function deleteAllUserAlerts(db: D1Database, userId: string): Promise<{ deleted: number; scheduledEmailIds: string[] }> {
   try {
     // First, get all alerts with scheduled email IDs so we can cancel them
