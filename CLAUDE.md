@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TickrTime is an earnings tracking dashboard for technology stocks built with Next.js 15 and deployed on Cloudflare. It tracks 2,246+ tech companies using the Finnhub API.
+TickrTime is an earnings tracking dashboard built with Next.js 15 and deployed on Cloudflare. It tracks 8,288 US stocks (NASDAQ + NYSE) using the Finnhub API, with enriched industry/sector data.
 
 **Architecture**: Split frontend + API Worker pattern
 - **Frontend**: Next.js app on `localhost:3000`
@@ -54,7 +54,7 @@ Frontend (Next.js) → lib/api-client.ts → Worker API (Hono) → D1 Database
 - `lib/api-client.ts` - Frontend API client (all API calls go through here)
 - `hooks/` - React hooks (use-watchlist, use-alerts, use-table-sort)
 - `components/earnings-dashboard.tsx` - Main dashboard orchestrator
-- `data/tech_tickers.json` - Tech company database (2,246+ companies)
+- `packages/api/src/lib/db/tickers.ts` - Ticker database operations (D1)
 
 ### API Endpoints (on :8787)
 - Auth: `/api/auth/signup`, `/api/auth/login`, `/api/auth/me`, `/api/auth/verify-email`
@@ -64,11 +64,11 @@ Frontend (Next.js) → lib/api-client.ts → Worker API (Hono) → D1 Database
 
 ## Critical Rules
 
+- **Always run tests**: Run `npm test` after making changes
 - **Type safety mandatory**: Never use `any`. Request approval if you believe it's necessary
 - **Edge Runtime**: All Next.js API routes must use `export const runtime = "edge"`
 - **Git workflow**: Never work directly on main; use feature branches
 - **localStorage keys**: `tickrtime-auth-token`, `tickrtime-preferences`, `tickrtime-watchlist`
-- **Tech ticker filtering**: Always filter API results using `techTickers.map(t => t.symbol)` Set
 - **Responsive design**: Mobile-first with card layout, desktop with table layout
 
 ## Patterns
@@ -109,10 +109,14 @@ app.get("/", async (c) => {
 ## Environment Variables
 
 ```bash
-# .env.local
-NEXT_PUBLIC_API_URL=http://localhost:8787   # Worker API URL
-FINNHUB_API_KEY=your_key                     # Required for earnings data
-RESEND_API_KEY=your_key                      # Required for email verification
+# .env.local (Frontend only - NEXT_PUBLIC_* exposed to browser)
+NEXT_PUBLIC_API_URL=http://localhost:8787
+
+# packages/api/wrangler.toml [vars] (API Worker secrets)
+FINNHUB_API_KEY=...      # Finnhub API access
+RESEND_API_KEY=...       # Email sending
+JWT_SECRET=...           # Auth tokens
+SEND_VERIFICATION_EMAILS=false  # Set true in production
 ```
 
 ## Known Issues

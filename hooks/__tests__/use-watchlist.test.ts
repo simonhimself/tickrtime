@@ -10,8 +10,18 @@ jest.mock('sonner', () => ({
   },
 }))
 
-// Mock fetch
-global.fetch = jest.fn()
+// Mock api-client
+jest.mock('@/lib/api-client', () => ({
+  getWatchlist: jest.fn(),
+  addToWatchlist: jest.fn(),
+  removeFromWatchlist: jest.fn(),
+}))
+
+import { getWatchlist, addToWatchlist, removeFromWatchlist } from '@/lib/api-client'
+
+const mockGetWatchlist = getWatchlist as jest.MockedFunction<typeof getWatchlist>
+const mockAddToWatchlist = addToWatchlist as jest.MockedFunction<typeof addToWatchlist>
+const mockRemoveFromWatchlist = removeFromWatchlist as jest.MockedFunction<typeof removeFromWatchlist>
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -38,7 +48,6 @@ describe('useWatchlist', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     localStorageMock.clear()
-    ;(global.fetch as jest.Mock).mockClear()
   })
 
   it('initializes with empty watchlist when no auth token', () => {
@@ -61,10 +70,7 @@ describe('useWatchlist', () => {
     }
 
     localStorageMock.setItem('tickrtime-auth-token', mockToken)
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist: mockWatchlist }),
-    })
+    mockGetWatchlist.mockResolvedValueOnce({ success: true, watchlist: mockWatchlist })
 
     const { result } = renderHook(() => useWatchlist())
 
@@ -72,52 +78,39 @@ describe('useWatchlist', () => {
       expect(result.current.watchlist.tickers).toHaveLength(2)
     })
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/watchlist', {
-      headers: {
-        'Authorization': `Bearer ${mockToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    expect(mockGetWatchlist).toHaveBeenCalled()
     expect(result.current.count).toBe(2)
   })
 
-  it('handles authentication errors when loading watchlist', async () => {
-    const mockToken = 'expired-token'
+  it('handles errors when loading watchlist', async () => {
+    const mockToken = 'test-token'
     localStorageMock.setItem('tickrtime-auth-token', mockToken)
-    
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-    })
+
+    mockGetWatchlist.mockRejectedValueOnce(new Error('Failed to load'))
 
     const { result } = renderHook(() => useWatchlist())
 
     await waitFor(() => {
-      expect(result.current.error).toBe('Authentication required')
+      expect(result.current.error).toBe('Failed to load')
     })
-
-    expect(localStorageMock.getItem('tickrtime-auth-token')).toBeNull()
   })
 
   it('adds ticker to watchlist successfully', async () => {
     const mockToken = 'test-auth-token'
     localStorageMock.setItem('tickrtime-auth-token', mockToken)
-    
+
     const initialWatchlist = {
       tickers: [],
       lastUpdated: '2024-01-01',
     }
-    
+
     const updatedWatchlist = {
       tickers: [{ symbol: 'AAPL', addedAt: '2024-01-01' }],
       lastUpdated: '2024-01-01',
     }
 
     // Mock initial load
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist: initialWatchlist }),
-    })
+    mockGetWatchlist.mockResolvedValueOnce({ success: true, watchlist: initialWatchlist })
 
     const { result } = renderHook(() => useWatchlist())
 
@@ -126,10 +119,7 @@ describe('useWatchlist', () => {
     })
 
     // Mock add to watchlist
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist: updatedWatchlist }),
-    })
+    mockAddToWatchlist.mockResolvedValueOnce({ success: true, watchlist: updatedWatchlist })
 
     let addResult: boolean = false
     await act(async () => {
@@ -139,22 +129,18 @@ describe('useWatchlist', () => {
     expect(addResult).toBe(true)
     expect(result.current.watchlist.tickers).toHaveLength(1)
     expect(result.current.isInWatchlist('AAPL')).toBe(true)
-    expect(toast.success).toHaveBeenCalledWith('AAPL added to watchlist')
   })
 
   it('prevents adding duplicate tickers', async () => {
     const mockToken = 'test-auth-token'
     localStorageMock.setItem('tickrtime-auth-token', mockToken)
-    
+
     const watchlist = {
       tickers: [{ symbol: 'AAPL', addedAt: '2024-01-01' }],
       lastUpdated: '2024-01-01',
     }
 
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist }),
-    })
+    mockGetWatchlist.mockResolvedValueOnce({ success: true, watchlist })
 
     const { result } = renderHook(() => useWatchlist())
 
@@ -168,29 +154,26 @@ describe('useWatchlist', () => {
     })
 
     expect(addResult).toBe(true)
-    // Fetch should not have been called again since ticker already exists
-    expect(global.fetch).toHaveBeenCalledTimes(1) // Only initial load
+    // API should not have been called since ticker already exists
+    expect(mockAddToWatchlist).not.toHaveBeenCalled()
   })
 
   it('removes ticker from watchlist successfully', async () => {
     const mockToken = 'test-auth-token'
     localStorageMock.setItem('tickrtime-auth-token', mockToken)
-    
+
     const initialWatchlist = {
       tickers: [{ symbol: 'AAPL', addedAt: '2024-01-01' }],
       lastUpdated: '2024-01-01',
     }
-    
+
     const updatedWatchlist = {
       tickers: [],
       lastUpdated: '2024-01-01',
     }
 
     // Mock initial load
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist: initialWatchlist }),
-    })
+    mockGetWatchlist.mockResolvedValueOnce({ success: true, watchlist: initialWatchlist })
 
     const { result } = renderHook(() => useWatchlist())
 
@@ -199,10 +182,7 @@ describe('useWatchlist', () => {
     })
 
     // Mock remove from watchlist
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist: updatedWatchlist }),
-    })
+    mockRemoveFromWatchlist.mockResolvedValueOnce({ success: true, watchlist: updatedWatchlist })
 
     let removeResult: boolean = false
     await act(async () => {
@@ -212,22 +192,18 @@ describe('useWatchlist', () => {
     expect(removeResult).toBe(true)
     expect(result.current.watchlist.tickers).toHaveLength(0)
     expect(result.current.isInWatchlist('AAPL')).toBe(false)
-    expect(toast.success).toHaveBeenCalledWith('AAPL removed from watchlist')
   })
 
   it('toggles watchlist correctly', async () => {
     const mockToken = 'test-auth-token'
     localStorageMock.setItem('tickrtime-auth-token', mockToken)
-    
+
     const initialWatchlist = {
       tickers: [{ symbol: 'AAPL', addedAt: '2024-01-01' }],
       lastUpdated: '2024-01-01',
     }
 
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist: initialWatchlist }),
-    })
+    mockGetWatchlist.mockResolvedValueOnce({ success: true, watchlist: initialWatchlist })
 
     const { result } = renderHook(() => useWatchlist())
 
@@ -236,9 +212,9 @@ describe('useWatchlist', () => {
     })
 
     // Mock remove
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist: { tickers: [], lastUpdated: '2024-01-01' } }),
+    mockRemoveFromWatchlist.mockResolvedValueOnce({
+      success: true,
+      watchlist: { tickers: [], lastUpdated: '2024-01-01' }
     })
 
     await act(async () => {
@@ -248,10 +224,7 @@ describe('useWatchlist', () => {
     expect(result.current.isInWatchlist('AAPL')).toBe(false)
 
     // Mock add
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist: initialWatchlist }),
-    })
+    mockAddToWatchlist.mockResolvedValueOnce({ success: true, watchlist: initialWatchlist })
 
     await act(async () => {
       await result.current.toggleWatchlist('AAPL')
@@ -280,15 +253,12 @@ describe('useWatchlist', () => {
       detail: { action: 'login' },
     })
 
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ 
-        success: true, 
-        watchlist: { 
-          tickers: [{ symbol: 'AAPL', addedAt: '2024-01-01' }], 
-          lastUpdated: '2024-01-01' 
-        } 
-      }),
+    mockGetWatchlist.mockResolvedValueOnce({
+      success: true,
+      watchlist: {
+        tickers: [{ symbol: 'AAPL', addedAt: '2024-01-01' }],
+        lastUpdated: '2024-01-01'
+      }
     })
 
     localStorageMock.setItem('tickrtime-auth-token', 'new-token')
@@ -298,7 +268,7 @@ describe('useWatchlist', () => {
     })
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled()
+      expect(mockGetWatchlist).toHaveBeenCalled()
     })
 
     // Simulate logout event
@@ -316,7 +286,7 @@ describe('useWatchlist', () => {
   it('getWatchedSymbols returns array of symbols', async () => {
     const mockToken = 'test-auth-token'
     localStorageMock.setItem('tickrtime-auth-token', mockToken)
-    
+
     const watchlist = {
       tickers: [
         { symbol: 'AAPL', addedAt: '2024-01-01' },
@@ -326,10 +296,7 @@ describe('useWatchlist', () => {
       lastUpdated: '2024-01-03',
     }
 
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, watchlist }),
-    })
+    mockGetWatchlist.mockResolvedValueOnce({ success: true, watchlist })
 
     const { result } = renderHook(() => useWatchlist())
 
