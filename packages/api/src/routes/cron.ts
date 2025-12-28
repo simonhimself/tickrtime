@@ -426,14 +426,18 @@ app.post('/sync-tickers', async (c) => {
     for (const ticker of unenrichedTickers) {
       const profile = await fetchSymbolProfile(ticker.symbol, c.env!.FINNHUB_API_KEY);
 
-      if (profile) {
-        const industry = profile.finnhubIndustry || null;
-        const sector = mapIndustryToSector(industry);
+      // Always mark as attempted (sets profile_fetched_at), even if Finnhub returns no data.
+      // This prevents stuck tickers from blocking the queue forever.
+      // Tickers with industry=NULL will be retried after 30 days.
+      const industry = profile?.finnhubIndustry || null;
+      const sector = mapIndustryToSector(industry);
 
-        await updateTickerProfile(db, ticker.symbol, {
-          industry: industry ?? undefined,
-          sector: sector ?? undefined,
-        });
+      await updateTickerProfile(db, ticker.symbol, {
+        industry: industry ?? undefined,
+        sector: sector ?? undefined,
+      });
+
+      if (profile) {
         enrichedCount++;
       }
 

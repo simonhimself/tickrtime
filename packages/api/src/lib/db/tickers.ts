@@ -490,14 +490,19 @@ export async function markTickerInactive(db: D1Database, symbol: string): Promis
   }
 }
 
-// Get unenriched tickers (no profile data yet)
+// Get unenriched tickers (no profile data yet, or failed tickers due for retry)
+// Retries tickers with industry=NULL after 30 days in case Finnhub adds data later
 export async function getUnenrichedTickers(db: D1Database, limit: number = 50): Promise<Ticker[]> {
   try {
     const result = await db
       .prepare(
         `SELECT * FROM tickers
-         WHERE is_active = 1 AND profile_fetched_at IS NULL
-         ORDER BY symbol ASC
+         WHERE is_active = 1
+           AND (
+             profile_fetched_at IS NULL
+             OR (industry IS NULL AND profile_fetched_at < datetime('now', '-30 days'))
+           )
+         ORDER BY profile_fetched_at NULLS FIRST, symbol ASC
          LIMIT ?`
       )
       .bind(limit)
