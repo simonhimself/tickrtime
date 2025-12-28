@@ -36,6 +36,7 @@
     "build:tech-universe": "tsx scripts/build_tech_universe.ts",
     "build:symbols": "tsx scripts/build_symbols.ts",
     "populate:tickers": "tsx scripts/populate_ticker_universe.ts",
+    "sync:tickers": "tsx scripts/sync-tickers-from-prod.ts",
     "clean": "rm -rf .next out dist .vercel",
     "analyze": "ANALYZE=true npm run build"
   },
