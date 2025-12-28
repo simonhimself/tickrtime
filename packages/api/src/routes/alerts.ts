@@ -6,7 +6,7 @@ import { createDB } from '../lib/db';
 import { getUserById, getUserByEmail, updateUser } from '../lib/db/users';
 import { createAlert, getUserAlerts, getAlertByUserAndId, updateAlert, deleteAlert, getAlertById, deleteAlertsBySymbol } from '../lib/db/alerts';
 import { generateUUID, verifyUnsubscribeToken, generateUnsubscribeToken } from '../lib/crypto';
-import { sendEarningsAlertEmail } from '../lib/email';
+import { sendEarningsAlertEmail, cancelScheduledEmail } from '../lib/email';
 import type { NotificationPreferences } from '../lib/db/users';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -717,10 +717,17 @@ app.delete('/symbol/:symbol', async (c) => {
       });
     }
 
-    // TODO: Cancel scheduled emails if needed
-    // For now, just log the scheduled email IDs that would need to be cancelled
+    // Cancel scheduled emails with Resend for "before" alerts
     if (result.scheduledEmailIds.length > 0) {
-      logger.info('Scheduled emails to cancel:', result.scheduledEmailIds);
+      for (const emailId of result.scheduledEmailIds) {
+        const cancelResult = await cancelScheduledEmail(emailId, c.env!.RESEND_API_KEY);
+        if (!cancelResult.success) {
+          // Log but don't fail - email may have already been sent
+          logger.warn(`Could not cancel scheduled email ${emailId}:`, cancelResult.error);
+        } else {
+          logger.debug(`Cancelled scheduled email ${emailId}`);
+        }
+      }
     }
 
     // Dispatch event to refresh alerts

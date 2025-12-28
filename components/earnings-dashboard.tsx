@@ -332,7 +332,13 @@ export function EarningsDashboard() {
     const { symbol } = removeConfirm;
 
     // Delete alerts first
-    await deleteAlertsBySymbol(symbol);
+    const alertResult = await deleteAlertsBySymbol(symbol);
+
+    if (!alertResult.success) {
+      toast.error(`Failed to delete alerts for ${symbol}. Please try again.`);
+      setRemoveConfirm(null);
+      return;
+    }
 
     // Then remove from watchlist
     const success = await watchlist.toggleWatchlist(symbol);
