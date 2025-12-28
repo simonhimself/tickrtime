@@ -9,7 +9,6 @@
  */
 
 import { Resend } from 'resend';
-import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -40,7 +39,7 @@ const resend = new Resend(RESEND_API_KEY);
 const sampleData = {
   symbol: 'AAPL',
   companyName: 'Apple Inc.',
-  earningsDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 days from now
+  earningsDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!, // 3 days from now
   userName: 'Simon',
 };
 
