@@ -7,6 +7,8 @@ import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { AuthResponse } from "@/types";
 import { verifyEmail as verifyEmailApi } from "@/lib/api-client";
 
@@ -15,6 +17,8 @@ function VerifyEmailContent() {
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
+  const [resendEmail, setResendEmail] = useState("");
+  const [isResending, setIsResending] = useState(false);
 
   useEffect(() => {
     const performVerification = async () => {
@@ -59,9 +63,37 @@ function VerifyEmailContent() {
     router.push("/");
   };
 
-  const handleResend = () => {
-    // TODO: Implement resend verification email
-    toast.info("Resend functionality coming soon");
+  const handleResend = async () => {
+    if (!resendEmail) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setIsResending(true);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: resendEmail }),
+      });
+
+      const data: AuthResponse = await response.json();
+
+      if (data.success) {
+        toast.success("If an unverified account exists, a verification email has been sent.");
+        setResendEmail("");
+      } else {
+        toast.error(data.message || "Failed to resend verification email");
+      }
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      toast.error("Failed to resend verification email. Please try again.");
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -91,10 +123,12 @@ function VerifyEmailContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-center text-muted-foreground">
-            {message}
-          </p>
-          
+          {status === "error" && message && (
+            <p className="text-center text-muted-foreground">
+              {message}
+            </p>
+          )}
+
           {status === "success" && (
             <Button onClick={handleContinue} className="w-full">
               Continue to TickrTime
@@ -102,9 +136,31 @@ function VerifyEmailContent() {
           )}
           
           {status === "error" && (
-            <div className="space-y-2">
-              <Button onClick={handleResend} variant="outline" className="w-full">
-                Resend Verification Email
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="resend-email">Email Address</Label>
+                <Input
+                  id="resend-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={resendEmail}
+                  onChange={(e) => setResendEmail(e.target.value)}
+                />
+              </div>
+              <Button
+                onClick={handleResend}
+                variant="outline"
+                className="w-full"
+                disabled={isResending}
+              >
+                {isResending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Resend Verification Email"
+                )}
               </Button>
               <Button onClick={handleContinue} className="w-full">
                 Go to Homepage

@@ -148,18 +148,75 @@ export default function ProfilePage() {
       return;
     }
 
-    // In a real app, this would call an API endpoint
-    toast.info("Password change functionality coming soon");
-    
-    // Clear password fields
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      const token = localStorage.getItem("tickrtime-auth-token");
+      if (!token) {
+        toast.error("Please log in again");
+        router.push("/");
+        return;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data: { success: boolean; message?: string } = await response.json();
+
+      if (data.success) {
+        toast.success("Password changed successfully");
+        // Clear password fields
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        toast.error(data.message || "Failed to change password");
+      }
+    } catch (error) {
+      console.error("Password change error:", error);
+      toast.error("Failed to change password. Please try again.");
+    }
   };
 
   const handleDeleteAccount = async () => {
-    // In a real app, this would call an API endpoint
-    toast.info("Account deletion functionality coming soon");
+    try {
+      const token = localStorage.getItem("tickrtime-auth-token");
+      if (!token) {
+        toast.error("Please log in again");
+        router.push("/");
+        return;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/account`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      const data: { success: boolean; message?: string } = await response.json();
+
+      if (data.success) {
+        toast.success("Account deleted successfully");
+        // Clear local storage and redirect to home
+        localStorage.removeItem("tickrtime-auth-token");
+        localStorage.removeItem("tickrtime-preferences");
+        localStorage.removeItem("tickrtime-watchlist");
+        router.push("/");
+      } else {
+        toast.error(data.message || "Failed to delete account");
+      }
+    } catch (error) {
+      console.error("Account deletion error:", error);
+      toast.error("Failed to delete account. Please try again.");
+    }
   };
 
   const handleSaveNotificationPreferences = async () => {

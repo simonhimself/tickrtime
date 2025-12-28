@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,7 +90,15 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
           </div>
 
           <div className="space-y-1 sm:space-y-2">
-            <Label htmlFor="password" className="text-sm">Password</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password" className="text-sm">Password</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs sm:text-sm text-primary hover:underline"
+              >
+                Forgot your password?
+              </Link>
+            </div>
             <div className="relative">
               <Input
                 id="password"

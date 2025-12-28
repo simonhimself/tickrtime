@@ -593,6 +593,100 @@ app.post('/resend-verification', async (c) => {
   }
 });
 
+// POST /api/auth/change-password - Change password for authenticated user
+app.post('/change-password', async (c) => {
+  try {
+    // Get token from Authorization header
+    const authHeader = c.req.header('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'No authorization token provided'
+      }, 401);
+    }
+
+    const token = authHeader.substring(7);
+
+    // Verify the token
+    const userData = await verifyToken(token, c.env!.JWT_SECRET);
+    if (!userData) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Invalid or expired token'
+      }, 401);
+    }
+
+    const body = await c.req.json<{ currentPassword: string; newPassword: string }>();
+    const { currentPassword, newPassword } = body;
+
+    // Validate input
+    if (!currentPassword || !newPassword) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Current password and new password are required'
+      }, 400);
+    }
+
+    // Validate new password strength
+    const passwordValidation = isValidPassword(newPassword);
+    if (!passwordValidation.valid) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: passwordValidation.message
+      }, 400);
+    }
+
+    const db = createDB(c.env!);
+
+    // Get user from D1
+    const user = await getUserById(db, userData.userId);
+    if (!user) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'User not found'
+      }, 404);
+    }
+
+    // Verify current password
+    const isValid = await verifyPasswordAsync(currentPassword, user.passwordHash);
+    if (!isValid) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Current password is incorrect'
+      }, 401);
+    }
+
+    // Hash new password
+    const newPasswordHash = await hashPasswordAsync(newPassword);
+
+    // Update user password in D1
+    const updated = await updateUser(db, userData.userId, {
+      passwordHash: newPasswordHash,
+    });
+
+    if (!updated) {
+      return c.json<AuthResponse>({
+        success: false,
+        message: 'Failed to update password'
+      }, 500);
+    }
+
+    logger.debug('Password changed successfully for user:', userData.userId);
+
+    return c.json<AuthResponse>({
+      success: true,
+      message: 'Password changed successfully'
+    });
+
+  } catch (error) {
+    logger.error('Change password error:', error);
+    return c.json<AuthResponse>({
+      success: false,
+      message: 'Internal server error'
+    }, 500);
+  }
+});
+
 // DELETE /api/auth/account - Delete user account and all associated data
 app.delete('/account', async (c) => {
   try {
