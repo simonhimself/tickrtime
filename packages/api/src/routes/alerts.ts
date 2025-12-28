@@ -4,7 +4,7 @@ import { createLogger } from '../lib/logger';
 import { verifyToken } from '../lib/auth';
 import { createDB } from '../lib/db';
 import { getUserById, getUserByEmail, updateUser } from '../lib/db/users';
-import { createAlert, getUserAlerts, getAlertByUserAndId, updateAlert, deleteAlert, getAlertById } from '../lib/db/alerts';
+import { createAlert, getUserAlerts, getAlertByUserAndId, updateAlert, deleteAlert, getAlertById, deleteAlertsBySymbol } from '../lib/db/alerts';
 import { generateUUID, verifyUnsubscribeToken, generateUnsubscribeToken } from '../lib/crypto';
 import { sendEarningsAlertEmail } from '../lib/email';
 import type { NotificationPreferences } from '../lib/db/users';
@@ -689,6 +689,48 @@ app.delete('/:id', async (c) => {
     });
   } catch (error) {
     logger.error('Delete alert error:', error);
+    return c.json({ success: false, message: 'Internal server error' }, 500);
+  }
+});
+
+// DELETE /api/alerts/symbol/:symbol - Delete all alerts for a specific symbol
+app.delete('/symbol/:symbol', async (c) => {
+  try {
+    const user = await getUserFromToken(c);
+    if (!user) {
+      return c.json({ success: false, message: 'Unauthorized' }, 401);
+    }
+
+    const symbol = c.req.param('symbol');
+    if (!symbol) {
+      return c.json({ success: false, message: 'Symbol is required' }, 400);
+    }
+
+    const db = createDB(c.env!);
+    const result = await deleteAlertsBySymbol(db, user.userId, symbol);
+
+    if (result.deleted === 0) {
+      return c.json({
+        success: true,
+        message: `No alerts found for ${symbol.toUpperCase()}`,
+        deleted: 0,
+      });
+    }
+
+    // TODO: Cancel scheduled emails if needed
+    // For now, just log the scheduled email IDs that would need to be cancelled
+    if (result.scheduledEmailIds.length > 0) {
+      logger.info('Scheduled emails to cancel:', result.scheduledEmailIds);
+    }
+
+    // Dispatch event to refresh alerts
+    return c.json({
+      success: true,
+      message: `Deleted ${result.deleted} alert(s) for ${symbol.toUpperCase()}`,
+      deleted: result.deleted,
+    });
+  } catch (error) {
+    logger.error('Delete alerts by symbol error:', error);
     return c.json({ success: false, message: 'Internal server error' }, 500);
   }
 });

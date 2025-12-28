@@ -13,7 +13,17 @@ import { useAlerts } from "@/hooks/use-alerts";
 import { AlertConfigPopover } from "@/components/alert-config-popover";
 import { WatchlistSummary } from "@/components/watchlist-summary";
 import { BulkAlertDialog } from "@/components/bulk-alert-dialog";
-import { getEarningsToday, getEarningsTomorrow, getEarningsNext30Days, getEarningsPrevious30Days, getEarnings, getEarningsWatchlist, getSectors } from "@/lib/api-client";
+import { getEarningsToday, getEarningsTomorrow, getEarningsNext30Days, getEarningsPrevious30Days, getEarnings, getEarningsWatchlist, getSectors, deleteAlertsBySymbol } from "@/lib/api-client";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import type { 
   EarningsData, 
   ViewState, 
@@ -61,6 +71,12 @@ export function EarningsDashboard() {
 
   // Bulk alert dialog state
   const [bulkAlertDialogOpen, setBulkAlertDialogOpen] = useState(false);
+
+  // Remove from watchlist confirmation dialog state (when ticker has alerts)
+  const [removeConfirm, setRemoveConfirm] = useState<{
+    symbol: string;
+    alertCount: number;
+  } | null>(null);
 
   // API loading functions
   const loadEarningsData = useCallback(async (loadFn: () => Promise<EarningsResponse>, period: TimePeriod) => {
@@ -287,8 +303,18 @@ export function EarningsDashboard() {
 
   const handleWatchlistToggle = useCallback(async (symbol: string) => {
     const wasInWatchlist = watchlist.isInWatchlist(symbol);
+
+    // If removing from watchlist and has alerts, show confirmation dialog
+    if (wasInWatchlist) {
+      const symbolAlerts = alerts.getAlertsForSymbol(symbol);
+      if (symbolAlerts.length > 0) {
+        setRemoveConfirm({ symbol, alertCount: symbolAlerts.length });
+        return false; // Don't remove yet, wait for confirmation
+      }
+    }
+
     const success = await watchlist.toggleWatchlist(symbol);
-    
+
     if (success) {
       if (wasInWatchlist) {
         toast.info(`${symbol} removed from watchlist`);
@@ -296,9 +322,29 @@ export function EarningsDashboard() {
         toast.success(`${symbol} added to watchlist`);
       }
     }
-    
+
     return success;
-  }, [watchlist]);
+  }, [watchlist, alerts]);
+
+  const handleConfirmRemove = useCallback(async () => {
+    if (!removeConfirm) return;
+
+    const { symbol } = removeConfirm;
+
+    // Delete alerts first
+    await deleteAlertsBySymbol(symbol);
+
+    // Then remove from watchlist
+    const success = await watchlist.toggleWatchlist(symbol);
+
+    if (success) {
+      toast.info(`${symbol} removed from watchlist and ${removeConfirm.alertCount} alert(s) deleted`);
+      // Trigger alerts refresh
+      window.dispatchEvent(new CustomEvent('alertsChanged'));
+    }
+
+    setRemoveConfirm(null);
+  }, [removeConfirm, watchlist]);
 
   const handleWatchlistClick = useCallback(() => {
     if (watchlist.count === 0) {
@@ -491,6 +537,25 @@ export function EarningsDashboard() {
           alerts.refresh();
         }}
       />
+
+      {/* Confirmation dialog for removing ticker with alerts */}
+      <AlertDialog open={!!removeConfirm} onOpenChange={(open) => !open && setRemoveConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {removeConfirm?.symbol} from Watchlist?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This ticker has {removeConfirm?.alertCount} active alert{removeConfirm?.alertCount === 1 ? '' : 's'}.
+              Removing from watchlist will also delete {removeConfirm?.alertCount === 1 ? 'this alert' : 'these alerts'}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmRemove}>
+              Remove & Delete Alerts
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

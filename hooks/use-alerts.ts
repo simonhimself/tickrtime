@@ -100,12 +100,21 @@ export function useAlerts(): UseAlertsReturn {
     );
   }, [alerts]);
 
+  // Get all active alerts for a specific symbol
+  const getAlertsForSymbol = useCallback((symbol: string) => {
+    const normalizedSymbol = symbol.toUpperCase();
+    return alerts.filter(
+      a => a.symbol.toUpperCase() === normalizedSymbol && a.status === 'active'
+    );
+  }, [alerts]);
+
   // Get active alerts count
   const activeCount = alerts.filter(a => a.status === 'active').length;
 
   return {
     alerts,
     getAlertedSymbols,
+    getAlertsForSymbol,
     hasAlert,
     count: activeCount,
     loading,
