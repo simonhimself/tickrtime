@@ -462,7 +462,7 @@ export async function updateTickerProfile(
         profile.sector ?? null,
         now,
         now,
-        symbol.toUpperCase()
+        symbol  // Keep original case - some symbols have mixed case (e.g., FLGpU)
       )
       .run();
 
