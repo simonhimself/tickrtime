@@ -67,8 +67,10 @@ export function formatRelativeDate(
   dateString: string,
   timezone?: string
 ): { formattedDate: string; relativeText: string } {
-  // Parse the date string - API returns dates in YYYY-MM-DD format (UTC)
-  const date = new Date(dateString);
+  // Parse the date string - API returns dates in YYYY-MM-DD format
+  // Using T12:00:00 ensures the date represents the calendar day, not a UTC instant
+  // This prevents timezone shifts (±12 hours from noon stays on the same day)
+  const date = new Date(dateString + 'T12:00:00');
 
   // Get today in the target timezone (or local timezone if not specified)
   const now = new Date();
