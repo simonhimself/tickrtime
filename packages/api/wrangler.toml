@@ -22,14 +22,12 @@ preview_id = "eb83c6584f3549fd96cab293ab30a0be"
 crons = ["0 9 * * *"]
 
 # Environment variables for development
+# IMPORTANT: Secrets (API keys, JWT_SECRET, etc.) are stored in .dev.vars for local dev
+# and set via `wrangler secret put` for production. Never commit secrets here.
 [vars]
 NODE_ENV = "development"
-JWT_SECRET = "dev-jwt-secret-key-change-in-production"
 NEXT_PUBLIC_APP_URL = "http://localhost:3000"
-FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
-RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
 SEND_VERIFICATION_EMAILS = "false"
-CRON_SECRET = "dev-cron-secret-key"
 USE_DB_TICKERS = "true"
 
 # Staging environment
@@ -53,14 +51,11 @@ binding = "TICKRTIME_KV"
 id = "4b47ed2ef3dc4557a2519d04bb0e3f3c"
 
 # Environment variables for staging
+# Secrets are set via: wrangler secret put <KEY> --env staging
 [env.staging.vars]
 NODE_ENV = "staging"
-JWT_SECRET = "staging-jwt-secret-key-change-in-production"
 NEXT_PUBLIC_APP_URL = "https://tickrtime-staging.pages.dev"
-FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
-RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
 SEND_VERIFICATION_EMAILS = "true"
-CRON_SECRET = "staging-cron-secret-key"
 USE_DB_TICKERS = "true"
 
 # Production environment
@@ -84,13 +79,10 @@ binding = "TICKRTIME_KV"
 id = "4b47ed2ef3dc4557a2519d04bb0e3f3c"
 
 # Environment variables for production
+# Secrets are set via: wrangler secret put <KEY> --env production
 [env.production.vars]
 NODE_ENV = "production"
-JWT_SECRET = "production-jwt-secret-key-change-in-production"
 NEXT_PUBLIC_APP_URL = "https://tickrtime.pages.dev"
-FINNHUB_API_KEY = "d27ldjhr01qr2iase55gd27ldjhr01qr2iase560"
-RESEND_API_KEY = "re_aDyjMNRs_FCgdQCXNnmyqcun1wUfzmwdX"
 SEND_VERIFICATION_EMAILS = "true"
-CRON_SECRET = "production-cron-secret-key"
 USE_DB_TICKERS = "true"
 
