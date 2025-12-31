@@ -1,0 +1,13 @@
+# Gitleaks Ignore File
+# ====================
+# Add fingerprints of false positives here.
+#
+# When gitleaks flags something that's NOT a real secret:
+# 1. Run: gitleaks protect --staged --no-banner
+# 2. Copy the "Fingerprint" value from the output
+# 3. Paste it below with a comment explaining why
+#
+# Format: fingerprint:rule:line
+# Example:
+# README.md:generic-api-key:15  # Example placeholder key in docs
+

@@ -6,5 +6,15 @@ if [ "$branch" = "main" ]; then
   exit 1
 fi
 
+# Check for secrets/API keys in staged files
+echo "🔍 Checking for secrets..."
+gitleaks protect --staged --no-banner
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Secrets detected! Remove them before committing."
+  echo "   If this is a false positive, add it to .gitleaksignore"
+  exit 1
+fi
+
 pnpm run lint
 pnpm run type-check
