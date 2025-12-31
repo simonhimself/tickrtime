@@ -38,7 +38,8 @@
     "populate:tickers": "tsx scripts/populate_ticker_universe.ts",
     "sync:tickers": "tsx scripts/sync-tickers-from-prod.ts",
     "clean": "rm -rf .next out dist .vercel",
-    "analyze": "ANALYZE=true npm run build"
+    "analyze": "ANALYZE=true npm run build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -113,6 +114,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
+    "husky": "^9.1.7",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "postcss": "^8.5.0",
