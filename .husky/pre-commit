@@ -1,9 +1,14 @@
-# Block commits to main branch
+# Block direct commits to main branch (but allow merges)
 branch=$(git branch --show-current)
 if [ "$branch" = "main" ]; then
-  echo "❌ Cannot commit directly to main. Create a feature branch first."
-  echo "   Run: git checkout -b feature/your-feature-name"
-  exit 1
+  # Check if this is a merge commit (MERGE_HEAD exists during merge)
+  if [ ! -f .git/MERGE_HEAD ]; then
+    echo "❌ Cannot commit directly to main. Create a feature branch first."
+    echo "   Run: git checkout -b feature/your-feature-name"
+    echo ""
+    echo "   (Merging into main is allowed)"
+    exit 1
+  fi
 fi
 
 # Check for secrets/API keys in staged files
