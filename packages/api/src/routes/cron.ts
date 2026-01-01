@@ -360,8 +360,11 @@ app.post('/sync-tickers', async (c) => {
       try {
         const symbols = await fetchExchangeSymbols(mic, c.env!.FINNHUB_API_KEY);
         for (const s of symbols) {
-          currentSymbolsMap.set(s.symbol, {
-            symbol: s.symbol,
+          // Normalize symbol to uppercase for case-insensitive comparison with DB
+          // (Finnhub may return mixed-case symbols like 'FLGpU')
+          const normalizedSymbol = s.symbol.toUpperCase();
+          currentSymbolsMap.set(normalizedSymbol, {
+            symbol: normalizedSymbol,
             description: s.description || s.displaySymbol || s.symbol,
             exchange,
           });
