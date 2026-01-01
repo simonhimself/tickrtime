@@ -24,10 +24,11 @@
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.10.2",
+    "better-sqlite3": "^12.5.0",
     "typescript": "^5.7.2",
     "vitest": "^2.0.0",
     "wrangler": "^4.28.1"
   }
 }
-

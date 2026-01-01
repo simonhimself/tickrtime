@@ -28,6 +28,7 @@ export interface Ticker {
 }
 
 // Sector mapping: Finnhub industries → broader sectors
+// This is a comprehensive mapping of all Finnhub industry classifications
 export const SECTOR_MAPPING: Record<string, string> = {
   // Technology
   'Technology': 'Technology',
@@ -37,9 +38,11 @@ export const SECTOR_MAPPING: Record<string, string> = {
   'Electronic Components': 'Technology',
   'Computer Hardware': 'Technology',
   'Information Technology Services': 'Technology',
+  'Electrical Equipment': 'Technology',
 
   // Healthcare
   'Healthcare': 'Healthcare',
+  'Health Care': 'Healthcare',
   'Pharmaceuticals': 'Healthcare',
   'Biotechnology': 'Healthcare',
   'Medical Devices': 'Healthcare',
@@ -48,10 +51,12 @@ export const SECTOR_MAPPING: Record<string, string> = {
   'Drug Manufacturers': 'Healthcare',
   'Diagnostics & Research': 'Healthcare',
   'Medical Instruments & Supplies': 'Healthcare',
+  'Life Sciences Tools & Services': 'Healthcare',
 
   // Financials
   'Financial Services': 'Financials',
   'Banks': 'Financials',
+  'Banking': 'Financials',
   'Insurance': 'Financials',
   'Asset Management': 'Financials',
   'Capital Markets': 'Financials',
@@ -65,12 +70,16 @@ export const SECTOR_MAPPING: Record<string, string> = {
   // Consumer
   'Consumer Cyclical': 'Consumer',
   'Consumer Defensive': 'Consumer',
+  'Consumer products': 'Consumer',
   'Retail': 'Consumer',
   'Restaurants': 'Consumer',
   'Apparel': 'Consumer',
   'Auto Manufacturers': 'Consumer',
+  'Automobiles': 'Consumer',
   'Auto Parts': 'Consumer',
+  'Auto Components': 'Consumer',
   'Leisure': 'Consumer',
+  'Leisure Products': 'Consumer',
   'Packaging & Containers': 'Consumer',
   'Personal Services': 'Consumer',
   'Specialty Retail': 'Consumer',
@@ -78,21 +87,36 @@ export const SECTOR_MAPPING: Record<string, string> = {
   'Food Products': 'Consumer',
   'Household Products': 'Consumer',
   'Tobacco': 'Consumer',
+  'Hotels, Restaurants & Leisure': 'Consumer',
+  'Diversified Consumer Services': 'Consumer',
+  'Textiles, Apparel & Luxury Goods': 'Consumer',
+  'Distributors': 'Consumer',
 
   // Industrials
   'Industrials': 'Industrials',
   'Industrial': 'Industrials',
+  'Industrial Conglomerates': 'Industrials',
   'Manufacturing': 'Industrials',
   'Aerospace & Defense': 'Industrials',
   'Airlines': 'Industrials',
   'Building Materials': 'Industrials',
+  'Building': 'Industrials',
   'Construction': 'Industrials',
   'Farm & Heavy Construction Machinery': 'Industrials',
   'Industrial Distribution': 'Industrials',
   'Waste Management': 'Industrials',
   'Trucking': 'Industrials',
   'Railroads': 'Industrials',
+  'Road & Rail': 'Industrials',
   'Marine Shipping': 'Industrials',
+  'Marine': 'Industrials',
+  'Machinery': 'Industrials',
+  'Commercial Services & Supplies': 'Industrials',
+  'Professional Services': 'Industrials',
+  'Trading Companies & Distributors': 'Industrials',
+  'Logistics & Transportation': 'Industrials',
+  'Transportation Infrastructure': 'Industrials',
+  'Packaging': 'Industrials',
 
   // Energy
   'Energy': 'Energy',
@@ -126,8 +150,10 @@ export const SECTOR_MAPPING: Record<string, string> = {
   // Communication
   'Communication Services': 'Communication',
   'Communication': 'Communication',
+  'Communications': 'Communication',
   'Media': 'Communication',
   'Telecom Services': 'Communication',
+  'Telecommunication': 'Communication',
   'Entertainment': 'Communication',
   'Advertising Agencies': 'Communication',
   'Broadcasting': 'Communication',
@@ -143,8 +169,10 @@ export const SECTOR_MAPPING: Record<string, string> = {
   'Copper': 'Materials',
   'Gold': 'Materials',
   'Silver': 'Materials',
+  'Metals & Mining': 'Materials',
   'Lumber & Wood Production': 'Materials',
   'Paper & Paper Products': 'Materials',
+  'Paper & Forest': 'Materials',
   'Specialty Chemicals': 'Materials',
 };
 

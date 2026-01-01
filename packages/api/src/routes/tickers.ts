@@ -5,6 +5,7 @@ import { createDB } from '../lib/db';
 import {
   getTickerBySymbol,
   getDistinctSectors,
+  getDistinctIndustries,
   type Ticker,
 } from '../lib/db/tickers';
 import { useDbTickers, getTickerMetadata } from '../lib/ticker-data';
@@ -89,6 +90,30 @@ app.get('/sectors', async (c) => {
     });
   } catch (error) {
     logger.error('Error fetching sectors:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+// GET /api/tickers/industries - List distinct industries for dropdown (optionally filtered by sector)
+app.get('/industries', async (c) => {
+  try {
+    const db = createDB(c.env!);
+    const sector = c.req.query('sector');
+
+    if (!useDbTickers(c.env!)) {
+      // Return empty array for legacy mode
+      return c.json({
+        industries: [],
+      });
+    }
+
+    const industries = await getDistinctIndustries(db, sector || undefined);
+
+    return c.json({
+      industries,
+    });
+  } catch (error) {
+    logger.error('Error fetching industries:', error);
     return c.json({ error: 'Internal server error' }, 500);
   }
 });

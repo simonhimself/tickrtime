@@ -61,7 +61,12 @@ export function SearchFilters({
   };
 
   return (
-    <div className={cn("mb-4 sm:mb-8 px-2 sm:px-0", className)}>
+    <div className={cn("bg-muted/30 rounded-lg p-4", className)}>
+      {/* Description */}
+      <p className="text-sm text-muted-foreground mb-4">
+        Find historical earnings for a specific stock by ticker symbol.
+      </p>
+
       {/* Mobile Filter Toggle */}
       {isMobile && (
         <div className="flex items-center justify-between mb-3">
@@ -80,7 +85,7 @@ export function SearchFilters({
             )}
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
-          
+
           {hasActiveFilters && (
             <Button
               variant="ghost"
@@ -97,7 +102,7 @@ export function SearchFilters({
       )}
 
       {/* Filter Content */}
-      <div 
+      <div
         className={cn(
           "transition-all duration-200",
           isMobile && "overflow-hidden",

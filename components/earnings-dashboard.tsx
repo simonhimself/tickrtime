@@ -5,7 +5,8 @@ import { toast } from "sonner";
 
 import { logger } from "@/lib/logger";
 import { Header } from "@/components/header";
-import { NavigationButtons } from "@/components/navigation-buttons";
+import { FilterTabs, type FilterTab } from "@/components/filter-tabs";
+import { BrowseFilters } from "@/components/browse-filters";
 import { SearchFilters } from "@/components/search-filters";
 import { EarningsTable } from "@/components/earnings-table";
 import { useWatchlist } from "@/hooks/use-watchlist";
@@ -13,7 +14,7 @@ import { useAlerts } from "@/hooks/use-alerts";
 import { AlertConfigPopover } from "@/components/alert-config-popover";
 import { WatchlistSummary } from "@/components/watchlist-summary";
 import { BulkAlertDialog } from "@/components/bulk-alert-dialog";
-import { getEarningsToday, getEarningsTomorrow, getEarningsNext30Days, getEarningsPrevious30Days, getEarnings, getEarningsWatchlist, getSectors, deleteAlertsBySymbol } from "@/lib/api-client";
+import { getEarningsToday, getEarningsTomorrow, getEarningsNext30Days, getEarningsPrevious30Days, getEarnings, getEarningsWatchlist, getSectors, getIndustries, deleteAlertsBySymbol } from "@/lib/api-client";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -46,17 +47,29 @@ export function EarningsDashboard() {
     quarter: "all",
   });
 
-  // Sector filter state
+  // Tab state (Browse vs Search mode)
+  const [activeTab, setActiveTab] = useState<FilterTab>("browse");
+
+  // Sector and Industry filter state
   const [availableSectors, setAvailableSectors] = useState<string[]>([]);
   const [selectedSector, setSelectedSector] = useState<string>("all");
+  const [availableIndustries, setAvailableIndustries] = useState<string[]>([]);
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
 
-  // Filter earnings by selected sector (memoized for performance)
+  // Filter earnings by selected sector and industry (memoized for performance)
   const filteredEarnings = useMemo(() => {
-    if (selectedSector === "all") {
-      return earnings;
+    let result = earnings;
+
+    if (selectedSector !== "all") {
+      result = result.filter(e => e.sector === selectedSector);
     }
-    return earnings.filter(e => e.sector === selectedSector);
-  }, [earnings, selectedSector]);
+
+    if (selectedIndustry !== "all") {
+      result = result.filter(e => e.industry === selectedIndustry);
+    }
+
+    return result;
+  }, [earnings, selectedSector, selectedIndustry]);
 
   // Watchlist functionality
   const watchlist = useWatchlist();
@@ -377,6 +390,46 @@ export function EarningsDashboard() {
     fetchSectors();
   }, []);
 
+  // Fetch industries when sector changes (hierarchical filtering)
+  useEffect(() => {
+    if (selectedSector === "all") {
+      setAvailableIndustries([]);
+      setSelectedIndustry("all");
+      return;
+    }
+
+    const fetchIndustries = async () => {
+      try {
+        const data = await getIndustries(selectedSector);
+        if (data.industries && data.industries.length > 0) {
+          setAvailableIndustries(data.industries);
+        } else {
+          setAvailableIndustries([]);
+        }
+      } catch (err) {
+        logger.error("Failed to fetch industries:", err);
+        setAvailableIndustries([]);
+      }
+    };
+    fetchIndustries();
+  }, [selectedSector]);
+
+  // Handle sector change - reset industry when sector changes
+  const handleSectorChange = useCallback((sector: string) => {
+    setSelectedSector(sector);
+    setSelectedIndustry("all"); // Reset industry when sector changes
+  }, []);
+
+  // Handle tab change
+  const handleTabChange = useCallback((tab: FilterTab) => {
+    setActiveTab(tab);
+
+    // When switching to Browse from Search mode, reload today's data
+    if (tab === "browse" && isSearchMode) {
+      loadToday();
+    }
+  }, [isSearchMode, loadToday]);
+
   // Load initial data
   useEffect(() => {
     loadToday();
@@ -387,29 +440,9 @@ export function EarningsDashboard() {
     if (isWatchlistMode) {
       return `Your watchlist: ${watchlist.count} stocks tracked. Click the bookmark icon to return to the earnings calendar.`;
     }
-    
-    if (isSearchMode) {
-      return searchFilters.ticker
-        ? `Showing earnings data for ${searchFilters.ticker.toUpperCase()} in ${searchFilters.year} ${
-            searchFilters.quarter && searchFilters.quarter !== "all" ? `Q${searchFilters.quarter}` : "(all quarters)"
-          }.`
-        : `Showing earnings data for all tech stocks in ${searchFilters.year} ${
-            searchFilters.quarter && searchFilters.quarter !== "all" ? `Q${searchFilters.quarter}` : "(all quarters)"
-          }.`;
-    }
 
-    switch (activePeriod) {
-      case "next30":
-        return "Showing tech earnings for the next 30 days. Use the buttons above for quick navigation, or use the search filters below for specific queries.";
-      case "previous30":
-        return "Showing tech earnings for the previous 30 days. Use the buttons above for quick navigation, or use the search filters below for specific queries.";
-      case "today":
-        return "Showing tech earnings for today. Use the buttons above for quick navigation, or use the search filters below for specific queries.";
-      case "tomorrow":
-        return "Showing tech earnings for tomorrow. Use the buttons above for quick navigation, or use the search filters below for specific queries.";
-      default:
-        return "Select a time period or search for specific earnings data.";
-    }
+    // Simple static description - the tabs are self-explanatory
+    return "Track earnings announcements across 8,000+ US stocks.";
   };
 
   // Get watchlisted items as Set for table
@@ -438,40 +471,37 @@ export function EarningsDashboard() {
               {getDescriptionText()}
             </p>
             
-            {/* Hide navigation in watchlist mode - show all upcoming for watched stocks */}
+            {/* Tab-based filter UI - hide in watchlist mode */}
             {!isWatchlistMode && (
-              <NavigationButtons
-                activeButton={activePeriod}
-                onButtonClick={handleNavigationClick}
-                loading={viewState === "loading"}
-              />
-            )}
+              <>
+                <FilterTabs
+                  activeTab={activeTab}
+                  onTabChange={handleTabChange}
+                  className="mb-4"
+                />
 
-            {/* Sector filter - show when not in search or watchlist mode */}
-            {!isWatchlistMode && !isSearchMode && availableSectors.length > 1 && (
-              <div className="flex items-center gap-2 mt-4">
-                <label htmlFor="sector-filter" className="text-sm text-muted-foreground">
-                  Filter by sector:
-                </label>
-                <select
-                  id="sector-filter"
-                  value={selectedSector}
-                  onChange={(e) => setSelectedSector(e.target.value)}
-                  className="px-3 py-1.5 text-sm border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="all">All Sectors</option>
-                  {availableSectors.map((sector) => (
-                    <option key={sector} value={sector}>
-                      {sector}
-                    </option>
-                  ))}
-                </select>
-                {selectedSector !== "all" && (
-                  <span className="text-xs text-muted-foreground">
-                    Showing {filteredEarnings.length} of {earnings.length} results
-                  </span>
+                {activeTab === "browse" ? (
+                  <BrowseFilters
+                    activePeriod={activePeriod}
+                    onPeriodChange={handleNavigationClick}
+                    selectedSector={selectedSector}
+                    onSectorChange={handleSectorChange}
+                    selectedIndustry={selectedIndustry}
+                    onIndustryChange={setSelectedIndustry}
+                    availableSectors={availableSectors}
+                    availableIndustries={availableIndustries}
+                    resultCount={{ filtered: filteredEarnings.length, total: earnings.length }}
+                    loading={viewState === "loading"}
+                  />
+                ) : (
+                  <SearchFilters
+                    filters={searchFilters}
+                    onFiltersChange={setSearchFilters}
+                    onSearch={handleSearch}
+                    loading={viewState === "loading"}
+                  />
                 )}
-              </div>
+              </>
             )}
           </section>
 
@@ -485,16 +515,6 @@ export function EarningsDashboard() {
             />
           )}
 
-          {/* Hide filters in watchlist mode - they don't apply */}
-          {!isWatchlistMode && (
-            <SearchFilters
-              filters={searchFilters}
-              onFiltersChange={setSearchFilters}
-              onSearch={handleSearch}
-              loading={viewState === "loading"}
-            />
-          )}
-          
           <EarningsTable
             data={filteredEarnings}
             loading={viewState === "loading"}

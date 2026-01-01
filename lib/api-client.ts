@@ -258,6 +258,11 @@ interface SectorsResponse {
   error?: string;
 }
 
+interface IndustriesResponse {
+  industries: string[];
+  error?: string;
+}
+
 interface TickerResponse extends TickerData {
   error?: string;
 }
@@ -282,6 +287,16 @@ export async function getTickers(params?: {
 
 export async function getSectors(): Promise<SectorsResponse> {
   const res = await fetch(`${API_BASE}/api/tickers/sectors`);
+  return res.json();
+}
+
+export async function getIndustries(sector?: string): Promise<IndustriesResponse> {
+  const queryParams = new URLSearchParams();
+  if (sector) queryParams.set('sector', sector);
+
+  const query = queryParams.toString();
+  const url = `${API_BASE}/api/tickers/industries${query ? `?${query}` : ''}`;
+  const res = await fetch(url);
   return res.json();
 }
 
