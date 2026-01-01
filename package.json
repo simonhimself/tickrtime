@@ -31,6 +31,8 @@
     "lint:fix": "next lint --fix",
     "type-check": "turbo type-check",
     "test": "jest",
+    "test:api": "cd packages/api && npm test",
+    "test:all": "npm test && npm run test:api",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "build:tech-universe": "tsx scripts/build_tech_universe.ts",

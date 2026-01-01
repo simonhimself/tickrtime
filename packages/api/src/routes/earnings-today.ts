@@ -3,6 +3,7 @@ import type { Env } from '../index';
 import { createLogger } from '../lib/logger';
 import { createDB } from '../lib/db';
 import { getActiveTickerSymbols, getTickerMetadata, type TickerMetadata } from '../lib/ticker-data';
+import { parseEPS, calculateSurprise } from '../lib/earnings-utils';
 
 // Finnhub API response types
 interface FinnhubEarningsCalendarItem {
@@ -48,20 +49,9 @@ function processEarningsData(
   return earnings
     .filter((e) => activeSymbols.has(e.symbol))
     .map((e) => {
-      const actual = typeof e.epsActual === 'number'
-        ? e.epsActual
-        : (e.epsActual ? parseFloat(String(e.epsActual)) : null);
-      const estimate = typeof e.epsEstimate === 'number'
-        ? e.epsEstimate
-        : (e.epsEstimate ? parseFloat(String(e.epsEstimate)) : null);
-
-      let surprise: number | null = null;
-      let surprisePercent: number | null = null;
-
-      if (actual !== null && estimate !== null && !isNaN(actual) && !isNaN(estimate)) {
-        surprise = actual - estimate;
-        surprisePercent = estimate !== 0 ? ((actual - estimate) / Math.abs(estimate)) * 100 : null;
-      }
+      const actual = parseEPS(e.epsActual);
+      const estimate = parseEPS(e.epsEstimate);
+      const { surprise, surprisePercent } = calculateSurprise(actual, estimate);
 
       const ticker = tickerMetadata.get(e.symbol);
 
