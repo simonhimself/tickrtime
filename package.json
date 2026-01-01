@@ -20,7 +20,7 @@
   "author": "Simon Peterhans <simon@example.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:api\" --names \"frontend,api\" --prefix-colors \"blue,green\"",
+    "dev": "concurrently \"pnpm dev:frontend\" \"pnpm dev:api\" --names \"frontend,api\" --prefix-colors \"blue,green\"",
     "dev:frontend": "next dev",
     "dev:api": "turbo dev --filter=@tickrtime/api",
     "dev:wrangler": "wrangler dev --port 3001",
@@ -31,8 +31,8 @@
     "lint:fix": "next lint --fix",
     "type-check": "turbo type-check",
     "test": "jest",
-    "test:api": "cd packages/api && npm test",
-    "test:all": "npm test && npm run test:api",
+    "test:api": "cd packages/api && pnpm test",
+    "test:all": "pnpm test && pnpm test:api",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "build:tech-universe": "tsx scripts/build_tech_universe.ts",
@@ -40,7 +40,7 @@
     "populate:tickers": "tsx scripts/populate_ticker_universe.ts",
     "sync:tickers": "tsx scripts/sync-tickers-from-prod.ts",
     "clean": "rm -rf .next out dist .vercel",
-    "analyze": "ANALYZE=true npm run build",
+    "analyze": "ANALYZE=true pnpm build",
     "prepare": "husky"
   },
   "dependencies": {

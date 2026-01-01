@@ -5,14 +5,17 @@ This file provides API-specific guidance. Auto-loaded when working in `packages/
 ## Commands
 
 ```bash
+# Testing
+pnpm test                     # Run API tests (Vitest)
+
 # Deployment
-npm run deploy:staging        # Deploy to staging
-npm run deploy:production     # Deploy to production
+pnpm deploy:staging           # Deploy to staging
+pnpm deploy:production        # Deploy to production
 
 # Database migrations
-npm run migrate:local         # Local D1
-npm run migrate:staging       # Staging D1
-npm run migrate:production    # Production D1
+pnpm migrate:local            # Local D1
+pnpm migrate:staging          # Staging D1
+pnpm migrate:production       # Production D1
 ```
 
 ## API Endpoints
@@ -78,4 +81,25 @@ USE_DB_TICKERS=true
 - `src/lib/db/` - D1 database operations
 - `src/lib/email.ts` - Resend email integration
 - `src/lib/auth.ts` - JWT authentication
+- `src/lib/earnings-utils.ts` - EPS parsing, surprise calculation (pure functions)
+- `src/lib/date-utils.ts` - Date helpers, symbol normalization
 - `wrangler.toml` - Cloudflare Worker config
+
+## Testing
+
+**75 tests** using Vitest with `@cloudflare/vitest-pool-workers`
+
+```
+src/__tests__/
+  unit/                  # Pure function tests (no mocks)
+    earnings-calculations.test.ts
+    date-helpers.test.ts
+    ticker-mapping.test.ts
+  integration/           # Data flow tests
+    earnings-processing.test.ts
+    alert-scheduling.test.ts
+  cron/                  # Cron job tests
+    sync-tickers.test.ts
+  fixtures/test-data.ts  # Shared test data
+  utils/mock-finnhub.ts  # Finnhub API mock
+```
