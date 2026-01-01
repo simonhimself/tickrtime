@@ -14,13 +14,15 @@ TickrTime is an earnings tracking dashboard built with Next.js 15 and deployed o
 ## Commands
 
 ```bash
-npm run dev                  # Run frontend + API together
-npm run dev:frontend         # Next.js on :3000
-npm run dev:api              # Worker API on :8787
+pnpm dev                     # Run frontend + API together
+pnpm dev:frontend            # Next.js on :3000
+pnpm dev:api                 # Worker API on :8787
 
-npm test                     # Run all tests
-npm run lint                 # ESLint check
-npm run type-check           # TypeScript check
+pnpm test:all                # Run all tests (frontend + API)
+pnpm test                    # Frontend tests only (Jest)
+pnpm test:api                # API tests only (Vitest)
+pnpm lint                    # ESLint check
+pnpm type-check              # TypeScript check
 ```
 
 ## Key Locations
@@ -31,11 +33,28 @@ npm run type-check           # TypeScript check
 - `hooks/` - React hooks (use-watchlist, use-alerts)
 - `components/earnings-dashboard.tsx` - Main dashboard
 
+## Testing
+
+**93 tests total** - Jest (frontend) + Vitest (API)
+
+| Location | Coverage |
+|----------|----------|
+| `packages/api/src/__tests__/unit/` | EPS parsing, dates, sector mapping |
+| `packages/api/src/__tests__/integration/` | Earnings processing, alert scheduling |
+| `packages/api/src/__tests__/cron/` | Ticker sync |
+| `hooks/__tests__/`, `components/__tests__/` | React hooks, components |
+
+**Key utilities** (extracted for testability):
+- `packages/api/src/lib/earnings-utils.ts` - EPS parsing, surprise calculation
+- `packages/api/src/lib/date-utils.ts` - Date helpers, symbol normalization
+
+**CI**: GitHub Actions runs tests on push/PR to main (`.github/workflows/test.yml`)
+
 ## Critical Rules
 
-- **Always run tests**: `npm test` after changes
+- **Always run tests**: `pnpm test:all` after changes
 - **Type safety**: Never use `any`
-- **Git workflow**: Use feature branches, never commit to main
+- **Git workflow**: Never work on main
 - **localStorage keys**: `tickrtime-auth-token`, `tickrtime-preferences`
 
 ## Environment Variables
@@ -50,8 +69,8 @@ See `packages/api/CLAUDE.md` for API-specific configuration.
 ## Utility Scripts
 
 ```bash
-npm run sync:tickers                    # Sync ticker data from production
-cd packages/api && npx tsx scripts/send-test-emails.ts  # Test alert emails
+pnpm sync:tickers                       # Sync ticker data from production
+cd packages/api && pnpm dlx tsx scripts/send-test-emails.ts  # Test alert emails
 ```
 
 ## Known Issues
