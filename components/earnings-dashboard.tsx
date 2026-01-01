@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { logger } from "@/lib/logger";
@@ -43,9 +44,10 @@ export function EarningsDashboard() {
   const [isWatchlistMode, setIsWatchlistMode] = useState(false);
   const [searchFilters, setSearchFilters] = useState<SearchFiltersType>({
     ticker: "",
-    year: "2024",
+    year: String(new Date().getFullYear()),
     quarter: "all",
   });
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Tab state (Browse vs Search mode)
   const [activeTab, setActiveTab] = useState<FilterTab>("browse");
@@ -197,6 +199,7 @@ export function EarningsDashboard() {
       return;
     }
 
+    setHasSearched(true);
     setViewState("loading");
     setActivePeriod("search");
     setIsSearchMode(true);
@@ -424,9 +427,14 @@ export function EarningsDashboard() {
   const handleTabChange = useCallback((tab: FilterTab) => {
     setActiveTab(tab);
 
-    // When switching to Browse from Search mode, reload today's data
-    if (tab === "browse" && isSearchMode) {
-      loadToday();
+    if (tab === "browse") {
+      setHasSearched(false);
+      // When switching to Browse from Search mode, reload today's data
+      if (isSearchMode) {
+        loadToday();
+      }
+    } else if (tab === "search") {
+      setHasSearched(false);
     }
   }, [isSearchMode, loadToday]);
 
@@ -515,22 +523,31 @@ export function EarningsDashboard() {
             />
           )}
 
-          <EarningsTable
-            data={filteredEarnings}
-            loading={viewState === "loading"}
-            error={error}
-            onRowAction={handleRowAction}
-            watchlistedItems={watchlistedItems}
-            onToggleWatchlist={handleWatchlistToggle}
-            alertedItems={alertedItems}
-            alerts={alerts.alerts}
-            isWatchlistMode={isWatchlistMode}
-            onAlertClick={(symbol, earningsData) => {
-              setAlertSymbol(symbol);
-              setAlertEarningsData(earningsData);
-              setAlertDialogOpen(true);
-            }}
-          />
+          {activeTab === "search" && !hasSearched ? (
+            <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
+              <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+              <p className="text-muted-foreground">
+                Enter a ticker symbol above to search historical earnings.
+              </p>
+            </div>
+          ) : (
+            <EarningsTable
+              data={filteredEarnings}
+              loading={viewState === "loading"}
+              error={error}
+              onRowAction={handleRowAction}
+              watchlistedItems={watchlistedItems}
+              onToggleWatchlist={handleWatchlistToggle}
+              alertedItems={alertedItems}
+              alerts={alerts.alerts}
+              isWatchlistMode={isWatchlistMode}
+              onAlertClick={(symbol, earningsData) => {
+                setAlertSymbol(symbol);
+                setAlertEarningsData(earningsData);
+                setAlertDialogOpen(true);
+              }}
+            />
+          )}
         </main>
 
         {/* Help Text */}

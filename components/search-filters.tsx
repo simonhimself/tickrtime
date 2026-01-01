@@ -55,7 +55,7 @@ export function SearchFilters({
   const clearFilters = () => {
     onFiltersChange({
       ticker: "",
-      year: "2024", 
+      year: String(new Date().getFullYear()),
       quarter: "all",
     });
   };
@@ -141,10 +141,15 @@ export function SearchFilters({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="2025">2025</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2022">2022</SelectItem>
+              {/* Generate current year + 3 previous years dynamically */}
+              {Array.from({ length: 4 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <SelectItem key={year} value={String(year)}>
+                    {year}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>

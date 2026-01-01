@@ -95,9 +95,8 @@ export function BrowseFilters({
               "px-3 py-1.5 text-sm border rounded-md bg-background text-foreground",
               "focus:outline-none focus:ring-2 focus:ring-ring",
               "disabled:opacity-50 disabled:cursor-not-allowed",
-              industryDisabled && "bg-muted"
+              industryDisabled && "bg-muted/50 border-muted-foreground/20"
             )}
-            title={industryDisabled ? "Select a sector first to filter by industry" : undefined}
           >
             <option value="all">
               {industryDisabled ? "Select sector first" : "All Industries"}

@@ -160,12 +160,12 @@ export function EarningsTable({
         <div className="w-4 h-4 flex flex-col items-center justify-center">
           {sortIcon === null && (
             <>
-              <ChevronUp className="w-3 h-3 -mb-1 opacity-30" />
-              <ChevronDown className="w-3 h-3 opacity-30" />
+              <ChevronUp className="w-3 h-3 -mb-1 text-muted-foreground/30" />
+              <ChevronDown className="w-3 h-3 text-muted-foreground/30" />
             </>
           )}
-          {sortIcon === "asc" && <ChevronUp className="w-3 h-3 opacity-100" />}
-          {sortIcon === "desc" && <ChevronDown className="w-3 h-3 opacity-100" />}
+          {sortIcon === "asc" && <ChevronUp className="w-3 h-3 text-primary" />}
+          {sortIcon === "desc" && <ChevronDown className="w-3 h-3 text-primary" />}
         </div>
       </button>
     );
